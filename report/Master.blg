@@ -1,0 +1,18 @@
+This is BibTeX, Version 0.99dThe top-level auxiliary file: Master.aux
+I couldn't open style file bibtex/harvard.bst
+---line 5 of file Master.aux
+ : \bibstyle{bibtex/harvard
+ :                         }
+I'm skipping whatever remains of this command
+A level-1 auxiliary file: formalia/forside.aux
+A level-1 auxiliary file: formalia/titelblad.aux
+A level-1 auxiliary file: formalia/forord.aux
+I couldn't open database file bibtex/litteratur.bib
+---line 29 of file Master.aux
+ : \bibdata{bibtex/litteratur
+ :                           }
+I'm skipping whatever remains of this command
+I found no \citation commands---while reading file Master.aux
+I found no database files---while reading file Master.aux
+I found no style file---while reading file Master.aux
+(There were 5 error messages)
