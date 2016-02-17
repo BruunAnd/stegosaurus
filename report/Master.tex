@@ -11,7 +11,7 @@
 \cleardoublepage
 
 \chapter*{Preface}
-\include{formalia/preface}
+\input{formalia/preface}
 
 \cleardoublepage
 
@@ -24,19 +24,20 @@
 %%% MAIN REPORT %%%
 
 %% Introduction %%
-\section{Introduction}
-\include{intro/introduction}
+\chapter{Project description}
+\input{intro/description}
 
-\section{Project description}
-\include{intro/description}
+\part{Theory}
+\chapter{Introduction}
+\input{intro/introduction}
+
+\chapter{Analysis of technologies}
+\input{problemanalysis/technologies}
 
 \begingroup
  \raggedright
  \bibliography{bibtex/litterature}
 \endgroup
-
-\newpage
-\listoffixmes
 
 \appendix
 \clearforchapter
