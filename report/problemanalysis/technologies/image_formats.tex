@@ -1,6 +1,6 @@
 There are many different image file types to choose from these days, some easier to implement stenography on than others. In this section we will describe a few image file types along with a general explanation of why images are subject to stenography.
 
-JPEG File Interchange Format (JFIF) is an image format that is a common standard in most modern digital capture devices such as digital cameras and image software alike. JFIF uses the Joint Photographic Experts Group (JPEG) compression method (for more info about compression see chapter \ref{compression}).
+JPEG File Interchange Format (JFIF) is an image format that is a common standard in most modern digital capture devices such as digital cameras and image software alike. JFIF uses the Joint Photographic Experts Group (JPEG) compression method (for more info about compression see chapter (Tjek refference inden aflevering!!)\ref{compression}).
 
 Portable Network Group (PNG) is another image format widely used eight-bit paletted images because of the support for transparency for every palette color and 24-48 bit truecolor with and without alpha channels.
 
@@ -11,3 +11,6 @@ Graphical Interchange Format (GIF) is widely used to make small animations often
 All these image file types share some common principles, for example the use of pixels. Pixels are essential when talking about images and these pixels are also what is used to hide messages in the images. The difficult thing when hiding messages comes when altering the pixels because the pixels are essentially the visual representation of the image and therefore a pixel cannot be altered too much in order to avoid detection.
 
 Pixels are the smallest element in any digital image. They can be subdivided to make larger resolutions which means having more pixels within the same area. This would mean that each pixels would be divided into smaller pixels with the same value.\cite{ThePixel}
+
+Pixels consists of four parts. The combination of these parts are called ARGB which is short for Alpha, Red, Green and Blue respectively. Each of these parts is one byte and can be changed independently of each other. The values of ARGB can each range from 0 to 255 where the value of A is the transparency of the pixel, RGB is the brightness of the colors red, green and blue respectively. ARGB is different from RGB in that ARGB consists of four bytes rather than the three bytes RGB uses.\cite{ARGB}
+This is very useful when the intention is to use stenography as there will be additional bits in play.
