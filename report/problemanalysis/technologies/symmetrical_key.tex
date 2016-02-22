@@ -1,14 +1,14 @@
 Symmetrical key
-The principal behind the symmetrical key is that it is the same key that is used to encrypt and decrypt. This means that both the receiver and the sender have the same key and that both the encryption and decryption require the same key work. This method requires minimum five steps to work:
+The principal behind the symmetrical key is that it is the same key that is used to encrypt and decrypt. This means that both the receiver and the sender have the same key and that both the encryption and decryption require the same key work. This method have five key elements:
 \begin{enumerate}
 \item \textbf{Plain text:} The plain text is the original message, that the sender wants the recipient to receive.
-\item \textbf{Encryption:} The plain text gets encrypted using a encryption algorithm taking the key as input.
+\item \textbf{Encryption:} The plain text gets encrypted using a encryption algorithm taking the a secret key as input.
+\item \textbf{Secret Key:} This is the key that is used in the encryption. Changing the key will result in different output results.
 \item \textbf{Cipher text:} The encrypted text (cipher text), is transmitted to the recipient.
-\item \textbf{Decryption:} The cipher text gets decrypted using an decryption algorithm, taking the key as input.
-\item \textbf{Plain text:} The recipient has the original plain text.
+\item \textbf{Decryption:} The cipher text gets decrypted using an decryption algorithm, taking the same key as input.\cite{lecture9}
 \end{enumerate}
-
-The ha
-
-% http://www4.ncsu.edu/~kksivara/sfwr4c03/lectures/lecture9.pdf
-% 
+Since you only have one key, both the sender and the recipient have to know the key. This means that the key have to be distributed to all the recipient. This may prove to be equally as difficult at sending the message. \cite{birmingham} An example of this method is Caesars Cipher, where u have a key, which is the number of shifts, so if the key is 3, 'A' would equal 'D' after the encryption algorithm so:
+\textbf{Plain text:} This is the plain text
+would equal 
+\textbf{Cipher text:} Wklv lv wkh sodlq whaw
+after encryption. Using the key in the decrypt algorithm would have the plain text as output. This meant that if the message was intercepted it would be useless, since only the generals knew the key.\cite{caesar}
