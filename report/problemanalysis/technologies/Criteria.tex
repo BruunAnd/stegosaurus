@@ -1,0 +1,25 @@
+In order to evaluate a stenography technique it is necessary to establish what criteria such a technique should be evaluated against. Our choice is to define four different criteria as follows.
+\begin{enumerate}
+\item Robustness
+\item Capacity
+\item Imperceptibility
+\item Complexity
+\end{enumerate}
+
+\subsection{Robustness}
+It is important that once a message has been hidden in a carrier file it can then late be extracted. As such it is important that the hidden message can survive the journey from sender to recipient. Robustness is then defined as the messages ability to survive any conversions, compressions or transfers that might occur between sender and recipient.
+
+\subsection{Capacity}
+In order for a passed message to be meaningful it requires a certain length. While a simple yes/no which could be represented by a single bit might suffice for some messages, often a more sizeable message is needed such as a word, sentence or something even longer. As such it is important how much data can be hidden in a carrier file by the steganographic technique. Thus capacity is defined as the amount of data that can be hidden relative to the size of the carrier.
+
+\subsection{Imperceptibility}
+The point of steganography is to hide the existence of the hidden message. It is therefore important that it, ideally, should not be possible to detect the changes made to the carrier file, or at least be difficult to do so. This criteria can be further split according to the two major means of detection:
+\begin{itemize}
+\item Human imperceptibility
+\item Statistical imperceptibility
+\end{itemize}
+Human imperceptibility is the hidden messages ability to evade the human senses (e.g. sight and/or hearing) while statistical imperceptibility is the messages ability to evade statistical analysis. 
+
+\subsection{Complexity}
+While the effectiveness of the technique is important, so too is the efficiency. A technique capable of achieving complete imperceptibility for massive messages, while ensuring total robustness, would still be nigh useless if said technique would take years for each message to be embedded or extracted. Thus it is significant to consider how complex the used algorithm is. Complexity is thus defined as the amount of computational operations that needs to be carried out to embed a message i the carrier file.
+
