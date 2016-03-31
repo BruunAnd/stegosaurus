@@ -1,4 +1,4 @@
-﻿namespace Stegosaurus
+﻿namespace Stegosaurus.Forms
 {
     partial class FormMain
     {
