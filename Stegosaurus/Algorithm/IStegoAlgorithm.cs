@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using Stegosaurus.Carrier;
 
-namespace Stegosaurus
+namespace Stegosaurus.Algorithm
 {
     interface IStegoAlgorithm
     {
-
         CarrierMedia Carrier { get; set; }
 
         long ComputeBandwidth();

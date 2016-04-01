@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace Stegosaurus
+﻿namespace Stegosaurus.Carrier
 {
     abstract class CarrierMedia
     {
-        protected byte[] _innerArray;
+        public byte[] InnerArray { get; protected set; }
 
         public abstract void Encode();
         public abstract void Decode();
