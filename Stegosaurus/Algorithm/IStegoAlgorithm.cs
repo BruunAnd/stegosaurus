@@ -4,7 +4,7 @@ namespace Stegosaurus.Algorithm
 {
     interface IStegoAlgorithm
     {
-        CarrierMedia Carrier { get; set; }
+        ICarrierMedia CarrierMedia { get; set; }
 
         long ComputeBandwidth();
 
