@@ -2,7 +2,7 @@
 {
     interface ICarrierMedia
     {
-        byte[] Bitstream { get; set; }
+        byte[] ByteArray { get; set; }
 
         void Encode();
         void Decode();
