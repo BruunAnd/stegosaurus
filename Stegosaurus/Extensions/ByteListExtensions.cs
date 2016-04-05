@@ -38,8 +38,7 @@ namespace Stegosaurus.Extensions
         /// </summary>
         public static int ReadInt(this List<byte> _byteList, int _startIndex)
         {
-            byte[] intRange = _byteList.GetRange(_startIndex, sizeof (int)).ToArray();
-            return BitConverter.ToInt32(intRange, 0);
+            return BitConverter.ToInt32(_byteList.ReadBytes(_startIndex, sizeof(int)), 0);
         }
 
         /// <summary>
@@ -47,8 +46,18 @@ namespace Stegosaurus.Extensions
         /// </summary>
         public static short ReadShort(this List<byte> _byteList, int _startIndex)
         {
-            byte[] shortRange = _byteList.GetRange(_startIndex, sizeof(short)).ToArray();
-            return BitConverter.ToInt16(shortRange, 0);
+            return BitConverter.ToInt16(_byteList.ReadBytes(_startIndex, sizeof(short)), 0);
+        }
+
+        /// <summary>
+        /// Reads and returns byte array
+        /// </summary>
+        /// <param name="_byteList">List of bytes</param>
+        /// <param name="_startIndex">Starting point in list</param>
+        /// <param name="_count">Number of bytes to return</param>
+        public static byte[] ReadBytes(this List<byte> _byteList, int _startIndex, int _count)
+        {
+            return _byteList.GetRange(_startIndex, _count).ToArray();
         }
 
     }

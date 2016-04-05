@@ -48,6 +48,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Carrier\AudioCarrier.cs" />
+    <Compile Include="Carrier\AudioFormats\AudioFile.cs" />
+    <Compile Include="Carrier\AudioFormats\WaveFile.cs" />
+    <Compile Include="Carrier\ImageCarrier.cs" />
+    <Compile Include="Extensions\ByteListExtensions.cs" />
+    <Compile Include="Extensions\FileStreamExtensions.cs" />
     <Compile Include="InputFile.cs" />
     <Compile Include="Carrier\ICarrierMedia.cs" />
     <Compile Include="Forms\FormMain.cs">

@@ -8,13 +8,13 @@ namespace Stegosaurus.Carrier.AudioFormats
 {
     abstract class AudioFile
     {
-        public short NumberOfChannels { get; private set; }
-        public int SampleRate { get; private set; }
-        public int ByteRate { get; private set; }
-        public short BlockAlign { get; private set; }
-        public short BitsPerSample { get; private set; }
+        public short NumberOfChannels { get; protected set; }
+        public int SampleRate { get; protected set; }
+        public int ByteRate { get; protected set; }
+        public short BlockAlign { get; protected set; }
+        public short BitsPerSample { get; protected set; }
 
-        private byte[] innerData;
+        protected byte[] innerData;
 
         public AudioFile(string _filePath)
         {
@@ -23,13 +23,13 @@ namespace Stegosaurus.Carrier.AudioFormats
                 throw new ArgumentException("Input file does not exist.");
             }
 
-            Parse();
+            Parse(_filePath);
         }
 
         /// <summary>
         /// Parses an audio file by reading its headers and samples
         /// </summary>
-        public abstract void Parse();
+        public abstract void Parse(string _filePath);
 
         /// <summary>
         /// Reconstructs and returns the entire byte array of the file, including headers
