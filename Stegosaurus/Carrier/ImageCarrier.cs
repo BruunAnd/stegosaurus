@@ -33,9 +33,7 @@ namespace Stegosaurus.Carrier
         /// Gets file path to image file and sends image to constructer.
         /// </summary>
         /// <param name="_filePath"></param>
-        public ImageCarrier(string _filePath) 
-            : this(Image.FromFile(_filePath))
-        { }
+        public ImageCarrier(string _filePath) : this(Image.FromFile(_filePath)) { }
 
         /// <summary>
         /// Locks innerImage in system memory and returns instance of BitmapData
