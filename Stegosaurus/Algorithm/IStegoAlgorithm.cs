@@ -24,11 +24,14 @@ namespace Stegosaurus.Algorithm
     {
         /* CARRIERMEDIET INDEHOLDER DE FORSKELLIGE FILER SAMT BESKEDEN */
         ICarrierMedia CarrierMedia { get; set; }
-
-        /* BEREGN MÆNGDEN AF PLADS I CARRIERMEDIET */
+        /// <summary>
+        /// This algorithm returns the data capacity of the carrier media with the given stegoAlgorithm.
+        /// </summary>
+        /// <param name="CarrierMedia"></param>
+        /// <returns></returns>
         long ComputeBandwidth(ICarrierMedia CarrierMedia)
         {
-            return CarrierMedia.ByteArray.Length;
+            return CarrierMedia.ByteArray.Length / 8;
         }
 
         /* SKJUL FILER SAMT EN STRING I CARRIERMEDIET */
@@ -62,28 +65,6 @@ namespace Stegosaurus.Algorithm
                     }
 
                 }
-                
-            }
-
-            BitArray header = new BitArray(new int[] { messageInBits.Length });
-            for (int index = CarrierMedia.ByteArray.Length - (1 + (8 * sizeof(int))); index < CarrierMedia.ByteArray.Length; index++)
-            {
-                bool carrierBit;
-
-                carrierBit = (CarrierMedia.ByteArray[index] % 2) == 1;
-
-                if (carrierBit != header[index])
-                {
-                    if (carrierBit)
-                    {
-                        CarrierMedia.ByteArray[index]--;
-                    }
-                    else
-                    {
-                        CarrierMedia.ByteArray[index]++;
-                    }
-
-                }
 
             }
 
@@ -94,10 +75,35 @@ namespace Stegosaurus.Algorithm
             return new BitArray 
         }
 
-        /* HENT FILER SAMT EN STRING FRA CARRIERMEDIET */
+        /// <summary>
+        /// This method reads the last bits of each byte of the CarrierMedia to get the message.
+        /// 
+        /// </summary>
+        /// <param name="CarrierMedia"></param>
+        /// <returns></returns>
         StegoMessage Extract(ICarrierMedia CarrierMedia)
         {
+            BitArray[] messageSize = new BitArray[8 * sizeof(int)];
+            int messageSizeBytes, messageSizeBits, headerSize = 8 * sizeof(int);
+            bool carrierBit;
 
+            for (int index = 0; index < headerSize; index++)
+            {
+                messageSize[index] = (CarrierMedia.ByteArray[index] % 2) == 1;
+            }
+            
+            messageSize.CopyTo(messageSizeBytes, 0);
+            Byte[] stegoMessage = new byte[messageSizeBytes];
+            messageSizeBits = messageSizeBytes * 8;
+            BitArray[] message = new BitArray[messageSizeBits];
+
+            for (int index = headerSize; index < (messageSizeBits + headerSize); index++)
+            {
+                message[index] = (CarrierMedia.ByteArray[index] % 2) == 1;
+            }
+
+            message.CopyTo(stegoMessage, 0);
+            return stegoMessage;
         }
 }
 }
