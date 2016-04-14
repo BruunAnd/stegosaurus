@@ -11,7 +11,7 @@ namespace Stegosaurus
     /// - Decrypts
     /// - Decompresses
     /// </summary>
-    class StegoMessage
+    public class StegoMessage
     {
         public string TextMessage { get; private set; } = null;
         public List<InputFile> InputFiles { get; private set; } = null;
