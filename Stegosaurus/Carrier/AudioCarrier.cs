@@ -31,7 +31,7 @@ namespace Stegosaurus.Carrier
 
         public void Encode()
         {
-            throw new NotImplementedException();
+            audioFile.SetInnerData(ByteArray);
         }
 
         public void SaveToFile(string destination)

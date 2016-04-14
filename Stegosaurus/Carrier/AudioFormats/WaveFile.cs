@@ -87,7 +87,27 @@ namespace Stegosaurus.Carrier.AudioFormats
 
         public override byte[] ToArray()
         {
-            throw new NotImplementedException();
+            List<byte> returnBytes = new List<byte>();
+
+            // Add header data
+            returnBytes.AddRange(RiffHeader);
+            returnBytes.AddInt(ChunkSize);
+            returnBytes.AddRange(FormatHeader);
+            returnBytes.AddInt(FormatSubChunkSize);
+            returnBytes.AddShort(AudioFormat);
+            returnBytes.AddShort(NumberOfChannels);
+            returnBytes.AddInt(SampleRate);
+            returnBytes.AddInt(ByteRate);
+            returnBytes.AddShort(BlockAlign);
+            returnBytes.AddShort(BitsPerSample);
+            // TODO: Write remainder bytes?
+
+            // Write data
+            returnBytes.AddRange(DataHeader);
+            returnBytes.AddInt(DataSubChunkSize);
+            returnBytes.AddRange(innerData);
+
+            return returnBytes.ToArray();
         }
 
         
