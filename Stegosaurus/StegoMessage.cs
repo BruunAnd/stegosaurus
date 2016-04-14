@@ -18,8 +18,9 @@ namespace Stegosaurus
     public class StegoMessage
     {
         public string TextMessage { get; private set; } = null;
+        public byte[] EncryptionKey { get; private set; }
         public List<InputFile> InputFiles { get; private set; } = null;
-
+        
         //public byte[] Bytes { get; private set; } = null;
         //public List<byte> Bytes { get; private set; }
 
@@ -29,9 +30,9 @@ namespace Stegosaurus
         /// </summary>
         /// <param name="_textMessage"></param>
         /// <param name="_inputFiles"></param>
-        /// <param name="_encrypt"></param>
+        /// <param name="_encryptionKey"></param>
 
-        public StegoMessage(bool _encrypt, string _textMessage, List<InputFile>_inputFiles)
+        public StegoMessage(string _encryptionKey, string _textMessage, List<InputFile>_inputFiles)
         {
             if (_textMessage != null)
             {
@@ -41,17 +42,22 @@ namespace Stegosaurus
             {
                 InputFiles = _inputFiles;
             }
-            ToByteArray(_encrypt);
+            if (_encryptionKey != null)
+            {
+                EncryptionKey = Encoding.UTF8.GetBytes(_encryptionKey);
+            }
+            
+            ToByteArray();
         }
-        public StegoMessage(bool _encrypt, string _textMessage) : this(_encrypt, _textMessage, null) { }
-        public StegoMessage(bool _encrypt, List<InputFile>_inputFiles) : this(_encrypt, null, _inputFiles){ }
+        public StegoMessage(string _encryptionKey, string _textMessage) : this(_encryptionKey, _textMessage, null) { }
+        public StegoMessage(string _encryptionKey, List<InputFile>_inputFiles) : this(_encryptionKey, null, _inputFiles){ }
         
         /// <summary>
         /// Converts text and/or file(s) into a byte array and combines them using a List.
         /// First part of the byte array contains the message file(s).
         /// The last part of the byte array is the text message if there is any.
         /// </summary>
-        private byte[] ToByteArray(bool _encrypt)
+        public byte[] ToByteArray()
         {
             List<byte> byteList = new List<byte>();
 
@@ -96,22 +102,60 @@ namespace Stegosaurus
                 return memory.ToArray();
             }
         }
-        private byte[] Encrypt(byte[] _byteArray)
+        /// <summary>
+        /// http://stackoverflow.com/questions/7217627/is-there-anything-wrong-with-this-rc4-encryption-code-in-c-sharp
+        /// </summary>
+        /// <param name="_data">Data to encrypt</param>
+        /// <returns>Returns the cypher(the encrypted byte array)</returns>
+        private byte[] Encrypt(byte[] _data)
         {
+            int a, i, j, k, tmp, maxKeySize = 256;
+            int[] key, box;
+            byte[] cipher;
 
+            key = new int[maxKeySize];
+            box = new int[maxKeySize];
+            cipher = new byte[_data.Length];
+
+            for (i = 0; i < maxKeySize; i++)
+            {
+                key[i] = EncryptionKey[i % EncryptionKey.Length];
+                box[i] = i;
+            }
+            for (j = i = 0; i < maxKeySize; i++)
+            {
+                j = (j + box[i] + key[i]) % maxKeySize;
+                tmp = box[i];
+                box[i] = box[j];
+                box[j] = tmp;
+            }
+            for (a = j = i = 0; i < _data.Length; i++)
+            {
+                a++;
+                a %= maxKeySize;
+                j += box[a];
+                j %= maxKeySize;
+                tmp = box[a];
+                box[a] = box[j];
+                box[j] = tmp;
+                k = box[((box[a] + box[j]) % maxKeySize)];
+                cipher[i] = (byte)(_data[i] ^ k);
+            }
+            return cipher;
         }
-        
-        private byte[] Decrypt(byte[] _byteArray)
+
+        private byte[] Decrypt(byte[] _data)
         {
-
+            return Encrypt(_data);
         }
+
         private StegoMessage Decompress(byte[] _byteArray)
         {
-
+            return this;
         }
         private long GetCompressedSize()
         {
-            return;
+            return 1;
         }
     }
 }
