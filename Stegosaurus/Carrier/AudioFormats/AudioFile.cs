@@ -16,7 +16,7 @@ namespace Stegosaurus.Carrier.AudioFormats
 
         protected byte[] innerData;
 
-        public AudioFile(string _filePath)
+        protected AudioFile(string _filePath)
         {
             if (!File.Exists(_filePath))
             {
