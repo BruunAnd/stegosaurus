@@ -35,7 +35,7 @@ namespace Stegosaurus.Algorithm
         /// <param name="_message"></param>
         public void Embed(StegoMessage _message)
         {
-            BitArray messageInBits = new BitArray(_message.Bytes);
+            BitArray messageInBits = new BitArray(_message.ToByteArray());
             bool carrierBit;
             for (int index = 0; index < messageInBits.Length; index++)
             {
