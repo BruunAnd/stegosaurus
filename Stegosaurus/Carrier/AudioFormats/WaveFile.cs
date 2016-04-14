@@ -15,10 +15,10 @@ namespace Stegosaurus.Carrier.AudioFormats
         private static readonly byte[] DataHeader = { 100, 97, 116, 97 };
 
         // Wave-specific properties
-        public int ChunkSize { get; set; }
-        public int FormatSubChunkSize { get; set; }
-        public int DataSubChunkSize { get; set; }
-        public short AudioFormat { get; set; }
+        public int ChunkSize { get; private set; }
+        public int FormatSubChunkSize { get; private set; }
+        public int DataSubChunkSize { get; private set; }
+        public short AudioFormat { get; private set; }
 
         public WaveFile(string _filePath) : base(_filePath) { }
 
@@ -26,9 +26,10 @@ namespace Stegosaurus.Carrier.AudioFormats
         {
             using (FileStream fileStream = new FileStream(_filePath, FileMode.Open, FileAccess.Read))
             {
-                // Check if RIFF header is corret
+                // Check if RIFF header is correct
                 if (!fileStream.ReadBytes(RiffHeader.Length).SequenceEqual(RiffHeader))
                 {
+                    // TODO: Add user exception
                     throw new Exception("File does not contain RIFF header");
                 }
 
@@ -38,6 +39,7 @@ namespace Stegosaurus.Carrier.AudioFormats
                 // Checks if format header is correct
                 if (!fileStream.ReadBytes(FormatHeader.Length).SequenceEqual(FormatHeader))
                 {
+                    // TODO: Add user exception
                     throw new Exception("File does not contain format header");
                 }
 
@@ -71,6 +73,7 @@ namespace Stegosaurus.Carrier.AudioFormats
                 // Checks if data header is correct
                 if (!fileStream.ReadBytes(DataHeader.Length).SequenceEqual(DataHeader))
                 {
+                    // TODO: Add user exception
                     throw new Exception("File does not contain data header");
                 }
 
