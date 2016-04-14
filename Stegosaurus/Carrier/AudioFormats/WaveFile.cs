@@ -10,9 +10,9 @@ namespace Stegosaurus.Carrier.AudioFormats
     class WaveFile : AudioFile
     {
         // Constants
-        private static readonly byte[] RiffHeader = new byte[] {82, 73, 70, 70};
-        private static readonly byte[] FormatHeader = new byte[] { 87, 65, 86, 69, 102, 109, 116, 32 };
-        private static readonly byte[] DataHeader = new byte[] { 100, 97, 116, 97 };
+        private static readonly byte[] RiffHeader = {82, 73, 70, 70};
+        private static readonly byte[] FormatHeader = { 87, 65, 86, 69, 102, 109, 116, 32 };
+        private static readonly byte[] DataHeader = { 100, 97, 116, 97 };
 
         // Wave-specific properties
         public int ChunkSize { get; set; }
