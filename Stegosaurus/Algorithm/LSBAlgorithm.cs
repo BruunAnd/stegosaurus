@@ -1,58 +1,62 @@
 ﻿using System;
 using Stegosaurus.Carrier;
 using System.Collections;
+using System.Linq;
 using Stegosaurus.Exceptions;
 
 namespace Stegosaurus.Algorithm
 {
     public class LSBAlgorithm : IStegoAlgorithm
     {
+        private static readonly byte[] LsbSignature = { 0x6C, 0x73, 0x62 };
+
         public ICarrierMedia CarrierMedia { get; set; }
 
         public string Name => "LSB";
 
-        public byte[] Key { get; set; }
+        public int Seed => Key?.GetHashCode() ?? 0;
 
-        public int Seed
-        {
-            get
-            {
-                return Key == null ? 0 : Key.GetHashCode();
-            }
-        }
+        public byte[] Key { get; set; }
 
         public void Embed(StegoMessage _message)
         {
-            // Convert byteArray to bitArray
-            BitArray messageInBits = new BitArray(_message.ToByteArray(Key));
+            // Combine LsbSignature with byteArray and convert to bitArray
+            BitArray messageInBits = new BitArray(LsbSignature.Concat(_message.ToByteArray(Key)).ToArray());
 
             // Generate random sequence of integers
             RandomNumberList numberList = new RandomNumberList(Seed, CarrierMedia.ByteArray.Length);
             numberList.AddElements(messageInBits.Length);
 
             // Iterate through all bits
-            bool carrierBit;
             for (int index = 0; index < messageInBits.Length; index++)
             {
                 int byteArrayIndex = numberList.Next;
 
                 // Get the least significant bit of current position
-                carrierBit = (CarrierMedia.ByteArray[byteArrayIndex] % 2) == 1;
+                bool carrierBit = (CarrierMedia.ByteArray[byteArrayIndex] % 2) == 1;
 
-                // Change value of byte if LSB does not correspond
-                if (carrierBit != messageInBits[index])
-                {
-                    if (carrierBit)
-                        CarrierMedia.ByteArray[byteArrayIndex]--;
-                    else
-                        CarrierMedia.ByteArray[byteArrayIndex]++;
-                }
+                // Continue if carrierBit corresponds to required bit
+                if (carrierBit == messageInBits[index])
+                    continue;
+
+                // Change value
+                if (carrierBit)
+                    CarrierMedia.ByteArray[byteArrayIndex]--;
+                else
+                    CarrierMedia.ByteArray[byteArrayIndex]++;
             }
         }
 
         public StegoMessage Extract()
         {
             RandomNumberList numberList = new RandomNumberList(Seed, CarrierMedia.ByteArray.Length);
+
+            // Generate random numbers for LsbSignature
+            numberList.AddElements(LsbSignature.Length * 8);
+
+            // Read bytes and verify LsbSignature
+            if (!ReadBytes(numberList, LsbSignature.Length).SequenceEqual(LsbSignature))
+                throw new StegoAlgorithmException("LSB Signature is invalid.");
 
             // Generate 4 * 8 random numbers (one for every bit in the header)
             numberList.AddElements(4 * 8);
@@ -69,7 +73,7 @@ namespace Stegosaurus.Algorithm
 
         public long ComputeBandwidth()
         {
-            return CarrierMedia.ByteArray.Length / 8;
+            return (CarrierMedia.ByteArray.Length - LsbSignature.Length) / 8;
         }
 
         private byte[] ReadBytes(RandomNumberList numberList, int count)

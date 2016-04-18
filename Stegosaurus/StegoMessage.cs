@@ -11,7 +11,7 @@ namespace Stegosaurus
 {
     public class StegoMessage
     {
-        public string TextMessage { get; set; } = null;
+        public string TextMessage { get; set; }
         public List<InputFile> InputFiles { get; } = new List<InputFile>();
 
         public StegoMessage()
