@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using Stegosaurus.Extensions;
+using Stegosaurus.Exceptions;
 
 namespace Stegosaurus.Carrier.AudioFormats
 {
@@ -29,8 +30,7 @@ namespace Stegosaurus.Carrier.AudioFormats
                 // Check if RIFF header is correct
                 if (!fileStream.ReadBytes(RiffHeader.Length).SequenceEqual(RiffHeader))
                 {
-                    // TODO: Add user exception
-                    throw new Exception("File does not contain RIFF header");
+                    throw new InvalidWaveFileException("Could not read RIFF header.", _filePath);
                 }
 
                 // Read chunk size
@@ -40,7 +40,7 @@ namespace Stegosaurus.Carrier.AudioFormats
                 if (!fileStream.ReadBytes(FormatHeader.Length).SequenceEqual(FormatHeader))
                 {
                     // TODO: Add user exception
-                    throw new Exception("File does not contain format header");
+                    throw new InvalidWaveFileException("File does not contain format header.", _filePath);
                 }
 
                 // Read sub chunk size
@@ -67,6 +67,7 @@ namespace Stegosaurus.Carrier.AudioFormats
                 // If format block is larger than 16 bytes, read FormatSubChunkSize - 16 bytes
                 if (FormatSubChunkSize > 16)
                 {
+                    // TODO: Fix for all wave files
                     fileStream.ReadBytes(FormatSubChunkSize - 16);
                 }
 
@@ -74,7 +75,7 @@ namespace Stegosaurus.Carrier.AudioFormats
                 if (!fileStream.ReadBytes(DataHeader.Length).SequenceEqual(DataHeader))
                 {
                     // TODO: Add user exception
-                    throw new Exception("File does not contain data header");
+                    throw new InvalidWaveFileException("File does not contain data header.", _filePath);
                 }
 
                 // Reads data sub chunk size

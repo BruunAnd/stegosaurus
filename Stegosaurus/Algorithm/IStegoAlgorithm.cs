@@ -4,19 +4,29 @@ using System.Collections;
 
 namespace Stegosaurus.Algorithm
 {
-    interface IStegoAlgorithm
+    public interface IStegoAlgorithm
     {
+        /// <summary>
+        /// Returns the name of the algorithm
+        /// </summary>
+        string Name { get; }
 
-        /* CARRIERMEDIET INDEHOLDER DE FORSKELLIGE FILER SAMT BESKEDEN */
-        ICarrierMedia CarrierMedia { get; set; }
+        // Returns the CarrierMedia used by this instance of the algorithm
+        ICarrierMedia CarrierMedia { get; }
 
-        /* BEREGN MÆNGDEN AF PLADS I CARRIERMEDIET */
+        /// <summary>
+        /// Returns the data capacity of the carrier media with the given StegoAlgorithm
+        /// </summary>
         long ComputeBandwidth(ICarrierMedia CarrierMedia);
 
-        /* SKJUL FILER SAMT EN STRING I CARRIERMEDIET */
+        /// <summary>
+        /// Embeds a StegoMessage in the public ByteArray of the CarrierMedia
+        /// </summary>
         void Embed(StegoMessage message);
 
-        /* HENT FILER SAMT EN STRING FRA CARRIERMEDIET */
-        StegoMessage Extract(ICarrierMedia CarrierMedia);
+        /// <summary>
+        /// Returns a StegoMessage by extracting from the public ByteArray of the CarrierMedia
+        /// </summary>
+        StegoMessage Extract();
     }
 }
