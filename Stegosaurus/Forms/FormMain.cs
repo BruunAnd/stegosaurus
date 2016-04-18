@@ -12,6 +12,8 @@ namespace Stegosaurus.Forms
 {
     public partial class FormMain : Form
     {
+        StegoMessage stegoMessage = new StegoMessage("", new List<InputFile>());
+
         public FormMain()
         {
             InitializeComponent();
@@ -25,13 +27,14 @@ namespace Stegosaurus.Forms
         private void panel1_DragDrop(object sender, DragEventArgs e)
         {
             string[] inputFiles = (string[]) e.Data.GetData(DataFormats.FileDrop);
-            List<InputFile> inputFileList = new List<InputFile>();
             foreach (string inputFilePath in inputFiles)
             {
-                inputFileList.Add(new InputFile(inputFilePath));
+                stegoMessage.InputFiles.Add(new InputFile(inputFilePath));
             }
 
+            label1.Text = string.Join("\n", stegoMessage.InputFiles.Select<InputFile, string>(inputFile => inputFile.Name));
 
         }
+        
     }
 }
