@@ -49,11 +49,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Algorithm\IStegoAlgorithm.cs" />
     <Compile Include="Algorithm\PlaceholderAlgorithm.cs" />
     <Compile Include="Carrier\AudioCarrier.cs" />
     <Compile Include="Carrier\AudioFormats\AudioFile.cs" />
     <Compile Include="Carrier\AudioFormats\WaveFile.cs" />
     <Compile Include="Carrier\ImageCarrier.cs" />
+    <Compile Include="Exceptions\InvalidFileException.cs" />
+    <Compile Include="Exceptions\InvalidWaveFileException.cs" />
+    <Compile Include="Exceptions\StegosaurusException.cs" />
     <Compile Include="Extensions\ByteListExtensions.cs" />
     <Compile Include="Extensions\StreamExtensions.cs" />
     <Compile Include="InputFile.cs" />

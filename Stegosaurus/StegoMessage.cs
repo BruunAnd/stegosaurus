@@ -20,10 +20,19 @@ namespace Stegosaurus
         public string TextMessage { get; private set; } = null;
         public byte[] EncryptionKey { get; private set; }
         public List<InputFile> InputFiles { get; private set; } = null;
-        
+
+        /// <summary>
+        /// Create instance of StegoMessage from a byteArray
+        /// </summary>
+        public StegoMessage(byte[] _byteArray)
+        {
+            // TODO: Decode
+        }
+
         //public byte[] Bytes { get; private set; } = null;
         //public List<byte> Bytes { get; private set; }
 
+        
         /// <summary>
         /// Sets the properties "TextMessage" and "InputFiles".
         /// Calls method: ToByteArray()
@@ -31,26 +40,25 @@ namespace Stegosaurus
         /// <param name="_textMessage"></param>
         /// <param name="_inputFiles"></param>
         /// <param name="_encryptionKey"></param>
-
         public StegoMessage(string _encryptionKey, string _textMessage, List<InputFile>_inputFiles)
         {
-            if (_textMessage != null)
-            {
-                TextMessage = _textMessage;
-            }
-            if (_inputFiles != null)
-            {
-                InputFiles = _inputFiles;
-            }
-            if (_encryptionKey != null)
-            {
-                EncryptionKey = Encoding.UTF8.GetBytes(_encryptionKey);
-            }
+            TextMessage = _textMessage;
+            InputFiles = _inputFiles;
+            EncryptionKey = Encoding.UTF8.GetBytes(_encryptionKey);
             
+            // why call this?
             ToByteArray();
         }
-        public StegoMessage(string _encryptionKey, string _textMessage) : this(_encryptionKey, _textMessage, null) { }
-        public StegoMessage(string _encryptionKey, List<InputFile>_inputFiles) : this(_encryptionKey, null, _inputFiles){ }
+
+        public StegoMessage(string _encryptionKey, string _textMessage)
+            : this(_encryptionKey, _textMessage, null)
+        {
+        }
+
+        public StegoMessage(string _encryptionKey, List<InputFile>_inputFiles)
+            : this(_encryptionKey, null, _inputFiles)
+        {
+        }
         
         /// <summary>
         /// Converts text and/or file(s) into a byte array and combines them using a List.
@@ -74,7 +82,7 @@ namespace Stegosaurus
                     byteList.AddRange(Encoding.UTF8.GetBytes(file.Name));
                 }
             }
-            if (TextMessage != null)
+            if (!(string.IsNullOrEmpty(TextMessage)))
             {
                 byteList.AddRange(BitConverter.GetBytes(Encoding.UTF8.GetBytes(TextMessage).Length));
                 byteList.AddRange(Encoding.UTF8.GetBytes(TextMessage));
@@ -117,11 +125,13 @@ namespace Stegosaurus
             box = new int[maxKeySize];
             cipher = new byte[_data.Length];
 
+            // Copies EncrytionKey, into int[] Key, byte by byte, and repeats the process up to maxKeySize,  to ensure the same key lenght.
             for (i = 0; i < maxKeySize; i++)
             {
                 key[i] = EncryptionKey[i % EncryptionKey.Length];
                 box[i] = i;
             }
+            // Swaps data elements in int[] box, by exchanging int[i] with int[j].
             for (j = i = 0; i < maxKeySize; i++)
             {
                 j = (j + box[i] + key[i]) % maxKeySize;
@@ -129,6 +139,7 @@ namespace Stegosaurus
                 box[i] = box[j];
                 box[j] = tmp;
             }
+            // Further swaps elements in int[] box, and assigns them to byte[] cipher which is returned to method call.
             for (a = j = i = 0; i < _data.Length; i++)
             {
                 a++;
@@ -143,7 +154,7 @@ namespace Stegosaurus
             }
             return cipher;
         }
-
+        // Runs the encryption algorithm to decrypt the message.
         private byte[] Decrypt(byte[] _data)
         {
             return Encrypt(_data);
