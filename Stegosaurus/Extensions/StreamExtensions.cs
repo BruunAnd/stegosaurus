@@ -49,6 +49,9 @@ namespace Stegosaurus.Extensions
         /// </summary>
         public static InputFile ReadInputFile(this Stream _stream)
         {
+            string fileName = _stream.ReadString();
+            int lengthOfContent = _stream.ReadInt();
+            byte[] content = _stream.ReadBytes(lengthOfContent);
             return new InputFile(_stream.ReadString(), _stream.ReadBytes(_stream.ReadInt()));
         }
     }

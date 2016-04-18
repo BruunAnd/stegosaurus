@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.IO;
 using System.IO.Compression;
+using Stegosaurus.Extensions;
 
 namespace Stegosaurus
 {
@@ -53,20 +54,22 @@ namespace Stegosaurus
         /// </summary>
         public StegoMessage(byte[] _byteArray)
         {
-            byte[] temp = Decrypt(Decompress(_byteArray));
+            byte[] temp = Decompress(_byteArray);
         }
 
         public void Decode(byte[] _byteArray)
         {
-            int numberOfFiles = _byteArray[0];
-
-            for(int i = 0; i < numberOfFiles; i++)
+            using (MemoryStream tempStream = new MemoryStream(_byteArray))
             {
-                for (int j = 0; j < _byteArray[1]; j++)
+                // Read input files
+                int numberOfFiles = tempStream.ReadInt();
+                for (int i = 0; i < numberOfFiles; i++)
                 {
-                    
+                    InputFiles.Add(tempStream.ReadInputFile());
                 }
-                
+
+                // Read text message
+                TextMessage = tempStream.ReadString();
             }
         }
         /// <summary>
@@ -88,6 +91,8 @@ namespace Stegosaurus
             {
                 byteList.AddRange(BitConverter.GetBytes(Encoding.UTF8.GetBytes(file.Name).Length));
                 byteList.AddRange(Encoding.UTF8.GetBytes(file.Name));
+                byteList.AddRange(BitConverter.GetBytes(file.Content.Length));
+                byteList.AddRange(file.Content);
             }
             
             // TODO - Add extention method.
