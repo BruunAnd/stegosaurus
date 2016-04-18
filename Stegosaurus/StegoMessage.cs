@@ -74,7 +74,7 @@ namespace Stegosaurus
                     byteList.AddRange(Encoding.UTF8.GetBytes(file.Name));
                 }
             }
-            if (TextMessage != null)
+            if (!(string.IsNullOrEmpty(TextMessage)))
             {
                 byteList.AddRange(BitConverter.GetBytes(Encoding.UTF8.GetBytes(TextMessage).Length));
                 byteList.AddRange(Encoding.UTF8.GetBytes(TextMessage));
@@ -117,11 +117,13 @@ namespace Stegosaurus
             box = new int[maxKeySize];
             cipher = new byte[_data.Length];
 
+            // Copies EncrytionKey, into int[] Key, byte by byte, and repeats the process up to maxKeySize,  to ensure the same key lenght.
             for (i = 0; i < maxKeySize; i++)
             {
                 key[i] = EncryptionKey[i % EncryptionKey.Length];
                 box[i] = i;
             }
+            // Swaps data elements in int[] box, by exchanging int[i] with int[j].
             for (j = i = 0; i < maxKeySize; i++)
             {
                 j = (j + box[i] + key[i]) % maxKeySize;
@@ -129,6 +131,7 @@ namespace Stegosaurus
                 box[i] = box[j];
                 box[j] = tmp;
             }
+            // Further swaps elements in int[] box, and assigns them to byte[] cipher which is returned to method call.
             for (a = j = i = 0; i < _data.Length; i++)
             {
                 a++;
@@ -143,7 +146,7 @@ namespace Stegosaurus
             }
             return cipher;
         }
-
+        // Runs the encryption algorithm to decrypt the message.
         private byte[] Decrypt(byte[] _data)
         {
             return Encrypt(_data);
