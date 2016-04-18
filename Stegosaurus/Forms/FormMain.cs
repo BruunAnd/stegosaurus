@@ -12,7 +12,7 @@ namespace Stegosaurus.Forms
 {
     public partial class FormMain : Form
     {
-        StegoMessage stegoMessage = new StegoMessage("", new List<InputFile>());
+        StegoMessage stegoMessage = new StegoMessage();
 
         public FormMain()
         {

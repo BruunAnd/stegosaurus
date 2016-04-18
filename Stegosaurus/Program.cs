@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using Stegosaurus.Algorithm;
 using Stegosaurus.Carrier;
+using System.Text;
 
 namespace Stegosaurus
 {
@@ -17,10 +18,11 @@ namespace Stegosaurus
         [STAThread]
         static void Main()
         {
-            /*File.Delete("simon.png");
+            File.Delete("simon.png");
             Type test = typeof(LSBAlgorithm);
             IStegoAlgorithm algo = (IStegoAlgorithm) Activator.CreateInstance(test);
             algo.CarrierMedia = new ImageCarrier("blank.png");
+            algo.Key = Encoding.UTF8.GetBytes("hey");
 
             StegoMessage simon = new StegoMessage();
             simon.InputFiles.Add(new InputFile("in.txt"));
@@ -32,7 +34,7 @@ namespace Stegosaurus
 
             algo.CarrierMedia = new ImageCarrier("simon.png");
             var outs = algo.Extract();
-            MessageBox.Show(outs.TextMessage);*/
+            MessageBox.Show(outs.TextMessage);
 
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);

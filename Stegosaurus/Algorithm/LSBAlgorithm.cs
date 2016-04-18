@@ -24,7 +24,7 @@ namespace Stegosaurus.Algorithm
         public void Embed(StegoMessage _message)
         {
             // Convert byteArray to bitArray
-            BitArray messageInBits = new BitArray(_message.ToByteArray());
+            BitArray messageInBits = new BitArray(_message.ToByteArray(Key));
 
             // Generate random sequence of integers
             RandomNumberList numberList = new RandomNumberList(Seed, CarrierMedia.ByteArray.Length);
@@ -64,7 +64,7 @@ namespace Stegosaurus.Algorithm
             numberList.AddElements(dataSize * 8);
 
             // Return new instance from read data
-            return new StegoMessage(ReadBytes(numberList, dataSize));
+            return new StegoMessage(ReadBytes(numberList, dataSize), Key);
         }
 
         public long ComputeBandwidth()
