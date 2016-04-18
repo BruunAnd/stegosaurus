@@ -23,9 +23,7 @@ namespace Stegosaurus
         public List<InputFile> InputFiles { get; } = new List<InputFile>();
 
         public StegoMessage()
-        {
-            InputFiles = new List<InputFile>();
-        }
+        { }
 
         /// <summary>
         /// Sets the properties "TextMessage" and "InputFiles".
@@ -36,6 +34,11 @@ namespace Stegosaurus
             EncryptionKey = Encoding.UTF8.GetBytes(_encryptionKey);
         }
 
+        public StegoMessage(string _encryptionKey, byte[] _inputFileByteArray)
+        {
+            EncryptionKey = Encoding.UTF8.GetBytes(_encryptionKey);
+            Decode(Decrypt(Decompress(_inputFileByteArray)));
+        }
         /// <summary>
         /// Create instance of StegoMessage from a byteArray
         /// </summary>
