@@ -18,51 +18,33 @@ namespace Stegosaurus
     /// </summary>
     public class StegoMessage
     {
-        public string TextMessage { get; private set; } = null;
+        public string TextMessage { get; set; } = null;
         public byte[] EncryptionKey { get; private set; }
-        public List<InputFile> InputFiles { get; private set; } = null;
-
-        //public byte[] Bytes { get; private set; } = null;
-        //public List<byte> Bytes { get; private set; }
-
+        public List<InputFile> InputFiles { get; } = new List<InputFile>();
 
         public StegoMessage()
         {
-
+            InputFiles = new List<InputFile>();
         }
 
         /// <summary>
         /// Sets the properties "TextMessage" and "InputFiles".
-        /// Calls method: ToByteArray()
         /// </summary>
-        /// <param name="_textMessage"></param>
-        /// <param name="_inputFiles"></param>
-        /// <param name="_encryptionKey"></param>
-        public StegoMessage(string _encryptionKey, string _textMessage, List<InputFile>_inputFiles)
+        public StegoMessage(string _encryptionKey, string _textMessage)
         {
             TextMessage = _textMessage;
-            InputFiles = _inputFiles;
             EncryptionKey = Encoding.UTF8.GetBytes(_encryptionKey);
         }
 
-        public StegoMessage(string _encryptionKey, string _textMessage)
-            : this(_encryptionKey, _textMessage, null)
-        {
-        }
-
-        public StegoMessage(string _encryptionKey, List<InputFile>_inputFiles)
-            : this(_encryptionKey, null, _inputFiles)
-        {
-        }
         /// <summary>
         /// Create instance of StegoMessage from a byteArray
         /// </summary>
         public StegoMessage(byte[] _byteArray)
         {
-            byte[] temp = Decompress(_byteArray);
+            Decode(Decompress(_byteArray));
         }
 
-        public void Decode(byte[] _byteArray)
+        private void Decode(byte[] _byteArray)
         {
             using (MemoryStream tempStream = new MemoryStream(_byteArray))
             {
@@ -82,16 +64,14 @@ namespace Stegosaurus
         {
             using (MemoryStream tempStream = new MemoryStream())
             {
-                using (GZipStream zipStream = new GZipStream(tempStream, CompressionMode.Compress, true))
-                {
-                    // Write input files
-                    zipStream.Write(InputFiles.Count);
-                    foreach (InputFile inputFile in InputFiles)
-                        zipStream.Write(inputFile);
+                // Write input files
+                tempStream.Write(InputFiles.Count);
+                foreach (InputFile inputFile in InputFiles)
+                    tempStream.Write(inputFile);
 
-                    // Write text message
-                    zipStream.Write(TextMessage);
-                }
+                // Write text message
+                tempStream.Write(TextMessage);
+
                 return tempStream.ToArray();
             }
         }
@@ -103,17 +83,17 @@ namespace Stegosaurus
         /// </summary>
         public byte[] ToByteArray()
         {
-            List<byte> byteList = new List<byte>();
-
             // Encode and compress array
             byte[] compressedArray = Compress(Encode());
 
-            // Add array 
-            byteList.AddRange(BitConverter.GetBytes(compressedArray.Length));
-            byteList.AddRange(compressedArray);
+            // Combine array and length header
+            byte[] buffer = new byte[compressedArray.Length + sizeof(int)];
+            Buffer.BlockCopy(BitConverter.GetBytes(compressedArray.Length), 0, buffer, 0, sizeof(int));
+            Buffer.BlockCopy(compressedArray, 0, buffer, sizeof(int), compressedArray.Length);
 
-            return byteList.ToArray();
+            return buffer;
         }
+
         /// <summary>
         /// http://www.dotnetperls.com/compress
         /// Gets input from Bytes[] and compresses the data, and returns it to Bytes[] in compressed form.
@@ -127,9 +107,11 @@ namespace Stegosaurus
                 {
                     gzip.Write(_bytes, 0, _bytes.Length);
                 }
+
                 return memory.ToArray();
             }
         }
+
         /// <summary>
         /// http://stackoverflow.com/questions/7217627/is-there-anything-wrong-with-this-rc4-encryption-code-in-c-sharp
         /// </summary>
@@ -174,19 +156,20 @@ namespace Stegosaurus
             }
             return cipher;
         }
+
         // Runs the encryption algorithm to decrypt the message.
         // TODO decrypt key as parameter?
         private byte[] Decrypt(byte[] _data)
         {
             return Encrypt(_data);
         }
+        
         /// <summary>
         /// http://www.dotnetperls.com/decompress
         /// TODO read up on CompressionMode and GZipStream
         /// </summary>
         /// <param name="_byteArray"></param>
         /// <returns></returns>
-
         private byte[] Decompress(byte[] _byteArray)
         {
             using (GZipStream stream = new GZipStream(new MemoryStream(_byteArray), CompressionMode.Decompress))
@@ -209,6 +192,7 @@ namespace Stegosaurus
                 }
             }
         }
+
         private long GetCompressedSize()
         {
             return ToByteArray().Length;
