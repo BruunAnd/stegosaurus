@@ -4,6 +4,8 @@ using System.Text;
 using System.IO;
 using System.IO.Compression;
 using Stegosaurus.Extensions;
+using System.Linq;
+using Stegosaurus.Exceptions;
 
 namespace Stegosaurus
 {
@@ -76,11 +78,11 @@ namespace Stegosaurus
                 compressedArray = Encrypt(compressedArray, _encryptionKey);
 
             // Combine array and length header
-            byte[] buffer = new byte[compressedArray.Length + sizeof(int)];
-            Buffer.BlockCopy(BitConverter.GetBytes(compressedArray.Length), 0, buffer, 0, sizeof(int));
-            Buffer.BlockCopy(compressedArray, 0, buffer, sizeof(int), compressedArray.Length);
+            List<byte> returnList = new List<byte>();
+            returnList.AddRange(BitConverter.GetBytes(compressedArray.Length));
+            returnList.AddRange(compressedArray);
 
-            return buffer;
+            return returnList.ToArray();
         }
 
         /// <summary>

@@ -21,7 +21,9 @@ namespace Stegosaurus.Carrier.AudioFormats
         public int DataSubChunkSize { get; private set; }
         public short AudioFormat { get; private set; }
 
-        public WaveFile(string _filePath) : base(_filePath) { }
+        public WaveFile(string _filePath) : base(_filePath)
+        {
+        }
 
         public override void Parse(string _filePath)
         {

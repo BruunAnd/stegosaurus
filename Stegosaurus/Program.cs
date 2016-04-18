@@ -18,24 +18,23 @@ namespace Stegosaurus
         [STAThread]
         static void Main()
         {
-            File.Delete("simon.png");
-            Type test = typeof(LSBAlgorithm);
+            /*Type test = typeof(LSBAlgorithm);
             IStegoAlgorithm algo = (IStegoAlgorithm) Activator.CreateInstance(test);
-            algo.CarrierMedia = new ImageCarrier("blank.png");
-            algo.Key = Encoding.UTF8.GetBytes("hey");
+            algo.CarrierMedia = new AudioCarrier("geek.wav");
+            algo.Key = Encoding.UTF8.GetBytes("pleb theis");
 
             StegoMessage simon = new StegoMessage();
             simon.InputFiles.Add(new InputFile("in.txt"));
             simon.TextMessage = "top kek simon";
             algo.Embed(simon);
 
-            algo.CarrierMedia.SaveToFile("simon.png");
+            algo.CarrierMedia.SaveToFile("kek.wav");
 
 
-            algo.CarrierMedia = new ImageCarrier("simon.png");
+            algo.CarrierMedia = new AudioCarrier("kek.wav");
             var outs = algo.Extract();
             MessageBox.Show(outs.TextMessage);
-
+            */
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new FormMain());
