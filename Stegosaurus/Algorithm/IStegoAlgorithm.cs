@@ -5,17 +5,24 @@ namespace Stegosaurus.Algorithm
     public interface IStegoAlgorithm
     {
         /// <summary>
-        /// Returns the name of the algorithm
+        /// Get the name of the algorithm
         /// </summary>
         string Name { get; }
 
-        // Returns the CarrierMedia used by this instance of the algorithm
-        ICarrierMedia CarrierMedia { get; }
+        /// <summary>
+        /// Get or set encryption key (optional) 
+        /// </summary>
+        byte[] Key { get; set; }
+
+        /// <summary>
+        /// Returns the CarrierMedia used by this instance of the algorithm
+        /// </summary>
+        ICarrierMedia CarrierMedia { get; set; }
 
         /// <summary>
         /// Returns the data capacity of the carrier media with the given StegoAlgorithm
         /// </summary>
-        long ComputeBandwidth(ICarrierMedia CarrierMedia);
+        long ComputeBandwidth();
 
         /// <summary>
         /// Embeds a StegoMessage in the public ByteArray of the CarrierMedia

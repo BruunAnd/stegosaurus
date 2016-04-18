@@ -26,5 +26,10 @@ namespace Stegosaurus
             // Set content
             Content = File.ReadAllBytes(_filePath);
         }
+
+        public void SaveTo(string _destination)
+        {
+            File.WriteAllBytes(_destination, Content);
+        }
     }
 }
