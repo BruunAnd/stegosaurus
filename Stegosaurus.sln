@@ -1,11 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.24720.0
+VisualStudioVersion = 14.0.23107.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Stegosaurus", "Stegosaurus.csproj", "{7918B181-6A70-430E-8BFB-A7C2944C4822}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Stegosaurus", "Stegosaurus\Stegosaurus.csproj", "{7918B181-6A70-430E-8BFB-A7C2944C4822}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StegosaurusTest", "..\StegosaurusTest\StegosaurusTest.csproj", "{FF2E70E2-C067-4569-944E-D2C8142798BC}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StegosaurusTest", "StegosaurusTest\StegosaurusTest.csproj", "{FF2E70E2-C067-4569-944E-D2C8142798BC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

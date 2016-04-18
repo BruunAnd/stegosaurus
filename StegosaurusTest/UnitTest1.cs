@@ -10,13 +10,12 @@ namespace StegosaurusTest
     [TestClass]
     public class UnitTest1
     {
-        List<InputFile> InputFiles = new List<InputFile>();
-        InputFiles.Add = 
-        String TextMessage = "Input testing, Converts to bytes";
 
         [TestMethod]
         public void ToByteArray_ConvertToByte_True()
         {
+            List<InputFile> InputFiles = new List<InputFile>();
+            String TextMessage = "Input testing, Converts to bytes";
             List<byte> byteList = new List<byte>();
 
             // Iterates over all files in InputFiles (and the number of files), or a TextMessage, 
