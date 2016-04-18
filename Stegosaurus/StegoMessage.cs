@@ -66,10 +66,7 @@ namespace Stegosaurus
                 {
                     
                 }
-                for (int j = _byteArray[_byteArray[1]]; j < _byteArray[_byteArray[1] + 1]; j++)
-                {
-
-                }
+                
             }
         }
         /// <summary>
