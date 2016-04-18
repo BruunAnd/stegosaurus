@@ -49,10 +49,61 @@ namespace Stegosaurus.Extensions
         /// </summary>
         public static InputFile ReadInputFile(this Stream _stream)
         {
-            string fileName = _stream.ReadString();
-            int lengthOfContent = _stream.ReadInt();
-            byte[] content = _stream.ReadBytes(lengthOfContent);
             return new InputFile(_stream.ReadString(), _stream.ReadBytes(_stream.ReadInt()));
+        }
+
+        /// <summary>
+        /// Write buffer to stream
+        /// </summary>
+        public static void Write(this Stream _stream, byte[] _buffer)
+        {
+            _stream.Write(_buffer, 0, _buffer.Length);
+        }
+
+        /// <summary>
+        /// Write int to stream
+        /// </summary>
+        public static void Write(this Stream _stream, int _value)
+        {
+            _stream.Write(BitConverter.GetBytes(_value));
+        }
+
+        /// <summary>
+        /// Write short to stream
+        /// </summary>
+        public static void Write(this Stream _stream, short _value)
+        {
+            _stream.Write(BitConverter.GetBytes(_value));
+        }
+
+        /// <summary>
+        /// Write string to stream
+        /// </summary>
+        public static void Write(this Stream _stream, string _value)
+        {
+            if (string.IsNullOrEmpty(_value))
+            {
+                _stream.Write(0);
+            }
+            else
+            {
+                byte[] encodedString = Encoding.UTF8.GetBytes(_value);
+                _stream.Write(encodedString.Length);
+                _stream.Write(encodedString);
+            }
+        }
+
+        /// <summary>
+        /// Write InputFile to stream
+        /// </summary>
+        public static void Write(this Stream _stream, InputFile _value)
+        {
+            // Write name
+            _stream.Write(_value.Name);
+
+            // Write content with length
+            _stream.Write(_value.Content.Length);
+            _stream.Write(_value.Content);
         }
     }
 }

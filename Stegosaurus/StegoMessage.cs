@@ -25,7 +25,12 @@ namespace Stegosaurus
         //public byte[] Bytes { get; private set; } = null;
         //public List<byte> Bytes { get; private set; }
 
-        
+
+        public StegoMessage()
+        {
+
+        }
+
         /// <summary>
         /// Sets the properties "TextMessage" and "InputFiles".
         /// Calls method: ToByteArray()
@@ -72,6 +77,25 @@ namespace Stegosaurus
                 TextMessage = tempStream.ReadString();
             }
         }
+
+        private byte[] Encode()
+        {
+            using (MemoryStream tempStream = new MemoryStream())
+            {
+                using (GZipStream zipStream = new GZipStream(tempStream, CompressionMode.Compress, true))
+                {
+                    // Write input files
+                    zipStream.Write(InputFiles.Count);
+                    foreach (InputFile inputFile in InputFiles)
+                        zipStream.Write(inputFile);
+
+                    // Write text message
+                    zipStream.Write(TextMessage);
+                }
+                return tempStream.ToArray();
+            }
+        }
+
         /// <summary>
         /// Converts text and/or file(s) into a byte array and combines them using a List.
         /// First part of the byte array contains the message file(s).
@@ -81,29 +105,10 @@ namespace Stegosaurus
         {
             List<byte> byteList = new List<byte>();
 
-            // Iterates over all files in InputFiles (and the number of files), or a TextMessage, 
-            // and converts these to bytes and saves them to byteList.
-            // The lenght of the data is store  before the data itself, to ease future extraction.
-            
-            int numberOfFiles = InputFiles.Count;
-            byteList.AddRange(BitConverter.GetBytes(numberOfFiles));
-            foreach (InputFile file in InputFiles)
-            {
-                byteList.AddRange(BitConverter.GetBytes(Encoding.UTF8.GetBytes(file.Name).Length));
-                byteList.AddRange(Encoding.UTF8.GetBytes(file.Name));
-                byteList.AddRange(BitConverter.GetBytes(file.Content.Length));
-                byteList.AddRange(file.Content);
-            }
-            
-            // TODO - Add extention method.
-            if (!(string.IsNullOrEmpty(TextMessage)))
-            {
-                byteList.AddRange(BitConverter.GetBytes(Encoding.UTF8.GetBytes(TextMessage).Length));
-                byteList.AddRange(Encoding.UTF8.GetBytes(TextMessage));
-            }
+            // Encode and compress array
+            byte[] compressedArray = Compress(Encode());
 
-            byte[] compressedArray = Compress(byteList.ToArray());
-            byteList.Clear();
+            // Add array 
             byteList.AddRange(BitConverter.GetBytes(compressedArray.Length));
             byteList.AddRange(compressedArray);
 
