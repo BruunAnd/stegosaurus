@@ -6,6 +6,7 @@ namespace Stegosaurus.Algorithm
 {
     interface IStegoAlgorithm
     {
+        string Name { get; }
 
         /* CARRIERMEDIET INDEHOLDER DE FORSKELLIGE FILER SAMT BESKEDEN */
         ICarrierMedia CarrierMedia { get; set; }

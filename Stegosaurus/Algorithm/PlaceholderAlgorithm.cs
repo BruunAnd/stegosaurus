@@ -12,8 +12,9 @@ namespace Stegosaurus.Algorithm
     /// </summary>
     public class PlaceholderAlgorithm : IStegoAlgorithm
     {
-
+        string Name { get; } = "Placeholde/LSB";
         public ICarrierMedia CarrierMedia { get; set; }
+
         /// <summary>
         /// This algorithm returns the data capacity of the carrier media with the given stegoAlgorithm.
         /// </summary>
