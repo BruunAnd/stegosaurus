@@ -12,9 +12,16 @@ namespace Stegosaurus.Extensions
         /// </summary>
         public static void AddString(this List<byte> _byteList, string _str)
         {
-            byte[] encodedString = Encoding.UTF8.GetBytes(_str);
-            _byteList.AddRange(BitConverter.GetBytes(encodedString.Length));
-            _byteList.AddRange(encodedString);
+            if (string.IsNullOrEmpty(_str))
+            {
+                _byteList.AddInt(0);
+            }
+            else
+            {
+                byte[] encodedString = Encoding.UTF8.GetBytes(_str);
+                _byteList.AddRange(BitConverter.GetBytes(encodedString.Length));
+                _byteList.AddRange(encodedString);
+            }
         }
 
         /// <summary>
@@ -33,32 +40,6 @@ namespace Stegosaurus.Extensions
             _byteList.AddRange(BitConverter.GetBytes(_short));
         }
 
-        /// <summary>
-        /// Returns integer from list of bytes at specified startIndex
-        /// </summary>
-        public static int ReadInt(this List<byte> _byteList, int _startIndex)
-        {
-            return BitConverter.ToInt32(_byteList.ReadBytes(_startIndex, sizeof(int)), 0);
-        }
-
-        /// <summary>
-        /// Returns short from list of bytes at specified startIndex
-        /// </summary>
-        public static short ReadShort(this List<byte> _byteList, int _startIndex)
-        {
-            return BitConverter.ToInt16(_byteList.ReadBytes(_startIndex, sizeof(short)), 0);
-        }
-
-        /// <summary>
-        /// Reads and returns byte array
-        /// </summary>
-        /// <param name="_byteList">List of bytes</param>
-        /// <param name="_startIndex">Starting point in list</param>
-        /// <param name="_count">Number of bytes to return</param>
-        public static byte[] ReadBytes(this List<byte> _byteList, int _startIndex, int _count)
-        {
-            return _byteList.GetRange(_startIndex, _count).ToArray();
-        }
 
     }
 }
