@@ -20,10 +20,19 @@ namespace Stegosaurus
         public string TextMessage { get; private set; } = null;
         public byte[] EncryptionKey { get; private set; }
         public List<InputFile> InputFiles { get; private set; } = null;
-        
+
+        /// <summary>
+        /// Create instance of StegoMessage from a byteArray
+        /// </summary>
+        public StegoMessage(byte[] _byteArray)
+        {
+            // TODO: Decode
+        }
+
         //public byte[] Bytes { get; private set; } = null;
         //public List<byte> Bytes { get; private set; }
 
+        
         /// <summary>
         /// Sets the properties "TextMessage" and "InputFiles".
         /// Calls method: ToByteArray()
@@ -31,26 +40,25 @@ namespace Stegosaurus
         /// <param name="_textMessage"></param>
         /// <param name="_inputFiles"></param>
         /// <param name="_encryptionKey"></param>
-
         public StegoMessage(string _encryptionKey, string _textMessage, List<InputFile>_inputFiles)
         {
-            if (_textMessage != null)
-            {
-                TextMessage = _textMessage;
-            }
-            if (_inputFiles != null)
-            {
-                InputFiles = _inputFiles;
-            }
-            if (_encryptionKey != null)
-            {
-                EncryptionKey = Encoding.UTF8.GetBytes(_encryptionKey);
-            }
+            TextMessage = _textMessage;
+            InputFiles = _inputFiles;
+            EncryptionKey = Encoding.UTF8.GetBytes(_encryptionKey);
             
+            // why call this?
             ToByteArray();
         }
-        public StegoMessage(string _encryptionKey, string _textMessage) : this(_encryptionKey, _textMessage, null) { }
-        public StegoMessage(string _encryptionKey, List<InputFile>_inputFiles) : this(_encryptionKey, null, _inputFiles){ }
+
+        public StegoMessage(string _encryptionKey, string _textMessage)
+            : this(_encryptionKey, _textMessage, null)
+        {
+        }
+
+        public StegoMessage(string _encryptionKey, List<InputFile>_inputFiles)
+            : this(_encryptionKey, null, _inputFiles)
+        {
+        }
         
         /// <summary>
         /// Converts text and/or file(s) into a byte array and combines them using a List.
