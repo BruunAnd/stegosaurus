@@ -1,6 +1,4 @@
-﻿using System;
-using Stegosaurus.Carrier;
-using System.Collections;
+﻿using Stegosaurus.Carrier;
 
 namespace Stegosaurus.Algorithm
 {

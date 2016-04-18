@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using Stegosaurus.Carrier;
 using System.Collections;
+using Stegosaurus.Exceptions;
 
 namespace Stegosaurus.Algorithm
 {
@@ -38,13 +39,9 @@ namespace Stegosaurus.Algorithm
                 if (carrierBit != messageInBits[index])
                 {
                     if (carrierBit)
-                    {
                         CarrierMedia.ByteArray[index]--;
-                    }
                     else
-                    {
                         CarrierMedia.ByteArray[index]++;
-                    }
                 }
             }
         }
@@ -60,20 +57,21 @@ namespace Stegosaurus.Algorithm
             return new StegoMessage(ReadBytes(ref position, headerSize));
         }
 
-
         /// <summary>
         /// Reads bytes by going through least significant bits
         /// </summary>
         private byte[] ReadBytes(ref int position, int count)
         {
+            // Check if there are enough bytes to read
+            if (position + count * 8 > CarrierMedia.ByteArray.Length)
+                throw new StegoAlgorithmException("Not enough bytes to read.");
+
             // Allocate memory for count * 8 bits
             BitArray tempBitArray = new BitArray(count * 8);
 
             // Iterate through the allocated amount of bits
             for (int i = 0; i < tempBitArray.Length; i++)
-            {
                 tempBitArray[i] = ( CarrierMedia.ByteArray[position++] % 2 == 1 );
-            }
 
             // Copy bitArray to new byteArray
             byte[] tempByteArray = new byte[count];
