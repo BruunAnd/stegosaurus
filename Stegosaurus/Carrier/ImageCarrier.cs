@@ -16,16 +16,14 @@ namespace Stegosaurus.Carrier
         /// <summary>
         /// Main constructer. Gets image, checks if null pointer and sets private variable to cloned image if not null.
         /// </summary>
-        /// <param name="_innerImage"></param>
         public ImageCarrier(Image _innerImage)
         {
             if (_innerImage == null)
-            {
                 throw new ArgumentNullException("Invalid input image in ImageCarrier.\n");
-            }
 
             // Clones to make sure no changes are made in the original imagefile
             innerImage = (Bitmap) _innerImage.Clone();
+            // TODO convert to 3 channels, convert to png
             Decode();
         }
 
