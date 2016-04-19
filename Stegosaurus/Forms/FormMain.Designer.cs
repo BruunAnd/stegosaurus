@@ -28,22 +28,19 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormMain));
-            this.panel1 = new System.Windows.Forms.Panel();
             this.label1 = new System.Windows.Forms.Label();
+            this.inputFilesFlowLayoutPanel = new System.Windows.Forms.FlowLayoutPanel();
+            this.listView1 = new System.Windows.Forms.ListView();
+            this.imageListIcons = new System.Windows.Forms.ImageList(this.components);
+            this.columnHeader1 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.columnHeader2 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.saveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.deleteToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.contextMenuStrip1.SuspendLayout();
             this.SuspendLayout();
-            // 
-            // panel1
-            // 
-            this.panel1.AllowDrop = true;
-            this.panel1.BackColor = System.Drawing.SystemColors.Window;
-            this.panel1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.panel1.Location = new System.Drawing.Point(12, 79);
-            this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(200, 164);
-            this.panel1.TabIndex = 0;
-            this.panel1.DragDrop += new System.Windows.Forms.DragEventHandler(this.panel1_DragDrop);
-            this.panel1.DragEnter += new System.Windows.Forms.DragEventHandler(this.panel1_DragEnter);
             // 
             // label1
             // 
@@ -54,26 +51,103 @@
             this.label1.TabIndex = 1;
             this.label1.Text = "label1";
             // 
+            // inputFilesFlowLayoutPanel
+            // 
+            this.inputFilesFlowLayoutPanel.AllowDrop = true;
+            this.inputFilesFlowLayoutPanel.BackColor = System.Drawing.SystemColors.Window;
+            this.inputFilesFlowLayoutPanel.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.inputFilesFlowLayoutPanel.Location = new System.Drawing.Point(543, 79);
+            this.inputFilesFlowLayoutPanel.Name = "inputFilesFlowLayoutPanel";
+            this.inputFilesFlowLayoutPanel.Size = new System.Drawing.Size(200, 173);
+            this.inputFilesFlowLayoutPanel.TabIndex = 2;
+            this.inputFilesFlowLayoutPanel.DragDrop += new System.Windows.Forms.DragEventHandler(this.inputFilesFlowLayoutPanel_DragDrop);
+            this.inputFilesFlowLayoutPanel.DragEnter += new System.Windows.Forms.DragEventHandler(this.inputFilesFlowLayoutPanel_DragEnter);
+            this.inputFilesFlowLayoutPanel.DragLeave += new System.EventHandler(this.inputFilesFlowLayoutPanel_DragLeave);
+            // 
+            // listView1
+            // 
+            this.listView1.AllowDrop = true;
+            this.listView1.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+            this.columnHeader1,
+            this.columnHeader2});
+            this.listView1.ContextMenuStrip = this.contextMenuStrip1;
+            this.listView1.FullRowSelect = true;
+            this.listView1.GridLines = true;
+            this.listView1.Location = new System.Drawing.Point(76, 68);
+            this.listView1.Name = "listView1";
+            this.listView1.Size = new System.Drawing.Size(268, 184);
+            this.listView1.TabIndex = 3;
+            this.listView1.UseCompatibleStateImageBehavior = false;
+            this.listView1.View = System.Windows.Forms.View.Details;
+            this.listView1.DragDrop += new System.Windows.Forms.DragEventHandler(this.listView1_DragDrop);
+            this.listView1.DragEnter += new System.Windows.Forms.DragEventHandler(this.listView1_DragEnter);
+            this.listView1.DragLeave += new System.EventHandler(this.listView1_DragLeave);
+            // 
+            // imageListIcons
+            // 
+            this.imageListIcons.ColorDepth = System.Windows.Forms.ColorDepth.Depth8Bit;
+            this.imageListIcons.ImageSize = new System.Drawing.Size(16, 16);
+            this.imageListIcons.TransparentColor = System.Drawing.Color.Transparent;
+            // 
+            // columnHeader1
+            // 
+            this.columnHeader1.Text = "Name";
+            this.columnHeader1.Width = 122;
+            // 
+            // columnHeader2
+            // 
+            this.columnHeader2.Text = "Size";
+            this.columnHeader2.Width = 107;
+            // 
+            // contextMenuStrip1
+            // 
+            this.contextMenuStrip1.ImageScalingSize = new System.Drawing.Size(20, 20);
+            this.contextMenuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.saveToolStripMenuItem,
+            this.deleteToolStripMenuItem});
+            this.contextMenuStrip1.Name = "contextMenuStrip1";
+            this.contextMenuStrip1.Size = new System.Drawing.Size(129, 56);
+            // 
+            // saveToolStripMenuItem
+            // 
+            this.saveToolStripMenuItem.Name = "saveToolStripMenuItem";
+            this.saveToolStripMenuItem.Size = new System.Drawing.Size(128, 26);
+            this.saveToolStripMenuItem.Text = "Save";
+            // 
+            // deleteToolStripMenuItem
+            // 
+            this.deleteToolStripMenuItem.Name = "deleteToolStripMenuItem";
+            this.deleteToolStripMenuItem.Size = new System.Drawing.Size(128, 26);
+            this.deleteToolStripMenuItem.Text = "Delete";
+            // 
             // FormMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(816, 372);
+            this.Controls.Add(this.listView1);
+            this.Controls.Add(this.inputFilesFlowLayoutPanel);
             this.Controls.Add(this.label1);
-            this.Controls.Add(this.panel1);
             this.Font = new System.Drawing.Font("Segoe UI", 8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "FormMain";
             this.Text = "Stegosaurus";
+            this.contextMenuStrip1.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
         }
 
         #endregion
-
-        private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.FlowLayoutPanel inputFilesFlowLayoutPanel;
+        private System.Windows.Forms.ListView listView1;
+        private System.Windows.Forms.ColumnHeader columnHeader1;
+        private System.Windows.Forms.ColumnHeader columnHeader2;
+        private System.Windows.Forms.ContextMenuStrip contextMenuStrip1;
+        private System.Windows.Forms.ToolStripMenuItem saveToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem deleteToolStripMenuItem;
+        private System.Windows.Forms.ImageList imageListIcons;
     }
 }
 

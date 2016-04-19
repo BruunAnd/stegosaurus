@@ -1,6 +1,6 @@
 ﻿namespace Stegosaurus.Exceptions
 {
-    class StegoAlgorithmException : StegosaurusException
+    public class StegoAlgorithmException : StegosaurusException
     {
         public StegoAlgorithmException(string message)
             : base(message)

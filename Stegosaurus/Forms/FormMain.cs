@@ -12,7 +12,7 @@ namespace Stegosaurus.Forms
 {
     public partial class FormMain : Form
     {
-        StegoMessage stegoMessage = new StegoMessage("", new List<InputFile>());
+        StegoMessage stegoMessage = new StegoMessage();
 
         public FormMain()
         {
@@ -21,20 +21,63 @@ namespace Stegosaurus.Forms
 
         private void panel1_DragEnter(object sender, DragEventArgs e)
         {
-            e.Effect = DragDropEffects.All;
         }
 
-        private void panel1_DragDrop(object sender, DragEventArgs e)
+
+
+        private void inputFilesFlowLayoutPanel_DragDrop(object sender, DragEventArgs e)
         {
-            string[] inputFiles = (string[]) e.Data.GetData(DataFormats.FileDrop);
+
+        }
+
+        private void inputFilesFlowLayoutPanel_DragEnter(object sender, DragEventArgs e)
+        {
+            e.Effect = DragDropEffects.All;
+            inputFilesFlowLayoutPanel.BackColor = Color.Aquamarine;
+
+        }
+
+        private void inputFilesFlowLayoutPanel_DragLeave(object sender, EventArgs e)
+        {
+            inputFilesFlowLayoutPanel.BackColor = Color.White;
+        }
+
+        private void listView1_DragDrop(object sender, DragEventArgs e)
+        {
+            InputFile inputFile;
+            string[] inputFiles = (string[])e.Data.GetData(DataFormats.FileDrop);
             foreach (string inputFilePath in inputFiles)
             {
-                stegoMessage.InputFiles.Add(new InputFile(inputFilePath));
+                inputFile = new InputFile(inputFilePath);
+                stegoMessage.InputFiles.Add(inputFile);
+
+                Button button = new Button();
+                button.Text = inputFile.Name;
+                inputFilesFlowLayoutPanel.Controls.Add(button);
             }
+            
+            label1.Text = string.Join("\n", stegoMessage.InputFiles.Select<InputFile, string>(file => file.Name));
 
-            label1.Text = string.Join("\n", stegoMessage.InputFiles.Select<InputFile, string>(inputFile => inputFile.Name));
-
+            listView1.BackColor = Color.White;
         }
-        
+
+        private void listView1_DragEnter(object sender, DragEventArgs e)
+        {
+            e.Effect = DragDropEffects.All;
+            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                listView1.BackColor = Color.Aquamarine;
+            }
+            else
+            {
+                listView1.BackColor = Color.Red;
+            }
+        }
+
+        private void listView1_DragLeave(object sender, EventArgs e)
+        {
+
+            listView1.BackColor = Color.White;
+        }
     }
 }
