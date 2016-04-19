@@ -8,7 +8,7 @@ using System.Text;
 
 namespace Stegosaurus.Carrier
 {
-    class ImageCarrier : ICarrierMedia
+    public class ImageCarrier : ICarrierMedia
     {
         public byte[] ByteArray { get; set; }
         private Bitmap innerImage;
