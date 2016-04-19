@@ -27,12 +27,10 @@ namespace Stegosaurus.Forms
             {
                 inputFile = new InputFile(inputFilePath);
                 stegoMessage.InputFiles.Add(inputFile);
-                listView1.Items.Add(inputFile.Name);
+                listView1.Items.Add(inputFile.Name, 2);
 
             }
             
-            label1.Text = string.Join("\n", stegoMessage.InputFiles.Select<InputFile, string>(file => file.Name));
-
             listView1.BackColor = Color.White;
         }
 
@@ -42,7 +40,7 @@ namespace Stegosaurus.Forms
             if (e.Data.GetDataPresent(DataFormats.FileDrop))
             {
                 e.Effect = DragDropEffects.Copy;
-                listView1.BackColor = Color.Aquamarine;
+                listView1.BackColor = Color.LightGreen;
             }
             else
             {
@@ -53,8 +51,33 @@ namespace Stegosaurus.Forms
 
         private void listView1_DragLeave(object sender, EventArgs e)
         {
-
             listView1.BackColor = Color.White;
         }
+
+        private void deleteToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show("To Be Implemented.");
+        }
+
+        private void label2_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void textBox1_TextChanged(object sender, EventArgs e)
+        {
+            stegoMessage.TextMessage = textBox1.Text;
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show(stegoMessage.TextMessage);
+        }
+
+        private void EmbedButton_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show("TODO: initiate algorithm.");
+        }
+        
     }
 }
