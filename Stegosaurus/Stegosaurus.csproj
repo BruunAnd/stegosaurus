@@ -71,10 +71,7 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-<<<<<<< HEAD
-=======
     <Compile Include="RandomNumberList.cs" />
->>>>>>> dacc171a71c25abacaec4cf647501108dafb2843
     <Compile Include="StegoMessage.cs" />
     <EmbeddedResource Include="Forms\FormMain.resx">
       <DependentUpon>FormMain.cs</DependentUpon>
