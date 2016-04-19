@@ -19,29 +19,6 @@ namespace Stegosaurus.Forms
             InitializeComponent();
         }
 
-        private void panel1_DragEnter(object sender, DragEventArgs e)
-        {
-        }
-
-
-
-        private void inputFilesFlowLayoutPanel_DragDrop(object sender, DragEventArgs e)
-        {
-
-        }
-
-        private void inputFilesFlowLayoutPanel_DragEnter(object sender, DragEventArgs e)
-        {
-            e.Effect = DragDropEffects.All;
-            inputFilesFlowLayoutPanel.BackColor = Color.Aquamarine;
-
-        }
-
-        private void inputFilesFlowLayoutPanel_DragLeave(object sender, EventArgs e)
-        {
-            inputFilesFlowLayoutPanel.BackColor = Color.White;
-        }
-
         private void listView1_DragDrop(object sender, DragEventArgs e)
         {
             InputFile inputFile;
@@ -50,10 +27,8 @@ namespace Stegosaurus.Forms
             {
                 inputFile = new InputFile(inputFilePath);
                 stegoMessage.InputFiles.Add(inputFile);
+                listView1.Items.Add(inputFile.Name);
 
-                Button button = new Button();
-                button.Text = inputFile.Name;
-                inputFilesFlowLayoutPanel.Controls.Add(button);
             }
             
             label1.Text = string.Join("\n", stegoMessage.InputFiles.Select<InputFile, string>(file => file.Name));
@@ -66,10 +41,12 @@ namespace Stegosaurus.Forms
             e.Effect = DragDropEffects.All;
             if (e.Data.GetDataPresent(DataFormats.FileDrop))
             {
+                e.Effect = DragDropEffects.Copy;
                 listView1.BackColor = Color.Aquamarine;
             }
             else
             {
+                e.Effect = DragDropEffects.None;
                 listView1.BackColor = Color.Red;
             }
         }

@@ -18,23 +18,23 @@ namespace Stegosaurus
         [STAThread]
         static void Main()
         {
-            Type test = typeof(LSBAlgorithm);
-            IStegoAlgorithm algo = (IStegoAlgorithm) Activator.CreateInstance(test);
-            algo.CarrierMedia = new ImageCarrier("input.png");
-            algo.Key = Encoding.UTF8.GetBytes("key as string");
+            //Type test = typeof(LSBAlgorithm);
+            //IStegoAlgorithm algo = (IStegoAlgorithm) Activator.CreateInstance(test);
+            //algo.CarrierMedia = new ImageCarrier("input.png");
+            //algo.Key = Encoding.UTF8.GetBytes("key as string");
 
-            StegoMessage simon = new StegoMessage();
-            simon.InputFiles.Add(new InputFile("input_file.txt"));
-            simon.TextMessage = "Example test message.";
-            algo.Embed(simon);
+            //StegoMessage simon = new StegoMessage();
+            //simon.InputFiles.Add(new InputFile("input_file.txt"));
+            //simon.TextMessage = "Example test message.";
+            //algo.Embed(simon);
 
-            algo.CarrierMedia.SaveToFile("output.png");
+            //algo.CarrierMedia.SaveToFile("output.png");
 
 
-            algo.CarrierMedia = new ImageCarrier("output.png");
+            //algo.CarrierMedia = new ImageCarrier("output.png");
 
-            StegoMessage outMessage = algo.Extract();
-            MessageBox.Show(outMessage.TextMessage);
+            //StegoMessage outMessage = algo.Extract();
+            //MessageBox.Show(outMessage.TextMessage);
             
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);

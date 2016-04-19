@@ -31,14 +31,13 @@
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormMain));
             this.label1 = new System.Windows.Forms.Label();
-            this.inputFilesFlowLayoutPanel = new System.Windows.Forms.FlowLayoutPanel();
             this.listView1 = new System.Windows.Forms.ListView();
-            this.imageListIcons = new System.Windows.Forms.ImageList(this.components);
             this.columnHeader1 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeader2 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.saveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.deleteToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.imageListIcons = new System.Windows.Forms.ImageList(this.components);
             this.contextMenuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -50,19 +49,6 @@
             this.label1.Size = new System.Drawing.Size(45, 19);
             this.label1.TabIndex = 1;
             this.label1.Text = "label1";
-            // 
-            // inputFilesFlowLayoutPanel
-            // 
-            this.inputFilesFlowLayoutPanel.AllowDrop = true;
-            this.inputFilesFlowLayoutPanel.BackColor = System.Drawing.SystemColors.Window;
-            this.inputFilesFlowLayoutPanel.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.inputFilesFlowLayoutPanel.Location = new System.Drawing.Point(543, 79);
-            this.inputFilesFlowLayoutPanel.Name = "inputFilesFlowLayoutPanel";
-            this.inputFilesFlowLayoutPanel.Size = new System.Drawing.Size(200, 173);
-            this.inputFilesFlowLayoutPanel.TabIndex = 2;
-            this.inputFilesFlowLayoutPanel.DragDrop += new System.Windows.Forms.DragEventHandler(this.inputFilesFlowLayoutPanel_DragDrop);
-            this.inputFilesFlowLayoutPanel.DragEnter += new System.Windows.Forms.DragEventHandler(this.inputFilesFlowLayoutPanel_DragEnter);
-            this.inputFilesFlowLayoutPanel.DragLeave += new System.EventHandler(this.inputFilesFlowLayoutPanel_DragLeave);
             // 
             // listView1
             // 
@@ -82,12 +68,6 @@
             this.listView1.DragDrop += new System.Windows.Forms.DragEventHandler(this.listView1_DragDrop);
             this.listView1.DragEnter += new System.Windows.Forms.DragEventHandler(this.listView1_DragEnter);
             this.listView1.DragLeave += new System.EventHandler(this.listView1_DragLeave);
-            // 
-            // imageListIcons
-            // 
-            this.imageListIcons.ColorDepth = System.Windows.Forms.ColorDepth.Depth8Bit;
-            this.imageListIcons.ImageSize = new System.Drawing.Size(16, 16);
-            this.imageListIcons.TransparentColor = System.Drawing.Color.Transparent;
             // 
             // columnHeader1
             // 
@@ -120,13 +100,18 @@
             this.deleteToolStripMenuItem.Size = new System.Drawing.Size(128, 26);
             this.deleteToolStripMenuItem.Text = "Delete";
             // 
+            // imageListIcons
+            // 
+            this.imageListIcons.ColorDepth = System.Windows.Forms.ColorDepth.Depth8Bit;
+            this.imageListIcons.ImageSize = new System.Drawing.Size(16, 16);
+            this.imageListIcons.TransparentColor = System.Drawing.Color.Transparent;
+            // 
             // FormMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(816, 372);
             this.Controls.Add(this.listView1);
-            this.Controls.Add(this.inputFilesFlowLayoutPanel);
             this.Controls.Add(this.label1);
             this.Font = new System.Drawing.Font("Segoe UI", 8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
@@ -140,7 +125,6 @@
 
         #endregion
         private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.FlowLayoutPanel inputFilesFlowLayoutPanel;
         private System.Windows.Forms.ListView listView1;
         private System.Windows.Forms.ColumnHeader columnHeader1;
         private System.Windows.Forms.ColumnHeader columnHeader2;
