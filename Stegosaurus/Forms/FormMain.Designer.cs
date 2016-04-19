@@ -60,6 +60,7 @@
             this.listView1.Location = new System.Drawing.Point(457, 31);
             this.listView1.Name = "listView1";
             this.listView1.Size = new System.Drawing.Size(347, 184);
+            this.listView1.SmallImageList = this.imageListIcons;
             this.listView1.TabIndex = 3;
             this.listView1.UseCompatibleStateImageBehavior = false;
             this.listView1.View = System.Windows.Forms.View.Details;
@@ -84,24 +85,24 @@
             this.saveToolStripMenuItem,
             this.deleteToolStripMenuItem});
             this.contextMenuStrip1.Name = "contextMenuStrip1";
-            this.contextMenuStrip1.Size = new System.Drawing.Size(129, 56);
+            this.contextMenuStrip1.Size = new System.Drawing.Size(135, 64);
             // 
             // saveToolStripMenuItem
             // 
             this.saveToolStripMenuItem.Name = "saveToolStripMenuItem";
-            this.saveToolStripMenuItem.Size = new System.Drawing.Size(128, 26);
+            this.saveToolStripMenuItem.Size = new System.Drawing.Size(134, 30);
             this.saveToolStripMenuItem.Text = "Save";
             // 
             // deleteToolStripMenuItem
             // 
             this.deleteToolStripMenuItem.Name = "deleteToolStripMenuItem";
-            this.deleteToolStripMenuItem.Size = new System.Drawing.Size(128, 26);
+            this.deleteToolStripMenuItem.Size = new System.Drawing.Size(134, 30);
             this.deleteToolStripMenuItem.Text = "Delete";
             this.deleteToolStripMenuItem.Click += new System.EventHandler(this.deleteToolStripMenuItem_Click);
             // 
             // imageListIcons
             // 
-            this.imageListIcons.ColorDepth = System.Windows.Forms.ColorDepth.Depth8Bit;
+            this.imageListIcons.ColorDepth = System.Windows.Forms.ColorDepth.Depth32Bit;
             this.imageListIcons.ImageSize = new System.Drawing.Size(16, 16);
             this.imageListIcons.TransparentColor = System.Drawing.Color.Transparent;
             // 
@@ -119,7 +120,7 @@
             this.InputFilesLabel.AutoSize = true;
             this.InputFilesLabel.Location = new System.Drawing.Point(453, 9);
             this.InputFilesLabel.Name = "InputFilesLabel";
-            this.InputFilesLabel.Size = new System.Drawing.Size(141, 19);
+            this.InputFilesLabel.Size = new System.Drawing.Size(159, 21);
             this.InputFilesLabel.TabIndex = 5;
             this.InputFilesLabel.Text = "Message content files";
             this.InputFilesLabel.Click += new System.EventHandler(this.label2_Click);
@@ -149,7 +150,7 @@
             this.TextMesageLabel.AutoSize = true;
             this.TextMesageLabel.Location = new System.Drawing.Point(453, 218);
             this.TextMesageLabel.Name = "TextMesageLabel";
-            this.TextMesageLabel.Size = new System.Drawing.Size(90, 19);
+            this.TextMesageLabel.Size = new System.Drawing.Size(101, 21);
             this.TextMesageLabel.TabIndex = 8;
             this.TextMesageLabel.Text = "Text message";
             // 
@@ -178,13 +179,13 @@
             this.EncryptionKeyLabel.AutoSize = true;
             this.EncryptionKeyLabel.Location = new System.Drawing.Point(453, 307);
             this.EncryptionKeyLabel.Name = "EncryptionKeyLabel";
-            this.EncryptionKeyLabel.Size = new System.Drawing.Size(99, 19);
+            this.EncryptionKeyLabel.Size = new System.Drawing.Size(112, 21);
             this.EncryptionKeyLabel.TabIndex = 11;
             this.EncryptionKeyLabel.Text = "Encryption key";
             // 
             // FormMain
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 21F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(816, 372);
             this.Controls.Add(this.EncryptionKeyLabel);

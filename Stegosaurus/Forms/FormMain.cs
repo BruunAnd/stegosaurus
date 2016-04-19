@@ -27,8 +27,16 @@ namespace Stegosaurus.Forms
             {
                 inputFile = new InputFile(inputFilePath);
                 stegoMessage.InputFiles.Add(inputFile);
-                listView1.Items.Add(inputFile.Name, 2);
 
+                FileInfo fileInfo = new FileInfo(inputFilePath);
+                ListViewItem fileItem = new ListViewItem(inputFile.Name);
+                fileItem.SubItems.Add("Size Goes Here");
+                fileItem.ImageKey = fileInfo.Extension;
+
+                if (!imageListIcons.Images.ContainsKey(fileItem.ImageKey))
+                    imageListIcons.Images.Add(fileItem.ImageKey, Icon.ExtractAssociatedIcon(inputFilePath));
+
+                listView1.Items.Add(fileItem);
             }
             
             listView1.BackColor = Color.White;
