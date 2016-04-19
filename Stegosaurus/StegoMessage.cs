@@ -4,44 +4,33 @@ using System.Text;
 using System.IO;
 using System.IO.Compression;
 using Stegosaurus.Extensions;
+using System.Linq;
+using Stegosaurus.Exceptions;
 
 namespace Stegosaurus
 {
-    /// <summary>
-    /// The Class StegoMessage:
-    /// - Converts message files and message text to bytearray
-    /// - Compresses
-    /// - Gets size of message and files after compression
-    /// - Encrypts
-    /// - Decrypts
-    /// - Decompresses
-    /// </summary>
     public class StegoMessage
     {
-        public string TextMessage { get; set; } = null;
-        public byte[] EncryptionKey { get; private set; }
+        public string TextMessage { get; set; }
         public List<InputFile> InputFiles { get; } = new List<InputFile>();
 
         public StegoMessage()
         {
-            InputFiles = new List<InputFile>();
         }
 
-        /// <summary>
-        /// Sets the properties "TextMessage" and "InputFiles".
-        /// </summary>
-        public StegoMessage(string _encryptionKey, string _textMessage)
+        public StegoMessage(string _textMessage)
         {
             TextMessage = _textMessage;
-            EncryptionKey = Encoding.UTF8.GetBytes(_encryptionKey);
         }
 
-        /// <summary>
-        /// Create instance of StegoMessage from a byteArray
-        /// </summary>
-        public StegoMessage(byte[] _byteArray)
+        public StegoMessage(byte[] _fromArray, byte[] _decryptionKey = null)
         {
-            Decode(Decompress(_byteArray));
+            // Decrypt if a key is specified
+            if (_decryptionKey != null)
+                _fromArray = Encrypt(_fromArray, _decryptionKey);
+
+            // Decode the decompressed array
+            Decode(Decompress(_fromArray));
         }
 
         private void Decode(byte[] _byteArray)
@@ -51,9 +40,7 @@ namespace Stegosaurus
                 // Read input files
                 int numberOfFiles = tempStream.ReadInt();
                 for (int i = 0; i < numberOfFiles; i++)
-                {
                     InputFiles.Add(tempStream.ReadInputFile());
-                }
 
                 // Read text message
                 TextMessage = tempStream.ReadString();
@@ -81,17 +68,21 @@ namespace Stegosaurus
         /// First part of the byte array contains the message file(s).
         /// The last part of the byte array is the text message if there is any.
         /// </summary>
-        public byte[] ToByteArray()
+        public byte[] ToByteArray(byte[] _encryptionKey = null)
         {
             // Encode and compress array
             byte[] compressedArray = Compress(Encode());
 
-            // Combine array and length header
-            byte[] buffer = new byte[compressedArray.Length + sizeof(int)];
-            Buffer.BlockCopy(BitConverter.GetBytes(compressedArray.Length), 0, buffer, 0, sizeof(int));
-            Buffer.BlockCopy(compressedArray, 0, buffer, sizeof(int), compressedArray.Length);
+            // Encrypt if key is specified
+            if (_encryptionKey != null)
+                compressedArray = Encrypt(compressedArray, _encryptionKey);
 
-            return buffer;
+            // Combine array and length header
+            List<byte> returnList = new List<byte>();
+            returnList.AddRange(BitConverter.GetBytes(compressedArray.Length));
+            returnList.AddRange(compressedArray);
+
+            return returnList.ToArray();
         }
 
         /// <summary>
@@ -117,7 +108,7 @@ namespace Stegosaurus
         /// </summary>
         /// <param name="_data">Data to encrypt</param>
         /// <returns>Returns the cypher(the encrypted byte array)</returns>
-        private byte[] Encrypt(byte[] _data)
+        private byte[] Encrypt(byte[] _data, byte[] _key)
         {
             int a, i, j, k, tmp, maxKeySize = 256;
             int[] key, box;
@@ -130,7 +121,7 @@ namespace Stegosaurus
             // Copies EncrytionKey, into int[] Key, byte by byte, and repeats the process up to maxKeySize,  to ensure the same key lenght.
             for (i = 0; i < maxKeySize; i++)
             {
-                key[i] = EncryptionKey[i % EncryptionKey.Length];
+                key[i] = _key[i % _key.Length];
                 box[i] = i;
             }
             // Swaps data elements in int[] box, by exchanging int[i] with int[j].
@@ -156,20 +147,11 @@ namespace Stegosaurus
             }
             return cipher;
         }
-
-        // Runs the encryption algorithm to decrypt the message.
-        // TODO decrypt key as parameter?
-        private byte[] Decrypt(byte[] _data)
-        {
-            return Encrypt(_data);
-        }
         
         /// <summary>
         /// http://www.dotnetperls.com/decompress
         /// TODO read up on CompressionMode and GZipStream
         /// </summary>
-        /// <param name="_byteArray"></param>
-        /// <returns></returns>
         private byte[] Decompress(byte[] _byteArray)
         {
             using (GZipStream stream = new GZipStream(new MemoryStream(_byteArray), CompressionMode.Decompress))
