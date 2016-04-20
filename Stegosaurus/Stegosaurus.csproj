@@ -5,7 +5,7 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{7918B181-6A70-430E-8BFB-A7C2944C4822}</ProjectGuid>
-    <OutputType>WinExe</OutputType>
+    <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Stegosaurus</RootNamespace>
     <AssemblyName>Stegosaurus</AssemblyName>
@@ -36,6 +36,9 @@
   <PropertyGroup>
     <ApplicationIcon>stegosaurus.ico</ApplicationIcon>
   </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject />
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -49,12 +52,16 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Algorithm\GraphTheoreticAlgorithm.cs" />
+    <Compile Include="Algorithm\GraphTheory\Edge.cs" />
+    <Compile Include="Algorithm\GraphTheory\Vertex.cs" />
     <Compile Include="Algorithm\IStegoAlgorithm.cs" />
     <Compile Include="Algorithm\LSBAlgorithm.cs" />
     <Compile Include="Carrier\AudioCarrier.cs" />
     <Compile Include="Carrier\AudioFormats\AudioFile.cs" />
     <Compile Include="Carrier\AudioFormats\WaveFile.cs" />
     <Compile Include="Carrier\ImageCarrier.cs" />
+    <Compile Include="Cryptography\RC4.cs" />
     <Compile Include="Exceptions\InvalidFileException.cs" />
     <Compile Include="Exceptions\InvalidWaveFileException.cs" />
     <Compile Include="Exceptions\StegoAlgorithmException.cs" />
