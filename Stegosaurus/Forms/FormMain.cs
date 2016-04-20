@@ -30,7 +30,7 @@ namespace Stegosaurus.Forms
 
                 FileInfo fileInfo = new FileInfo(inputFilePath);
                 ListViewItem fileItem = new ListViewItem(inputFile.Name);
-                fileItem.SubItems.Add("Size Goes Here");
+                fileItem.SubItems.Add($"{fileInfo.Length} B");
                 fileItem.ImageKey = fileInfo.Extension;
 
                 if (!imageListIcons.Images.ContainsKey(fileItem.ImageKey))
