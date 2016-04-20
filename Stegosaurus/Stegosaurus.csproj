@@ -61,6 +61,7 @@
     <Compile Include="Exceptions\StegoMessageException.cs" />
     <Compile Include="Exceptions\StegosaurusException.cs" />
     <Compile Include="Extensions\StreamExtensions.cs" />
+    <Compile Include="Utility\IconExtractor.cs" />
     <Compile Include="InputFile.cs" />
     <Compile Include="Carrier\ICarrierMedia.cs" />
     <Compile Include="Forms\FormMain.cs">
@@ -71,7 +72,7 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="RandomNumberList.cs" />
+    <Compile Include="Utility\RandomNumberList.cs" />
     <Compile Include="StegoMessage.cs" />
     <EmbeddedResource Include="Forms\FormMain.resx">
       <DependentUpon>FormMain.cs</DependentUpon>
