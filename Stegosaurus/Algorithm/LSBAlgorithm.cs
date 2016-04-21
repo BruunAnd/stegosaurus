@@ -3,6 +3,7 @@ using Stegosaurus.Carrier;
 using System.Collections;
 using System.Linq;
 using Stegosaurus.Exceptions;
+using Stegosaurus.Utility;
 
 namespace Stegosaurus.Algorithm
 {
@@ -12,7 +13,7 @@ namespace Stegosaurus.Algorithm
 
         public ICarrierMedia CarrierMedia { get; set; }
 
-        public string Name => "LSB";
+        public string Name => "LSB Algorithm";
 
         public int Seed => Key?.GetHashCode() ?? 0;
 

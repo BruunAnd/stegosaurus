@@ -11,6 +11,9 @@ namespace Stegosaurus.Carrier
     public class ImageCarrier : ICarrierMedia
     {
         public byte[] ByteArray { get; set; }
+
+        public int SamplesPerVertex => 3;
+
         private Bitmap innerImage;
 
         /// <summary>
