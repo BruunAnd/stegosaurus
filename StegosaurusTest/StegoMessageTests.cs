@@ -25,5 +25,19 @@ namespace StegosaurusTest
 
             Assert.AreEqual(newMessage.TextMessage, recreatedMessage.TextMessage);
         }
+        [TestMethod]
+        public void ToByteArray_MatchingByteArrays_ReturnsTrue()
+        {
+            StegoMessage stegoMessage = new StegoMessage();
+
+            stegoMessage.InputFiles.Add(new InputFile("mat.png", new byte[] { 0, 0, 0, 0, 0, 0, 0, 1 }));
+
+            // øhhhhhhh fuck?!?!?!?!?!?!?!?!?!?!?!?!?
+        
+            byte[] expectedOutput = new byte[] { };
+
+            Assert.AreEqual(stegoMessage.ToByteArray(), expectedOutput);
+        
+        }
     }
 }
