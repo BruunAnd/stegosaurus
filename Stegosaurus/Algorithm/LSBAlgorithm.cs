@@ -96,6 +96,10 @@ namespace Stegosaurus.Algorithm
             return tempByteArray;
         }
 
+        public override string ToString()
+        {
+            return "Simple LSB";
+        }
 
     }
 }
