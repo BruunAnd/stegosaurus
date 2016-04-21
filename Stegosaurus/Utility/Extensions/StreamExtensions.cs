@@ -2,7 +2,7 @@
 using System.IO;
 using System.Text;
 
-namespace Stegosaurus.Extensions
+namespace Stegosaurus.Utility.Extensions
 {
     public static class StreamExtensions
     {

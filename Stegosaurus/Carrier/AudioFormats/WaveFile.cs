@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.IO;
 using System.Linq;
-using System.Text;
-using Stegosaurus.Extensions;
+using Stegosaurus.Utility.Extensions;
 using Stegosaurus.Exceptions;
 
 namespace Stegosaurus.Carrier.AudioFormats
