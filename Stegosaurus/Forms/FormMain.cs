@@ -1,8 +1,8 @@
 ﻿using Stegosaurus.Algorithm;
 using Stegosaurus.Carrier;
 using Stegosaurus.Exceptions;
-using Stegosaurus.Extensions;
-using Stegosaurus.Extensions.InputExtensions;
+using Stegosaurus.Utility.Extensions;
+using Stegosaurus.Utility.InputTypes;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
