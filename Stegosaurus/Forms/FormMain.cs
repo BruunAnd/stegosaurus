@@ -19,14 +19,14 @@ namespace Stegosaurus.Forms
     {
         StegoMessage stegoMessage = new StegoMessage();
         ICarrierMedia carrierMedia;
-        IStegoAlgorithm algorithm;
+        IStegoAlgorithm algorithm = new LSBAlgorithm();
 
         public FormMain()
         {
             InitializeComponent();
         }
 
-        private void listView1_DragDrop(object sender, DragEventArgs e)
+        private void MessageContentFilesListView_DragDrop(object sender, DragEventArgs e)
         {
             string[] inputFiles = (string[])e.Data.GetData(DataFormats.FileDrop);
 
@@ -37,26 +37,26 @@ namespace Stegosaurus.Forms
                 InputHelper(inputContent);
             }
 
-            listView1.BackColor = Color.White;
+            MessageContentFilesListview.BackColor = Color.White;
         }
 
-        private void listView1_DragEnter(object sender, DragEventArgs e)
+        private void MessageContentFilesListView_DragEnter(object sender, DragEventArgs e)
         {
             if (e.Data.GetDataPresent(DataFormats.FileDrop))
             {
                 e.Effect = DragDropEffects.Copy;
-                listView1.BackColor = Color.LightGreen;
+                MessageContentFilesListview.BackColor = Color.LightGreen;
             }
             else
             {
                 e.Effect = DragDropEffects.None;
-                listView1.BackColor = Color.Red;
+                MessageContentFilesListview.BackColor = Color.Red;
             }
         }
 
-        private void listView1_DragLeave(object sender, EventArgs e)
+        private void MessageContentFilesListView_DragLeave(object sender, EventArgs e)
         {
-            listView1.BackColor = Color.White;
+            MessageContentFilesListview.BackColor = Color.White;
         }
 
         private void deleteToolStripMenuItem_Click(object sender, EventArgs e)
@@ -69,9 +69,9 @@ namespace Stegosaurus.Forms
 
         }
 
-        private void textBox1_TextChanged(object sender, EventArgs e)
+        private void TextMessageTextbox_TextChanged(object sender, EventArgs e)
         {
-            stegoMessage.TextMessage = textBox1.Text;
+            stegoMessage.TextMessage = TextMessageTextbox.Text;
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -81,7 +81,28 @@ namespace Stegosaurus.Forms
 
         private void EmbedButton_Click(object sender, EventArgs e)
         {
-            MessageBox.Show("TODO: initiate algorithm.");
+            if (carrierMedia == null)
+            {
+                MessageBox.Show("You must supply a carrier media.");
+            }
+            else
+            {
+                if (stegoMessage.InputFiles.Count == 0 && string.IsNullOrEmpty(stegoMessage.TextMessage))
+                {
+                    algorithm.CarrierMedia = carrierMedia;
+                    algorithm.Key = Encoding.UTF8.GetBytes(EncryptionKeyTextbox.Text);
+                    stegoMessage = algorithm.Extract();
+
+                }
+                else
+                {
+                    algorithm.CarrierMedia = carrierMedia;
+                    algorithm.Key = Encoding.UTF8.GetBytes(EncryptionKeyTextbox.Text);
+                    algorithm.Embed(stegoMessage);
+                    algorithm.CarrierMedia.SaveToFile("new.png");
+                }
+            }
+
         }
 
         private void inputBrowseButton_Click(object sender, EventArgs e)
@@ -98,17 +119,12 @@ namespace Stegosaurus.Forms
             }
         }
 
-        private void InputBrowseDialog_FileOk(object sender, CancelEventArgs e)
-        {
-            MessageBox.Show("TODO: file type validation.");
-        }
-
         private void FormMain_Load(object sender, EventArgs e)
         {
             
         }
 
-        private void panel1_DragEnter(object sender, DragEventArgs e)
+        private void CarrierMediaPanel_DragEnter(object sender, DragEventArgs e)
         {
             if (e.Data.GetDataPresent(DataFormats.FileDrop))
             {
@@ -120,12 +136,12 @@ namespace Stegosaurus.Forms
             }
         }
 
-        private void panel1_DragLeave(object sender, EventArgs e)
+        private void CarrierMediaPanel_DragLeave(object sender, EventArgs e)
         {
 
         }
 
-        private void panel1_DragDrop(object sender, DragEventArgs e)
+        private void CarrierMediaPanel_DragDrop(object sender, DragEventArgs e)
         {
             string[] inputFile = (string[]) e.Data.GetData(DataFormats.FileDrop);
             try
@@ -162,23 +178,27 @@ namespace Stegosaurus.Forms
                     imageListIcons.Images.Add(fileItem.ImageKey, Icon.ExtractAssociatedIcon(_input.FilePath));
                 
                 stegoMessage.InputFiles.Add(inputFile);
-                listView1.Items.Add(fileItem);
+                MessageContentFilesListview.Items.Add(fileItem);
             }
             else if (_input is CarrierType)
             {
                 if (fileInfo.Extension == ".wav")
                 {
                     carrierMedia = new AudioCarrier(_input.FilePath);
-                    pictureBox1.Image = Icon.ExtractAssociatedIcon(_input.FilePath).ToBitmap();
+                    CarrierPictureBox.Image = Icon.ExtractAssociatedIcon(_input.FilePath).ToBitmap();
                 }
                 else
                 {
                     carrierMedia = new ImageCarrier(_input.FilePath);
-                    pictureBox1.Image = Image.FromFile(fileInfo.FullName);
+                    CarrierPictureBox.Image = Image.FromFile(fileInfo.FullName);
                 }
             }
             
         }
-        
+
+        private void AlgorithmSelectionCombobox_SelectionChangeCommitted(object sender, EventArgs e)
+        {
+            algorithm = (IStegoAlgorithm) AlgorithmSelectionCombobox.SelectedItem;
+        }
     }
 }

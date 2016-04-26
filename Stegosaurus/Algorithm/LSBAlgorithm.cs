@@ -99,7 +99,7 @@ namespace Stegosaurus.Algorithm
 
         public override string ToString()
         {
-            return "Simple LSB";
+            return Name;
         }
 
     }
