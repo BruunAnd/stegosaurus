@@ -15,7 +15,7 @@ namespace Stegosaurus.Algorithm
 
         public string Name => "LSB Algorithm";
 
-        public int Seed => Key?.GetHashCode() ?? 0;
+        public int Seed => 0; // Key?.GetHashCode() ?? 0
 
         public byte[] Key { get; set; }
 
