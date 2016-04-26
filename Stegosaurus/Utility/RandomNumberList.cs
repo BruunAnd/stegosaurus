@@ -1,41 +1,45 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace Stegosaurus.Utility
 {
-    public class RandomNumberList
+    public class RandomNumberList : IEnumerable<int>
     {
-        private int[] innerArray;
-
-        private int position = 0, maxValue;
-
-        private Random rand;
-
-        private HashSet<int> innerHashSet = new HashSet<int>();
-
-        public int Next => innerArray[position++];
-
-        public int RemainingElements => innerArray.Length - position;
+        // Private variables
+        private Random random;
+        private List<int> generatedIntegers = new List<int>();
+        private int maxValue;
 
         public RandomNumberList(int _seed, int _maxValue)
         {
+            random = new Random(_seed);
             maxValue = _maxValue;
-            rand = new Random(_seed);
         }
 
-        public void AddElements(int _count)
+        public IEnumerator<int> GetEnumerator()
         {
-            int newCount = innerHashSet.Count + _count;
+            int generatedInt;
 
-            // Generate numbers until we have the desired amount
-            // HashSet ensures that we don't add duplicates
-            while (innerHashSet.Count < newCount)
-                innerHashSet.Add(rand.Next(maxValue));
+            // Check if there are any more integers to generate
+            if (generatedIntegers.Count >= maxValue + 1)
+                throw new ArgumentOutOfRangeException("No more integers to generate.");
 
-            // Convert to an array, since accessing HashSets by index is slow
-            innerArray = innerHashSet.ToArray();
+            // Generate an integer which has not yet been generated
+            do
+            {
+                generatedInt = random.Next(maxValue + 1);
+            } while (generatedIntegers.Contains(generatedInt));
+
+            generatedIntegers.Add(generatedInt);
+
+            yield return generatedInt;
         }
 
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
     }
 }

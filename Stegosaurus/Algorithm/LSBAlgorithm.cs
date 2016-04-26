@@ -4,6 +4,7 @@ using System.Collections;
 using System.Linq;
 using Stegosaurus.Exceptions;
 using Stegosaurus.Utility;
+using System.Collections.Generic;
 
 namespace Stegosaurus.Algorithm
 {
@@ -25,13 +26,12 @@ namespace Stegosaurus.Algorithm
             BitArray messageInBits = new BitArray(LsbSignature.Concat(_message.ToByteArray(Key)).ToArray());
 
             // Generate random sequence of integers
-            RandomNumberList numberList = new RandomNumberList(Seed, CarrierMedia.ByteArray.Length);
-            numberList.AddElements(messageInBits.Length);
+            IEnumerable<int> numberList = new RandomNumberList(Seed, CarrierMedia.ByteArray.Length);
 
             // Iterate through all bits
             for (int index = 0; index < messageInBits.Length; index++)
             {
-                int byteArrayIndex = numberList.Next;
+                int byteArrayIndex = numberList.First();
 
                 // Get the least significant bit of current position
                 bool carrierBit = (CarrierMedia.ByteArray[byteArrayIndex] % 2) == 1;
@@ -50,23 +50,14 @@ namespace Stegosaurus.Algorithm
 
         public StegoMessage Extract()
         {
-            RandomNumberList numberList = new RandomNumberList(Seed, CarrierMedia.ByteArray.Length);
-
-            // Generate random numbers for LsbSignature
-            numberList.AddElements(LsbSignature.Length * 8);
+            IEnumerable<int> numberList = new RandomNumberList(Seed, CarrierMedia.ByteArray.Length);
 
             // Read bytes and verify LsbSignature
             if (!ReadBytes(numberList, LsbSignature.Length).SequenceEqual(LsbSignature))
                 throw new StegoAlgorithmException("LSB Signature is invalid.");
 
-            // Generate 4 * 8 random numbers (one for every bit in the header)
-            numberList.AddElements(4 * 8);
-
             // Read data size
             int dataSize = BitConverter.ToInt32(ReadBytes(numberList, 4), 0);
-
-            // Generate dataSize * 8 numbers (one for every bit in the data)
-            numberList.AddElements(dataSize * 8);
 
             // Return new instance from read data
             return new StegoMessage(ReadBytes(numberList, dataSize), Key);
@@ -77,18 +68,14 @@ namespace Stegosaurus.Algorithm
             return (CarrierMedia.ByteArray.Length - LsbSignature.Length) / 8;
         }
 
-        private byte[] ReadBytes(RandomNumberList numberList, int count)
+        private byte[] ReadBytes(IEnumerable<int> numberList, int count)
         {
-            // Check if there are enough bytes to read
-            if (numberList.RemainingElements < count * 8)
-                throw new StegoAlgorithmException("Not enough bytes to read.");
-
             // Allocate BitArray with count * 8 bits
             BitArray tempBitArray = new BitArray(count * 8);
 
             // Iterate through the allocated amount of bits
             for (int i = 0; i < tempBitArray.Length; i++)
-                tempBitArray[i] = ( CarrierMedia.ByteArray[numberList.Next] % 2 == 1 );
+                tempBitArray[i] = ( CarrierMedia.ByteArray[numberList.First()] % 2 == 1 );
 
             // Copy bitArray to new byteArray
             byte[] tempByteArray = new byte[count];
