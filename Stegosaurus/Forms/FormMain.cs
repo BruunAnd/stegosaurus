@@ -1,6 +1,7 @@
 ﻿using Stegosaurus.Algorithm;
 using Stegosaurus.Carrier;
 using Stegosaurus.Exceptions;
+using Stegosaurus.Utility;
 using Stegosaurus.Utility.Extensions;
 using Stegosaurus.Utility.InputTypes;
 using System;
@@ -59,10 +60,6 @@ namespace Stegosaurus.Forms
             MessageContentFilesListview.BackColor = Color.White;
         }
 
-        private void deleteToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            MessageBox.Show("To Be Implemented.");
-        }
 
         private void label2_Click(object sender, EventArgs e)
         {
@@ -92,7 +89,21 @@ namespace Stegosaurus.Forms
                     algorithm.CarrierMedia = carrierMedia;
                     algorithm.Key = Encoding.UTF8.GetBytes(EncryptionKeyTextbox.Text);
                     stegoMessage = algorithm.Extract();
-
+                    if (stegoMessage.InputFiles.Count != 0)
+                    {
+                        ListViewItem fileItem;
+                        foreach (InputFile file in stegoMessage.InputFiles)
+                        {
+                            fileItem = new ListViewItem(file.Name);
+                            fileItem.SubItems.Add(FileSizeExtensions.StringFormatBytes(file.Content.LongLength));
+                            fileItem.ImageKey = file.Name.Substring(file.Name.LastIndexOf('.'));
+                            if (!imageListIcons.Images.ContainsKey(fileItem.ImageKey))
+                                imageListIcons.Images.Add(fileItem.ImageKey, IconExtractor.ExtractIcon(fileItem.ImageKey));
+                            
+                            MessageContentFilesListview.Items.Add(fileItem);
+                        }
+                    }
+                    TextMessageTextbox.Text = stegoMessage.TextMessage;
                 }
                 else
                 {
@@ -199,6 +210,22 @@ namespace Stegosaurus.Forms
         private void AlgorithmSelectionCombobox_SelectionChangeCommitted(object sender, EventArgs e)
         {
             algorithm = (IStegoAlgorithm) AlgorithmSelectionCombobox.SelectedItem;
+        }
+
+        private void saveToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            //saveFileDialog.FileName = MessageContentFilesListview.;
+        }
+
+        private void deleteToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
+            if (true)
+            {
+
+            }
+            //stegoMessage.InputFiles.
+            //MessageContentFilesListview.HitTest(Cursor.Position).Item;
         }
     }
 }

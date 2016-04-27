@@ -57,6 +57,7 @@ namespace Stegosaurus.Forms
             this.algorithmListLabel = new System.Windows.Forms.Label();
             this.AlgorithmSelectionCombobox = new System.Windows.Forms.ComboBox();
             this.colorDialog1 = new System.Windows.Forms.ColorDialog();
+            this.saveFileDialog = new System.Windows.Forms.SaveFileDialog();
             this.contextMenuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.CarrierPictureBox)).BeginInit();
             this.panel1.SuspendLayout();
@@ -73,6 +74,7 @@ namespace Stegosaurus.Forms
             this.MessageContentFilesListview.FullRowSelect = true;
             this.MessageContentFilesListview.GridLines = true;
             this.MessageContentFilesListview.Location = new System.Drawing.Point(465, 34);
+            this.MessageContentFilesListview.MultiSelect = false;
             this.MessageContentFilesListview.Name = "MessageContentFilesListview";
             this.MessageContentFilesListview.Size = new System.Drawing.Size(347, 184);
             this.MessageContentFilesListview.SmallImageList = this.imageListIcons;
@@ -107,6 +109,7 @@ namespace Stegosaurus.Forms
             this.saveToolStripMenuItem.Name = "saveToolStripMenuItem";
             this.saveToolStripMenuItem.Size = new System.Drawing.Size(128, 26);
             this.saveToolStripMenuItem.Text = "Save";
+            this.saveToolStripMenuItem.Click += new System.EventHandler(this.saveToolStripMenuItem_Click);
             // 
             // deleteToolStripMenuItem
             // 
@@ -330,6 +333,7 @@ namespace Stegosaurus.Forms
         private System.Windows.Forms.Label algorithmListLabel;
         private System.Windows.Forms.ComboBox AlgorithmSelectionCombobox;
         private System.Windows.Forms.ColorDialog colorDialog1;
+        private System.Windows.Forms.SaveFileDialog saveFileDialog;
     }
 }
 
