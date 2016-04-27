@@ -1,18 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
+﻿using System.IO;
 using System.Security.Cryptography;
-using System.Text;
 using Stegosaurus.Utility.Extensions;
 
 namespace Stegosaurus.Cryptography
 {
-    public class AES
+    public class AESProvider : ICryptoProvider
     {
         private static byte[] salt = new byte[] { 0x4e, 0x27, 0xaa, 0x18, 0x8b, 0xf7, 0x7f, 0x76 };
 
-        public static byte[] Encrypt(byte[] _data, string _key)
+        public byte[] Encrypt(byte[] _data, string _key)
         {
             using (RijndaelManaged rijnAlgo = new RijndaelManaged())
             {
@@ -41,7 +37,7 @@ namespace Stegosaurus.Cryptography
             }
         }
 
-        public static byte[] Decrypt(byte[] _data, string _key)
+        public byte[] Decrypt(byte[] _data, string _key)
         {
             using (RijndaelManaged rijnAlgo = new RijndaelManaged())
             {
