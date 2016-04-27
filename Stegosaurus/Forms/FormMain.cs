@@ -19,12 +19,14 @@ namespace Stegosaurus.Forms
     public partial class FormMain : Form
     {
         StegoMessage stegoMessage = new StegoMessage();
-        ICarrierMedia carrierMedia;
-        IStegoAlgorithm algorithm = new LSBAlgorithm();
+        ICarrierMedia carrierMedia = null;
+        IStegoAlgorithm algorithm = null;
 
         public FormMain()
         {
             InitializeComponent();
+            AlgorithmSelectionCombobox.SelectedIndex = 0;
+            algorithm = (IStegoAlgorithm)AlgorithmSelectionCombobox.SelectedItem;
         }
 
         private void MessageContentFilesListView_DragDrop(object sender, DragEventArgs e)
@@ -107,10 +109,17 @@ namespace Stegosaurus.Forms
                 }
                 else
                 {
-                    algorithm.CarrierMedia = carrierMedia;
-                    algorithm.Key = Encoding.UTF8.GetBytes(EncryptionKeyTextbox.Text);
-                    algorithm.Embed(stegoMessage);
-                    algorithm.CarrierMedia.SaveToFile("new.png");
+                    try
+                    {
+                        algorithm.CarrierMedia = carrierMedia;
+                        algorithm.Key = Encoding.UTF8.GetBytes(EncryptionKeyTextbox.Text);
+                        algorithm.Embed(stegoMessage);
+                        algorithm.CarrierMedia.SaveToFile("new.png");
+                    }
+                    catch (StegoAlgorithmException ex)
+                    {
+                        MessageBox.Show(ex.Message);
+                    }
                 }
             }
 
@@ -210,22 +219,68 @@ namespace Stegosaurus.Forms
         private void AlgorithmSelectionCombobox_SelectionChangeCommitted(object sender, EventArgs e)
         {
             algorithm = (IStegoAlgorithm) AlgorithmSelectionCombobox.SelectedItem;
+            algorithm.CarrierMedia = carrierMedia;
         }
 
         private void saveToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            //saveFileDialog.FileName = MessageContentFilesListview.;
+            int[] fileIndices = getSelectedContentIndices();
+            foreach (int index in fileIndices)
+            {
+                MessageBox.Show(stegoMessage.InputFiles[index].Name);
+            }
         }
 
         private void deleteToolStripMenuItem_Click(object sender, EventArgs e)
         {
-
-            if (true)
+            int[] fileIndices = getSelectedContentIndices();
+            if (fileIndices.Length == 0)
             {
+                MessageBox.Show("You must have items selected to delete.", "Delete Error");
+            }
+            else
+            {
+                for (int index = fileIndices.Length - 1; index >= 0; index--)
+                {
+                    stegoMessage.InputFiles.RemoveAt(fileIndices[index]);
+                    MessageContentFilesListview.Items.RemoveAt(fileIndices[index]);
+                }
+                updateCapacityBar();
+            }
+        }
+
+        private int[] getSelectedContentIndices()
+        {
+            int[] indices = new int[MessageContentFilesListview.SelectedIndices.Count];
+            MessageContentFilesListview.SelectedIndices.CopyTo(indices, 0);
+            return indices;
+        }
+
+        private void updateCapacityBar()
+        {
+            long capacity = 0, size;
+            decimal ratio, max = (decimal)CapacityProgressbar.Maximum;
+            size = stegoMessage.GetCompressedSize();
+            if (carrierMedia != null)
+            {
+                algorithm.CarrierMedia = carrierMedia;
+                capacity = algorithm.ComputeBandwidth();
+                if (capacity >= size)
+                {
+                    ratio = 100 * ((decimal)size / capacity);
+                }
+                else
+                {
+                    ratio = max;
+                }
 
             }
-            //stegoMessage.InputFiles.
-            //MessageContentFilesListview.HitTest(Cursor.Position).Item;
+            else
+            {
+                ratio = max;
+            }
+
+            CapacityProgressbar.Value = (int) ratio;
         }
     }
 }

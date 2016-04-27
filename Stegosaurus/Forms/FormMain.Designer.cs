@@ -74,7 +74,6 @@ namespace Stegosaurus.Forms
             this.MessageContentFilesListview.FullRowSelect = true;
             this.MessageContentFilesListview.GridLines = true;
             this.MessageContentFilesListview.Location = new System.Drawing.Point(465, 34);
-            this.MessageContentFilesListview.MultiSelect = false;
             this.MessageContentFilesListview.Name = "MessageContentFilesListview";
             this.MessageContentFilesListview.Size = new System.Drawing.Size(347, 184);
             this.MessageContentFilesListview.SmallImageList = this.imageListIcons;
@@ -229,7 +228,9 @@ namespace Stegosaurus.Forms
             this.CapacityProgressbar.Location = new System.Drawing.Point(303, 195);
             this.CapacityProgressbar.Name = "CapacityProgressbar";
             this.CapacityProgressbar.Size = new System.Drawing.Size(154, 23);
+            this.CapacityProgressbar.Style = System.Windows.Forms.ProgressBarStyle.Continuous;
             this.CapacityProgressbar.TabIndex = 13;
+            this.CapacityProgressbar.Value = 50;
             // 
             // panel1
             // 

@@ -83,7 +83,7 @@ namespace Stegosaurus
             return returnList.ToArray();
         }
 
-        private long GetCompressedSize()
+        public long GetCompressedSize()
         {
             return ToByteArray().Length;
         }
