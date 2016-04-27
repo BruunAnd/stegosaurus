@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using System.Security.Cryptography;
 using Stegosaurus.Utility.Extensions;
+using Stegosaurus.Exceptions;
 
 namespace Stegosaurus.Cryptography
 {
@@ -10,22 +11,25 @@ namespace Stegosaurus.Cryptography
 
         public byte[] Encrypt(byte[] _data, string _key)
         {
-            using (RijndaelManaged rijnAlgo = new RijndaelManaged())
+            using (AesManaged aesAlgorithm = new AesManaged())
             {
                 // Generate key from key and salt
                 Rfc2898DeriveBytes key = new Rfc2898DeriveBytes(_key, salt);
 
                 // Set key and generate initialization vector
-                rijnAlgo.Key = key.GetBytes(rijnAlgo.KeySize / 8);
-                rijnAlgo.GenerateIV();
+                aesAlgorithm.Key = key.GetBytes(aesAlgorithm.KeySize / 8);
+                aesAlgorithm.GenerateIV();
 
                 // Create encryptor
-                ICryptoTransform encryptor = rijnAlgo.CreateEncryptor(rijnAlgo.Key, rijnAlgo.IV);
+                ICryptoTransform encryptor = aesAlgorithm.CreateEncryptor(aesAlgorithm.Key, aesAlgorithm.IV);
 
                 using (MemoryStream outputStream = new MemoryStream())
                 {
+                    if (aesAlgorithm.IV.Length != 16)
+                        throw new StegosaurusException("Unexpected length of initialization vector."); // TODO custom exception
+
                     // Append initialization vector to stream
-                    outputStream.Write(rijnAlgo.IV);
+                    outputStream.Write(aesAlgorithm.IV);
 
                     using (CryptoStream cryptStream = new CryptoStream(outputStream, encryptor, CryptoStreamMode.Write))
                     {
@@ -39,21 +43,21 @@ namespace Stegosaurus.Cryptography
 
         public byte[] Decrypt(byte[] _data, string _key)
         {
-            using (RijndaelManaged rijnAlgo = new RijndaelManaged())
+            using (AesManaged aesManaged = new AesManaged())
             {
                 // Generate key from key and salt
                 Rfc2898DeriveBytes key = new Rfc2898DeriveBytes(_key, salt);
 
                 // Set key and generate initialization vector
-                rijnAlgo.Key = key.GetBytes(rijnAlgo.KeySize / 8);
+                aesManaged.Key = key.GetBytes(aesManaged.KeySize / 8);
 
                 using (MemoryStream inputStream = new MemoryStream(_data))
                 {
                     // Read initialization vector from stream
-                    rijnAlgo.IV = inputStream.ReadBytes(16);
+                    aesManaged.IV = inputStream.ReadBytes(16);
 
                     // Create decryptor
-                    ICryptoTransform decryptor = rijnAlgo.CreateDecryptor(rijnAlgo.Key, rijnAlgo.IV);
+                    ICryptoTransform decryptor = aesManaged.CreateDecryptor(aesManaged.Key, aesManaged.IV);
 
                     using (CryptoStream cryptoStream = new CryptoStream(inputStream, decryptor, CryptoStreamMode.Read))
                     {

@@ -8,6 +8,6 @@ namespace Stegosaurus.Cryptography
     public interface ICryptoProvider
     {
         byte[] Encrypt(byte[] _data, string _key);
-        byte[] Decrypt(byte[] _data, string key);
+        byte[] Decrypt(byte[] _data, string _key);
     }
 }
