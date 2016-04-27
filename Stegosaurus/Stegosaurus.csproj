@@ -62,6 +62,7 @@
     <Compile Include="Carrier\AudioFormats\AudioFile.cs" />
     <Compile Include="Carrier\AudioFormats\WaveFile.cs" />
     <Compile Include="Carrier\ImageCarrier.cs" />
+    <Compile Include="Cryptography\AES.cs" />
     <Compile Include="Cryptography\RC4.cs" />
     <Compile Include="Exceptions\InvalidFileException.cs" />
     <Compile Include="Exceptions\InvalidWaveFileException.cs" />
