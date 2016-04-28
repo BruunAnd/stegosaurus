@@ -1,8 +1,32 @@
-﻿namespace Stegosaurus
+﻿using Stegosaurus.Exceptions;
+using System.IO;
+
+namespace Stegosaurus
 {
-    class InputFile
+    public class InputFile
     {
-        public string Name;
-        public byte[] Content;
+        public string Name { get; }
+        public byte[] Content { get; }
+
+        public InputFile(string _name, byte[] _content)
+        {
+            Name = _name;
+            Content = _content;
+        }
+
+        public InputFile(string _filePath)
+        {
+            FileInfo fileInfo = new FileInfo(_filePath);
+            if (!fileInfo.Exists)
+                throw new InvalidFileException("File does not exist.", _filePath);
+
+            Name = fileInfo.Name;
+            Content = File.ReadAllBytes(_filePath);
+        }
+
+        public void SaveTo(string _destination)
+        {
+            File.WriteAllBytes(_destination, Content);
+        }
     }
 }

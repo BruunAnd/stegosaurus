@@ -1,8 +1,9 @@
 ﻿namespace Stegosaurus.Carrier
 {
-    interface ICarrierMedia
+    public interface ICarrierMedia
     {
         byte[] ByteArray { get; set; }
+        int SamplesPerVertex { get; }
 
         void Encode();
         void Decode();
