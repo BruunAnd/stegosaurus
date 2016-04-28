@@ -29,7 +29,12 @@ namespace Stegosaurus.Forms
             algorithm = (IStegoAlgorithm)comboBoxAlgorithmSelection.SelectedItem;
         }
 
-        private void MessageContentFilesListView_DragDrop(object sender, DragEventArgs e)
+        /// <summary>
+        /// Gets the file paths of all dropped files, converts them to the ContentType and calls the InputHelper to handle them further.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void listViewMessageContentFiles_DragDrop(object sender, DragEventArgs e)
         {
             string[] inputFiles = (string[])e.Data.GetData(DataFormats.FileDrop);
 
@@ -43,7 +48,12 @@ namespace Stegosaurus.Forms
             listViewMessageContentFiles.BackColor = Color.White;
         }
 
-        private void MessageContentFilesListView_DragEnter(object sender, DragEventArgs e)
+        /// <summary>
+        /// Checks that the items dragged into the listViewMessageContentFiles control are valid and changes the effect, and color accordingly.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void listViewMessageContentFiles_DragEnter(object sender, DragEventArgs e)
         {
             if (e.Data.GetDataPresent(DataFormats.FileDrop))
             {
@@ -57,23 +67,43 @@ namespace Stegosaurus.Forms
             }
         }
 
-        private void MessageContentFilesListView_DragLeave(object sender, EventArgs e)
+        /// <summary>
+        /// Reverts the color of the listViewMessageContentFiles control to white when the files are dragged out of the conrtrols boundaries. 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void listViewMessageContentFiles_DragLeave(object sender, EventArgs e)
         {
             listViewMessageContentFiles.BackColor = Color.White;
         }
-        
 
-        private void TextMessageTextbox_TextChanged(object sender, EventArgs e)
+        /// <summary>
+        /// Assigns the content of the textBoxTextMessage.Text property to the stegoMessage.TextMessage property and updates the  to be the progressBarCapacity control.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void textBoxTextMessage_TextChanged(object sender, EventArgs e)
         {
             stegoMessage.TextMessage = textBoxTextMessage.Text;
             updateCapacityBar();
         }
 
+        /// <summary>
+        /// DEBUG: shows the content of the stegoMessage's TextMessage property.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void button1_Click(object sender, EventArgs e)
         {
             MessageBox.Show(stegoMessage.TextMessage);
         }
 
+        /// <summary>
+        /// Checks whether stegoMessage contains content to be embedded, and runs the algoritm.Extract or algorithm.Embed methods accordingly.
+        /// If the Extract method was called the interface is updated according to the new content of stegoMessage.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void EmbedButton_Click(object sender, EventArgs e)
         {
             if (carrierMedia == null)
@@ -120,7 +150,12 @@ namespace Stegosaurus.Forms
             }
 
         }
-
+        
+        /// <summary>
+        /// Opens a dialog where the user can browse for files to add to the message content.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void inputBrowseButton_Click(object sender, EventArgs e)
         {
             DialogResult result = InputBrowseDialog.ShowDialog();
@@ -140,7 +175,12 @@ namespace Stegosaurus.Forms
             
         }
 
-        private void CarrierMediaPanel_DragEnter(object sender, DragEventArgs e)
+        /// <summary>
+        /// Checks that the files dragged into the panelCarrierMedia control are valid and assigs the effect of the Drag&Drop accordingly.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void panelCarrierMedia_DragEnter(object sender, DragEventArgs e)
         {
             if (e.Data.GetDataPresent(DataFormats.FileDrop))
             {
@@ -152,12 +192,13 @@ namespace Stegosaurus.Forms
             }
         }
 
-        private void CarrierMediaPanel_DragLeave(object sender, EventArgs e)
-        {
-
-        }
-
-        private void CarrierMediaPanel_DragDrop(object sender, DragEventArgs e)
+        /// <summary>
+        /// Gets the paths of the dropped files and converts the first to CarrierType and calls InputHelper.
+        /// TODO: Implement chack for multiple dropped files and show apropriate error.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void panelCarrierMedia_DragDrop(object sender, DragEventArgs e)
         {
             string[] inputFile = (string[]) e.Data.GetData(DataFormats.FileDrop);
             try
@@ -180,11 +221,15 @@ namespace Stegosaurus.Forms
             
         }
 
+        /// <summary>
+        /// Gets and IInputType with a file path. Checks the type of the input and handles it accordingly.
+        /// </summary>
+        /// <param name="_input"></param>
         private void InputHelper(IInputType _input)
         {
             InputFile inputFile = new InputFile(_input.FilePath);
             FileInfo fileInfo = new FileInfo(_input.FilePath);
-
+            //
             if (_input is ContentType)
             {
                 ListViewItem fileItem = new ListViewItem(inputFile.Name);
@@ -213,6 +258,11 @@ namespace Stegosaurus.Forms
             
         }
 
+        /// <summary>
+        /// Assigns the chosen algorithm to the algorithm variable and supplies the algorithm with the current carrierMedia. At last the progressBarCapacity is updated.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void AlgorithmSelectionCombobox_SelectionChangeCommitted(object sender, EventArgs e)
         {
             algorithm = (IStegoAlgorithm) comboBoxAlgorithmSelection.SelectedItem;

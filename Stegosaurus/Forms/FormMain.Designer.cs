@@ -83,9 +83,9 @@ namespace Stegosaurus.Forms
             this.listViewMessageContentFiles.TabIndex = 3;
             this.listViewMessageContentFiles.UseCompatibleStateImageBehavior = false;
             this.listViewMessageContentFiles.View = System.Windows.Forms.View.Details;
-            this.listViewMessageContentFiles.DragDrop += new System.Windows.Forms.DragEventHandler(this.MessageContentFilesListView_DragDrop);
-            this.listViewMessageContentFiles.DragEnter += new System.Windows.Forms.DragEventHandler(this.MessageContentFilesListView_DragEnter);
-            this.listViewMessageContentFiles.DragLeave += new System.EventHandler(this.MessageContentFilesListView_DragLeave);
+            this.listViewMessageContentFiles.DragDrop += new System.Windows.Forms.DragEventHandler(this.listViewMessageContentFiles_DragDrop);
+            this.listViewMessageContentFiles.DragEnter += new System.Windows.Forms.DragEventHandler(this.listViewMessageContentFiles_DragEnter);
+            this.listViewMessageContentFiles.DragLeave += new System.EventHandler(this.listViewMessageContentFiles_DragLeave);
             // 
             // columnHeader1
             // 
@@ -156,7 +156,7 @@ namespace Stegosaurus.Forms
             this.textBoxTextMessage.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
             this.textBoxTextMessage.Size = new System.Drawing.Size(347, 64);
             this.textBoxTextMessage.TabIndex = 6;
-            this.textBoxTextMessage.TextChanged += new System.EventHandler(this.TextMessageTextbox_TextChanged);
+            this.textBoxTextMessage.TextChanged += new System.EventHandler(this.textBoxTextMessage_TextChanged);
             // 
             // button1
             // 
@@ -244,8 +244,8 @@ namespace Stegosaurus.Forms
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(284, 184);
             this.panel1.TabIndex = 14;
-            this.panel1.DragDrop += new System.Windows.Forms.DragEventHandler(this.CarrierMediaPanel_DragDrop);
-            this.panel1.DragEnter += new System.Windows.Forms.DragEventHandler(this.CarrierMediaPanel_DragEnter);
+            this.panel1.DragDrop += new System.Windows.Forms.DragEventHandler(this.panelCarrierMedia_DragDrop);
+            this.panel1.DragEnter += new System.Windows.Forms.DragEventHandler(this.panelCarrierMedia_DragEnter);
             this.panel1.DragLeave += new System.EventHandler(this.CarrierMediaPanel_DragLeave);
             // 
             // labelCarrierMedia
