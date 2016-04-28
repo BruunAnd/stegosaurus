@@ -31,6 +31,8 @@ namespace Stegosaurus
         public StegoMessage(byte[] _fromArray, byte[] _decryptionKey = null)
         {
             flagByte = _fromArray[0];
+            flags = (FlagEnum)flagByte;
+
             _fromArray = _fromArray.Skip(1).ToArray();
 
             // Decrypt if a key is specified
