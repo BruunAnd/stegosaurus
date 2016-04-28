@@ -5,6 +5,7 @@ using Stegosaurus.Utility.Extensions;
 using Stegosaurus.Cryptography;
 using Stegosaurus.Utility;
 using System.Linq;
+using System.Windows.Forms;
 
 namespace Stegosaurus
 {
@@ -14,10 +15,15 @@ namespace Stegosaurus
         public List<InputFile> InputFiles { get; } = new List<InputFile>();
 
         [Flags]
-        public enum FlagEnum { None = 0, Encoded = 1, Compressed = 2, Encrypted = 4 }
-        public FlagEnum flags = new FlagEnum();
+        public enum FlagEnum
+        {
+            Encoded = 0x1,
+            Compressed = 0x2,
+            Encrypted = 0x4,
+            Signed = 0x8,
+        }
 
-        private byte flagByte;
+        private FlagEnum flags = new FlagEnum();
 
         public StegoMessage()
         {
@@ -30,26 +36,27 @@ namespace Stegosaurus
 
         public StegoMessage(byte[] _fromArray, byte[] _decryptionKey = null)
         {
-            flagByte = _fromArray[0];
-            flags = (FlagEnum)flagByte;
-
-            _fromArray = _fromArray.Skip(1).ToArray();
-
-            // Decrypt if a key is specified
-            if (_decryptionKey != null && flags.HasFlag(FlagEnum.Encrypted))
+            using (MemoryStream inputStream = new MemoryStream(_fromArray))
             {
-                _fromArray = RC4.Decrypt(_fromArray, _decryptionKey);
-            }
-                
-            // Decode the decompressed array
-            if(flags.HasFlag(FlagEnum.Compressed))
-            {
-                _fromArray = Compression.Decompress(_fromArray);
-            }
+                flags = (FlagEnum) inputStream.ReadByte();
 
-            if(flags.HasFlag(FlagEnum.Encoded))
-            {
-                Decode(_fromArray);
+                // Read encoded data
+                byte[] encodedData = inputStream.ReadBytes(_fromArray.Length - sizeof(byte));
+
+                // Decrypt if a key is specified
+                if (_decryptionKey != null && flags.HasFlag(FlagEnum.Encrypted))
+                {
+                    encodedData = RC4.Decrypt(encodedData, _decryptionKey);
+                }
+
+                // Decompress the array
+                if (flags.HasFlag(FlagEnum.Compressed))
+                {
+                    encodedData = Compression.Decompress(encodedData);
+                }
+
+                // Decode array
+                Decode(encodedData);
             }
         }
 
@@ -94,7 +101,8 @@ namespace Stegosaurus
             byte[] encodedData = Encode();
             SetFlag(FlagEnum.Encoded, true);
 
-            byte[] compressedData = Compression.Compress(Encode());
+            // Compress data
+            byte[] compressedData = Compression.Compress(encodedData);
             if (compressedData.Length < encodedData.Length)
             {
                 encodedData = compressedData;
@@ -118,28 +126,25 @@ namespace Stegosaurus
 
             // Combine array and length header
             List<byte> returnList = new List<byte>();
-            returnList.AddRange(BitConverter.GetBytes(encodedData.Length + 1));
-            returnList.Add(flagByte);
+            returnList.AddRange(BitConverter.GetBytes(encodedData.Length + sizeof(byte)));
+            returnList.Add((byte)flags);
+            MessageBox.Show(encodedData.Length.ToString());
             returnList.AddRange(encodedData);
 
             return returnList.ToArray();
         }
 
+        private void SetFlag(FlagEnum _flag, bool _state)
+        {
+            if (_state != flags.HasFlag(_flag))
+            {
+                flags ^= _flag;
+            }
+        }
+
         public long GetCompressedSize()
         {
             return ToByteArray().Length;
-        }
-
-        public void SetFlag(FlagEnum _flag, bool _state)
-        {
-            if (_flag == FlagEnum.None)
-            {
-                flagByte = 0;
-            }
-            if(_state != flags.HasFlag(_flag))
-            {
-                flagByte ^= (byte)_flag;
-            }
         }
     }
 }
