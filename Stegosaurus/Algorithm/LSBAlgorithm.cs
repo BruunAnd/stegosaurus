@@ -65,7 +65,7 @@ namespace Stegosaurus.Algorithm
 
         public long ComputeBandwidth()
         {
-            return (CarrierMedia.ByteArray.Length - LsbSignature.Length) / 8;
+            return (CarrierMedia.ByteArray.Length / 8 ) - LsbSignature.Length;
         }
 
         private byte[] ReadBytes(IEnumerable<int> numberList, int count)
