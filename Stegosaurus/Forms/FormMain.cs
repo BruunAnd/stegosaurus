@@ -25,8 +25,8 @@ namespace Stegosaurus.Forms
         public FormMain()
         {
             InitializeComponent();
-            AlgorithmSelectionCombobox.SelectedIndex = 0;
-            algorithm = (IStegoAlgorithm)AlgorithmSelectionCombobox.SelectedItem;
+            comboBoxAlgorithmSelection.SelectedIndex = 0;
+            algorithm = (IStegoAlgorithm)comboBoxAlgorithmSelection.SelectedItem;
         }
 
         private void MessageContentFilesListView_DragDrop(object sender, DragEventArgs e)
@@ -40,7 +40,7 @@ namespace Stegosaurus.Forms
                 InputHelper(inputContent);
             }
 
-            MessageContentFilesListview.BackColor = Color.White;
+            listViewMessageContentFiles.BackColor = Color.White;
         }
 
         private void MessageContentFilesListView_DragEnter(object sender, DragEventArgs e)
@@ -48,29 +48,25 @@ namespace Stegosaurus.Forms
             if (e.Data.GetDataPresent(DataFormats.FileDrop))
             {
                 e.Effect = DragDropEffects.Copy;
-                MessageContentFilesListview.BackColor = Color.LightGreen;
+                listViewMessageContentFiles.BackColor = Color.LightGreen;
             }
             else
             {
                 e.Effect = DragDropEffects.None;
-                MessageContentFilesListview.BackColor = Color.Red;
+                listViewMessageContentFiles.BackColor = Color.Red;
             }
         }
 
         private void MessageContentFilesListView_DragLeave(object sender, EventArgs e)
         {
-            MessageContentFilesListview.BackColor = Color.White;
+            listViewMessageContentFiles.BackColor = Color.White;
         }
-
-
-        private void label2_Click(object sender, EventArgs e)
-        {
-
-        }
+        
 
         private void TextMessageTextbox_TextChanged(object sender, EventArgs e)
         {
-            stegoMessage.TextMessage = TextMessageTextbox.Text;
+            stegoMessage.TextMessage = textBoxTextMessage.Text;
+            updateCapacityBar();
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -89,7 +85,7 @@ namespace Stegosaurus.Forms
                 if (stegoMessage.InputFiles.Count == 0 && string.IsNullOrEmpty(stegoMessage.TextMessage))
                 {
                     algorithm.CarrierMedia = carrierMedia;
-                    algorithm.Key = Encoding.UTF8.GetBytes(EncryptionKeyTextbox.Text);
+                    algorithm.Key = Encoding.UTF8.GetBytes(textBoxEncryptionKey.Text);
                     stegoMessage = algorithm.Extract();
                     if (stegoMessage.InputFiles.Count != 0)
                     {
@@ -102,17 +98,17 @@ namespace Stegosaurus.Forms
                             if (!imageListIcons.Images.ContainsKey(fileItem.ImageKey))
                                 imageListIcons.Images.Add(fileItem.ImageKey, IconExtractor.ExtractIcon(fileItem.ImageKey));
                             
-                            MessageContentFilesListview.Items.Add(fileItem);
+                            listViewMessageContentFiles.Items.Add(fileItem);
                         }
                     }
-                    TextMessageTextbox.Text = stegoMessage.TextMessage;
+                    textBoxTextMessage.Text = stegoMessage.TextMessage;
                 }
                 else
                 {
                     try
                     {
                         algorithm.CarrierMedia = carrierMedia;
-                        algorithm.Key = Encoding.UTF8.GetBytes(EncryptionKeyTextbox.Text);
+                        algorithm.Key = Encoding.UTF8.GetBytes(textBoxEncryptionKey.Text);
                         algorithm.Embed(stegoMessage);
                         algorithm.CarrierMedia.SaveToFile("new.png");
                     }
@@ -198,37 +194,78 @@ namespace Stegosaurus.Forms
                     imageListIcons.Images.Add(fileItem.ImageKey, Icon.ExtractAssociatedIcon(_input.FilePath));
                 
                 stegoMessage.InputFiles.Add(inputFile);
-                MessageContentFilesListview.Items.Add(fileItem);
+                listViewMessageContentFiles.Items.Add(fileItem);
             }
             else if (_input is CarrierType)
             {
                 if (fileInfo.Extension == ".wav")
                 {
                     carrierMedia = new AudioCarrier(_input.FilePath);
-                    CarrierPictureBox.Image = Icon.ExtractAssociatedIcon(_input.FilePath).ToBitmap();
+                    pictureBoxCarrier.Image = Icon.ExtractAssociatedIcon(_input.FilePath).ToBitmap();
                 }
                 else
                 {
                     carrierMedia = new ImageCarrier(_input.FilePath);
-                    CarrierPictureBox.Image = Image.FromFile(fileInfo.FullName);
+                    pictureBoxCarrier.Image = Image.FromFile(fileInfo.FullName);
                 }
             }
+            updateCapacityBar();
             
         }
 
         private void AlgorithmSelectionCombobox_SelectionChangeCommitted(object sender, EventArgs e)
         {
-            algorithm = (IStegoAlgorithm) AlgorithmSelectionCombobox.SelectedItem;
+            algorithm = (IStegoAlgorithm) comboBoxAlgorithmSelection.SelectedItem;
             algorithm.CarrierMedia = carrierMedia;
+            updateCapacityBar();
         }
 
         private void saveToolStripMenuItem_Click(object sender, EventArgs e)
         {
             int[] fileIndices = getSelectedContentIndices();
-            foreach (int index in fileIndices)
+            int len = fileIndices.Length;
+            DialogResult result;
+            if (len == 0)
             {
-                MessageBox.Show(stegoMessage.InputFiles[index].Name);
+                MessageBox.Show("You must have items selected to save.", "Save Error");
             }
+            if (len == 1)
+            {
+                saveFileDialog.FileName = stegoMessage.InputFiles[fileIndices[0]].Name;
+                result = saveFileDialog.ShowDialog();
+                if(result == DialogResult.OK)
+                {
+                    if (saveFileDialog.FileName == "")
+                    {
+                        MessageBox.Show("The chosen destination cannot be blank.", "Save Error");
+                    }
+                    else
+                    {
+                        stegoMessage.InputFiles[fileIndices[0]].SaveTo(saveFileDialog.FileName);
+                    }
+                }
+            }
+            else
+            {
+                result = folderBrowserDialog.ShowDialog();
+                if (result == DialogResult.OK)
+                {
+                    if (folderBrowserDialog.SelectedPath == "")
+                    {
+                        MessageBox.Show("The chosen destination cannot be blank.", "Save Error");
+                    }
+                    else
+                    {
+                        foreach (int index in fileIndices)
+                        {
+                            stegoMessage.InputFiles[fileIndices[index]].SaveTo($"{folderBrowserDialog.SelectedPath}\\{stegoMessage.InputFiles[fileIndices[index]].Name}");
+                        }
+                    }
+                }
+
+            }
+
+
         }
 
         private void deleteToolStripMenuItem_Click(object sender, EventArgs e)
@@ -243,7 +280,7 @@ namespace Stegosaurus.Forms
                 for (int index = fileIndices.Length - 1; index >= 0; index--)
                 {
                     stegoMessage.InputFiles.RemoveAt(fileIndices[index]);
-                    MessageContentFilesListview.Items.RemoveAt(fileIndices[index]);
+                    listViewMessageContentFiles.Items.RemoveAt(fileIndices[index]);
                 }
                 updateCapacityBar();
             }
@@ -251,15 +288,15 @@ namespace Stegosaurus.Forms
 
         private int[] getSelectedContentIndices()
         {
-            int[] indices = new int[MessageContentFilesListview.SelectedIndices.Count];
-            MessageContentFilesListview.SelectedIndices.CopyTo(indices, 0);
+            int[] indices = new int[listViewMessageContentFiles.SelectedIndices.Count];
+            listViewMessageContentFiles.SelectedIndices.CopyTo(indices, 0);
             return indices;
         }
 
         private void updateCapacityBar()
         {
             long capacity = 0, size;
-            decimal ratio, max = (decimal)CapacityProgressbar.Maximum;
+            decimal ratio, max = (decimal)progressBarCapacity.Maximum;
             size = stegoMessage.GetCompressedSize();
             if (carrierMedia != null)
             {
@@ -273,14 +310,24 @@ namespace Stegosaurus.Forms
                 {
                     ratio = max;
                 }
-
             }
             else
             {
                 ratio = max;
             }
+            if (ratio == max)
+            {
+                labelCapacityWarning.Text = $"< 100%";
+                labelCapacityWarning.ForeColor = Color.Red;
+            }
+            else
+            {
 
-            CapacityProgressbar.Value = (int) ratio;
+                labelCapacityWarning.Text = $"{ratio :.##}%";
+                labelCapacityWarning.ForeColor = SystemColors.ControlText;
+            }
+            progressBarCapacity.Value = (int) ratio;
         }
+        
     }
 }
