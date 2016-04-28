@@ -302,7 +302,6 @@ namespace Stegosaurus.Forms
             {
                 algorithm.CarrierMedia = carrierMedia;
                 capacity = algorithm.ComputeBandwidth();
-                MessageBox.Show($"{capacity}");
                 if (capacity >= size)
                 {
                     ratio = 100 * ((decimal)size / capacity);
