@@ -1,15 +1,15 @@
 ﻿namespace Stegosaurus.Utility.Extensions
 {
-    public static class ByteArrayExtensions
+    public static class StringExtensions
     {
-        public static int ComputeHash(this byte[] _array)
+        public static int ComputeHash(this string _str)
         {
-            if (_array == null)
+            if (string.IsNullOrEmpty(_str))
                 return 0;
 
             int hash = 17;
 
-            foreach (byte value in _array)
+            foreach (char value in _str)
                 hash = hash * 23 + value.GetHashCode();
 
             return hash;
