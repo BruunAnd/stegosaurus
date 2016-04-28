@@ -70,7 +70,6 @@
     <Compile Include="Exceptions\StegoAlgorithmException.cs" />
     <Compile Include="Exceptions\StegoMessageException.cs" />
     <Compile Include="Exceptions\StegosaurusException.cs" />
-    <Compile Include="Utility\Extensions\ByteArrayExtensions.cs" />
     <Compile Include="Utility\Extensions\FileSizeExtensions.cs" />
     <Compile Include="Utility\InputTypes\CarrierType.cs" />
     <Compile Include="Utility\InputTypes\ContentType.cs" />
