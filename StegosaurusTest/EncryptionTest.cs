@@ -8,7 +8,7 @@ namespace StegosaurusTest
     [TestClass]
     public class EncryptionTest
     {
-        [TestMethod]
+        /*[TestMethod]
         public void Encryption_MatchingArrays_ReturnsTrue()
         {
 
@@ -40,6 +40,7 @@ namespace StegosaurusTest
 
             Assert.AreEqual(expectedString, actualString);
         }
+
         [TestMethod]
         public void Decryption_MatchingArrays_ReturnsTrue()
         {
@@ -69,6 +70,6 @@ namespace StegosaurusTest
             }
 
             Assert.AreEqual(expectedString, actualString);
-        }
+        }*/
     }
 }

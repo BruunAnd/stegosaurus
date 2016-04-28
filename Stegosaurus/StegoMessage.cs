@@ -9,19 +9,19 @@ using System.Windows.Forms;
 
 namespace Stegosaurus
 {
+    [Flags]
+    public enum StegoMessageFlags
+    {
+        Encoded = 0x1,
+        Compressed = 0x2,
+        Encrypted = 0x4,
+        Signed = 0x8,
+    }
+
     public class StegoMessage
     {
         public string TextMessage { get; set; }
         public List<InputFile> InputFiles { get; } = new List<InputFile>();
-
-        [Flags]
-        public enum StegoMessageFlags
-        {
-            Encoded = 0x1,
-            Compressed = 0x2,
-            Encrypted = 0x4,
-            Signed = 0x8,
-        }
 
         private StegoMessageFlags flags;
 
@@ -34,7 +34,7 @@ namespace Stegosaurus
             TextMessage = _textMessage;
         }
 
-        public StegoMessage(byte[] _fromArray, byte[] _decryptionKey = null)
+        public StegoMessage(byte[] _fromArray, ICryptoProvider _cryptoProvider = null)
         {
             using (MemoryStream inputStream = new MemoryStream(_fromArray))
             {
@@ -44,19 +44,24 @@ namespace Stegosaurus
                 byte[] encodedData = inputStream.ReadBytes(_fromArray.Length - sizeof(byte));
 
                 // Decrypt if a key is specified
-                if (flags.HasFlag(StegoMessageFlags.Encrypted) && _decryptionKey != null)
+                if (flags.HasFlag(StegoMessageFlags.Encrypted) && _cryptoProvider != null)
                 {
-                    encodedData = RC4.Decrypt(encodedData, _decryptionKey);
+                    Console.WriteLine("Decrypt..");
+                    encodedData = _cryptoProvider.Decrypt(encodedData);
                 }
 
                 // Decompress the array
                 if (flags.HasFlag(StegoMessageFlags.Compressed))
                 {
+                    Console.WriteLine("Decompress.. {0}", encodedData.Length);
                     encodedData = Compression.Decompress(encodedData);
                 }
 
                 // Decode array
-                Decode(encodedData);
+                if (flags.HasFlag(StegoMessageFlags.Encoded))
+                {
+                    Decode(encodedData);
+                }
             }
         }
 
@@ -95,7 +100,7 @@ namespace Stegosaurus
         /// First part of the byte array contains the message file(s).
         /// The last part of the byte array is the text message if there is any.
         /// </summary>
-        public byte[] ToByteArray(byte[] _encryptionKey = null)
+        public byte[] ToByteArray(ICryptoProvider _cryptoProvider = null)
         {
             // Encode and compress array
             byte[] encodedData = Encode();
@@ -114,9 +119,9 @@ namespace Stegosaurus
             }
 
             // Encrypt if key is specified
-            if (_encryptionKey != null)
+            if (_cryptoProvider != null)
             {
-                encodedData = RC4.Encrypt(encodedData, _encryptionKey);
+                encodedData = _cryptoProvider.Encrypt(encodedData);
                 SetFlag(StegoMessageFlags.Encrypted, true);
             }
             else
@@ -129,6 +134,7 @@ namespace Stegosaurus
             returnList.AddRange(BitConverter.GetBytes(encodedData.Length + sizeof(byte)));
             returnList.Add((byte)flags);
             returnList.AddRange(encodedData);
+            Console.WriteLine("Actual data {0}", encodedData.Length);
 
             return returnList.ToArray();
         }

@@ -13,25 +13,48 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
+using Stegosaurus.Cryptography;
 
 namespace Stegosaurus.Forms
 {
     public partial class FormMain : Form
     {
-        private Dictionary<string, IStegoAlgorithm> algorithmDictionary = new Dictionary<string, IStegoAlgorithm>(); 
+        private Dictionary<string, IStegoAlgorithm> algorithmDictionary = new Dictionary<string, IStegoAlgorithm>();
+        private Dictionary<string, ICryptoProvider> cryptoProviderDictionary = new Dictionary<string, ICryptoProvider>();
 
         private StegoMessage stegoMessage = new StegoMessage();
         private ICarrierMedia carrierMedia;
         private IStegoAlgorithm algorithm;
+        private ICryptoProvider cryptoProvider;
+
+        private bool CanEmbed => carrierMedia != null && !string.IsNullOrEmpty(textBoxTextMessage.Text) || listViewMessageContentFiles.Items.Count > 0;
 
         public FormMain()
         {
             InitializeComponent();
 
-            AddAlgorithm(typeof(LSBAlgorithm));
-            AddAlgorithm(typeof(GraphTheoreticAlgorithm));
+            cryptoProvider = new AESProvider();
 
+            // Add algorithms
+            AddAlgorithm(typeof (LSBAlgorithm));
+            AddAlgorithm(typeof (GraphTheoreticAlgorithm));
+
+            // Add crypto providers
+            AddCryptoProvider(typeof (AESProvider));
+
+            // Set default values
             comboBoxAlgorithmSelection.SelectedIndex = 0;
+            comboBoxCryptoProviderSelection.SelectedIndex = 0;
+        }
+
+        /// <summary>
+        /// Adds a crypto provider to the cryptoprovider dictionary and combolist
+        /// </summary>
+        private void AddCryptoProvider(Type cryptoProviderType)
+        {
+            ICryptoProvider cryptoProvider = (ICryptoProvider) Activator.CreateInstance(cryptoProviderType);
+            cryptoProviderDictionary.Add(cryptoProvider.Name, cryptoProvider);
+            comboBoxCryptoProviderSelection.Items.Add(cryptoProvider.Name);
         }
 
         /// <summary>
@@ -51,7 +74,7 @@ namespace Stegosaurus.Forms
         /// <param name="e"></param>
         private void listViewMessageContentFiles_DragDrop(object sender, DragEventArgs e)
         {
-            string[] inputFiles = (string[])e.Data.GetData(DataFormats.FileDrop);
+            string[] inputFiles = (string[]) e.Data.GetData(DataFormats.FileDrop);
 
             foreach (string filePath in inputFiles)
             {
@@ -91,17 +114,6 @@ namespace Stegosaurus.Forms
         }
 
         /// <summary>
-        /// Assigns the content of the textBoxTextMessage.Text property to the stegoMessage.TextMessage property and updates the  to be the progressBarCapacity control.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void textBoxTextMessage_TextChanged(object sender, EventArgs e)
-        {
-            stegoMessage.TextMessage = textBoxTextMessage.Text;
-            UpdateCapacityBar();
-        }
-
-        /// <summary>
         /// DEBUG: shows the content of the stegoMessage's TextMessage property.
         /// </summary>
         /// <param name="sender"></param>
@@ -125,13 +137,13 @@ namespace Stegosaurus.Forms
                 return;
             }
 
-            if (stegoMessage.InputFiles.Count == 0 && string.IsNullOrEmpty(stegoMessage.TextMessage))
+            if (CanEmbed)
             {
-                Extract();
+                Embed();
             }
             else
             {
-                Embed();
+                Extract();
             }
         }
 
@@ -140,23 +152,32 @@ namespace Stegosaurus.Forms
         /// </summary>
         private void Extract()
         {
-            algorithm.CarrierMedia = carrierMedia;
-            algorithm.Key = Encoding.UTF8.GetBytes(textBoxEncryptionKey.Text);
-            stegoMessage = algorithm.Extract();
-            if (stegoMessage.InputFiles.Count != 0)
+            try
             {
-                foreach (InputFile file in stegoMessage.InputFiles)
+                algorithm.CarrierMedia = carrierMedia;
+                algorithm.CryptoProvider.CryptoKey = textBoxEncryptionKey.Text;
+                stegoMessage = algorithm.Extract();
+                if (stegoMessage.InputFiles.Count != 0)
                 {
-                    ListViewItem fileItem = new ListViewItem(file.Name);
-                    fileItem.SubItems.Add(FileSizeExtensions.StringFormatBytes(file.Content.LongLength));
-                    fileItem.ImageKey = file.Name.Substring(file.Name.LastIndexOf('.'));
-                    if (!imageListIcons.Images.ContainsKey(fileItem.ImageKey))
-                        imageListIcons.Images.Add(fileItem.ImageKey, IconExtractor.ExtractIcon(fileItem.ImageKey));
+                    foreach (InputFile file in stegoMessage.InputFiles)
+                    {
+                        ListViewItem fileItem = new ListViewItem(file.Name);
+                        fileItem.SubItems.Add(FileSizeExtensions.StringFormatBytes(file.Content.LongLength));
+                        fileItem.ImageKey = file.Name.Substring(file.Name.LastIndexOf('.'));
+                        if (!imageListIcons.Images.ContainsKey(fileItem.ImageKey))
+                            imageListIcons.Images.Add(fileItem.ImageKey, IconExtractor.ExtractIcon(fileItem.ImageKey));
 
-                    listViewMessageContentFiles.Items.Add(fileItem);
+                        listViewMessageContentFiles.Items.Add(fileItem);
+                        UpdateButtonText();
+                        UpdateCapacityBar();
+                    }
                 }
+                textBoxTextMessage.Text = stegoMessage.TextMessage;
             }
-            textBoxTextMessage.Text = stegoMessage.TextMessage;
+            catch (StegoAlgorithmException ex)
+            {
+                MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         /// <summary>
@@ -167,16 +188,16 @@ namespace Stegosaurus.Forms
             try
             {
                 algorithm.CarrierMedia = carrierMedia;
-                algorithm.Key = Encoding.UTF8.GetBytes(textBoxEncryptionKey.Text);
+                algorithm.CryptoProvider.CryptoKey = textBoxEncryptionKey.Text;
                 algorithm.Embed(stegoMessage);
                 algorithm.CarrierMedia.SaveToFile("new.png");
             }
             catch (StegoAlgorithmException ex)
             {
-                MessageBox.Show(ex.Message);
+                MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
-        
+
         /// <summary>
         /// Opens a dialog where the user can browse for files to add to the message content.
         /// </summary>
@@ -241,7 +262,7 @@ namespace Stegosaurus.Forms
         {
             InputFile inputFile = new InputFile(_input.FilePath);
             FileInfo fileInfo = new FileInfo(_input.FilePath);
-            
+
             if (_input is ContentType)
             {
                 ListViewItem fileItem = new ListViewItem(inputFile.Name);
@@ -249,7 +270,7 @@ namespace Stegosaurus.Forms
                 fileItem.ImageKey = fileInfo.Extension;
                 if (!imageListIcons.Images.ContainsKey(fileItem.ImageKey))
                     imageListIcons.Images.Add(fileItem.ImageKey, Icon.ExtractAssociatedIcon(_input.FilePath));
-                
+
                 stegoMessage.InputFiles.Add(inputFile);
                 listViewMessageContentFiles.Items.Add(fileItem);
             }
@@ -258,17 +279,17 @@ namespace Stegosaurus.Forms
                 if (fileInfo.Extension == ".wav")
                 {
                     carrierMedia = new AudioCarrier(_input.FilePath);
-                    pictureBoxCarrier.Image = Icon.ExtractAssociatedIcon(_input.FilePath).ToBitmap();
+                    pictureBoxCarrier.Image = Icon.ExtractAssociatedIcon(_input.FilePath)?.ToBitmap();
                 }
                 else
                 {
                     carrierMedia = new ImageCarrier(_input.FilePath);
-                    pictureBoxCarrier.Image = Image.FromFile(fileInfo.FullName);
+                    pictureBoxCarrier.Image = ((ImageCarrier) carrierMedia).InnerImage;
                 }
             }
 
             UpdateCapacityBar();
-            
+            UpdateButtonText();
         }
 
         private void saveToolStripMenuItem_Click(object sender, EventArgs e)
@@ -325,6 +346,7 @@ namespace Stegosaurus.Forms
             }
 
             UpdateCapacityBar();
+            UpdateButtonText();
         }
 
         private int[] GetSelectedContentIndices()
@@ -344,7 +366,7 @@ namespace Stegosaurus.Forms
                 long capacity = algorithm.ComputeBandwidth();
                 if (capacity >= size)
                 {
-                    ratio = 100 * ((decimal)size / capacity);
+                    ratio = 100 * ((decimal) size / capacity);
                 }
                 else
                 {
@@ -381,8 +403,35 @@ namespace Stegosaurus.Forms
         {
             algorithm = algorithmDictionary[comboBoxAlgorithmSelection.Text];
             algorithm.CarrierMedia = carrierMedia;
+            algorithm.CryptoProvider = cryptoProvider;
 
             UpdateCapacityBar();
+        }
+
+        /// <summary>
+        /// Assigns the content of the textBoxTextMessage.Text property to the stegoMessage.TextMessage property and updates the  to be the progressBarCapacity control.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void textBoxTextMessage_TextChanged(object sender, EventArgs e)
+        {
+            stegoMessage.TextMessage = textBoxTextMessage.Text;
+
+            UpdateCapacityBar();
+            UpdateButtonText();
+        }
+
+        private void UpdateButtonText()
+        {
+            buttonEmbed.Text = CanEmbed ? "Embed" : "Extract";
+        }
+
+        private void comboBoxCryptoProviderSelection_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            cryptoProvider = cryptoProviderDictionary[comboBoxCryptoProviderSelection.Text];
+            cryptoProvider.CryptoKey = textBoxEncryptionKey.Text;
+
+            algorithm.CryptoProvider = cryptoProvider;
         }
     }
 }

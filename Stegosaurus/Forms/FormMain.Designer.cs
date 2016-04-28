@@ -41,9 +41,9 @@ namespace Stegosaurus.Forms
             this.imageListIcons = new System.Windows.Forms.ImageList(this.components);
             this.buttonInputBrowse = new System.Windows.Forms.Button();
             this.labelInputFiles = new System.Windows.Forms.Label();
-            this.button1 = new System.Windows.Forms.Button();
+            this.buttonTest = new System.Windows.Forms.Button();
             this.labelTextMesage = new System.Windows.Forms.Label();
-            this.EmbedButton = new System.Windows.Forms.Button();
+            this.buttonEmbed = new System.Windows.Forms.Button();
             this.textBoxEncryptionKey = new System.Windows.Forms.TextBox();
             this.labelEncryptionKey = new System.Windows.Forms.Label();
             this.InputBrowseDialog = new System.Windows.Forms.OpenFileDialog();
@@ -60,6 +60,8 @@ namespace Stegosaurus.Forms
             this.labelStorageRatio = new System.Windows.Forms.Label();
             this.labelCapacityWarning = new System.Windows.Forms.Label();
             this.textBoxTextMessage = new System.Windows.Forms.RichTextBox();
+            this.labelCryptoProvider = new System.Windows.Forms.Label();
+            this.comboBoxCryptoProviderSelection = new System.Windows.Forms.ComboBox();
             this.contextMenuStripMain.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxCarrier)).BeginInit();
             this.panel1.SuspendLayout();
@@ -147,15 +149,15 @@ namespace Stegosaurus.Forms
             this.labelInputFiles.TabIndex = 5;
             this.labelInputFiles.Text = "Message content files";
             // 
-            // button1
+            // buttonTest
             // 
-            this.button1.Location = new System.Drawing.Point(194, 237);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(75, 23);
-            this.button1.TabIndex = 7;
-            this.button1.Text = "Test";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
+            this.buttonTest.Location = new System.Drawing.Point(197, 343);
+            this.buttonTest.Name = "buttonTest";
+            this.buttonTest.Size = new System.Drawing.Size(75, 23);
+            this.buttonTest.TabIndex = 7;
+            this.buttonTest.Text = "Test";
+            this.buttonTest.UseVisualStyleBackColor = true;
+            this.buttonTest.Click += new System.EventHandler(this.button1_Click);
             // 
             // labelTextMesage
             // 
@@ -167,16 +169,16 @@ namespace Stegosaurus.Forms
             this.labelTextMesage.TabIndex = 8;
             this.labelTextMesage.Text = "Text message";
             // 
-            // EmbedButton
+            // buttonEmbed
             // 
-            this.EmbedButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.EmbedButton.Location = new System.Drawing.Point(12, 316);
-            this.EmbedButton.Name = "EmbedButton";
-            this.EmbedButton.Size = new System.Drawing.Size(154, 50);
-            this.EmbedButton.TabIndex = 9;
-            this.EmbedButton.Text = "Embed/Extract Button";
-            this.EmbedButton.UseVisualStyleBackColor = true;
-            this.EmbedButton.Click += new System.EventHandler(this.EmbedButton_Click);
+            this.buttonEmbed.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.buttonEmbed.Location = new System.Drawing.Point(12, 316);
+            this.buttonEmbed.Name = "buttonEmbed";
+            this.buttonEmbed.Size = new System.Drawing.Size(154, 50);
+            this.buttonEmbed.TabIndex = 9;
+            this.buttonEmbed.Text = "Extract";
+            this.buttonEmbed.UseVisualStyleBackColor = true;
+            this.buttonEmbed.Click += new System.EventHandler(this.EmbedButton_Click);
             // 
             // textBoxEncryptionKey
             // 
@@ -297,12 +299,34 @@ namespace Stegosaurus.Forms
             this.textBoxTextMessage.Size = new System.Drawing.Size(347, 65);
             this.textBoxTextMessage.TabIndex = 24;
             this.textBoxTextMessage.Text = "";
+            this.textBoxTextMessage.TextChanged += new System.EventHandler(this.textBoxTextMessage_TextChanged);
+            // 
+            // labelCryptoProvider
+            // 
+            this.labelCryptoProvider.AutoSize = true;
+            this.labelCryptoProvider.Location = new System.Drawing.Point(169, 215);
+            this.labelCryptoProvider.Name = "labelCryptoProvider";
+            this.labelCryptoProvider.Size = new System.Drawing.Size(86, 13);
+            this.labelCryptoProvider.TabIndex = 25;
+            this.labelCryptoProvider.Text = "Crypto Provider";
+            // 
+            // comboBoxCryptoProviderSelection
+            // 
+            this.comboBoxCryptoProviderSelection.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.comboBoxCryptoProviderSelection.FormattingEnabled = true;
+            this.comboBoxCryptoProviderSelection.Location = new System.Drawing.Point(172, 237);
+            this.comboBoxCryptoProviderSelection.Name = "comboBoxCryptoProviderSelection";
+            this.comboBoxCryptoProviderSelection.Size = new System.Drawing.Size(137, 21);
+            this.comboBoxCryptoProviderSelection.TabIndex = 26;
+            this.comboBoxCryptoProviderSelection.SelectedIndexChanged += new System.EventHandler(this.comboBoxCryptoProviderSelection_SelectedIndexChanged);
             // 
             // FormMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(684, 386);
+            this.Controls.Add(this.comboBoxCryptoProviderSelection);
+            this.Controls.Add(this.labelCryptoProvider);
             this.Controls.Add(this.textBoxTextMessage);
             this.Controls.Add(this.labelCapacityWarning);
             this.Controls.Add(this.labelStorageRatio);
@@ -312,8 +336,8 @@ namespace Stegosaurus.Forms
             this.Controls.Add(this.progressBarCapacity);
             this.Controls.Add(this.labelEncryptionKey);
             this.Controls.Add(this.textBoxEncryptionKey);
-            this.Controls.Add(this.EmbedButton);
-            this.Controls.Add(this.button1);
+            this.Controls.Add(this.buttonEmbed);
+            this.Controls.Add(this.buttonTest);
             this.Controls.Add(this.labelInputFiles);
             this.Controls.Add(this.buttonInputBrowse);
             this.Controls.Add(this.listViewMessageContentFiles);
@@ -343,9 +367,9 @@ namespace Stegosaurus.Forms
         private System.Windows.Forms.ImageList imageListIcons;
         private System.Windows.Forms.Button buttonInputBrowse;
         private System.Windows.Forms.Label labelInputFiles;
-        private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.Button buttonTest;
         private System.Windows.Forms.Label labelTextMesage;
-        private System.Windows.Forms.Button EmbedButton;
+        private System.Windows.Forms.Button buttonEmbed;
         private System.Windows.Forms.Label labelEncryptionKey;
         private System.Windows.Forms.TextBox textBoxEncryptionKey;
         private System.Windows.Forms.OpenFileDialog InputBrowseDialog;
@@ -362,6 +386,8 @@ namespace Stegosaurus.Forms
         private System.Windows.Forms.Label labelStorageRatio;
         private System.Windows.Forms.Label labelCapacityWarning;
         private System.Windows.Forms.RichTextBox textBoxTextMessage;
+        private System.Windows.Forms.Label labelCryptoProvider;
+        private System.Windows.Forms.ComboBox comboBoxCryptoProviderSelection;
     }
 }
 

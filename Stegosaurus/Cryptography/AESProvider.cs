@@ -7,14 +7,17 @@ namespace Stegosaurus.Cryptography
 {
     public class AESProvider : ICryptoProvider
     {
-        private static byte[] salt = new byte[] { 0x4e, 0x27, 0xaa, 0x18, 0x8b, 0xf7, 0x7f, 0x76 };
+        public string CryptoKey { get; set; }
+        public string Name => "AES";
 
-        public byte[] Encrypt(byte[] _data, string _key)
+        private static byte[] salt = { 0x4e, 0x27, 0xaa, 0x18, 0x8b, 0xf7, 0x7f, 0x76 };
+
+        public byte[] Encrypt(byte[] _data)
         {
             using (AesManaged aesAlgorithm = new AesManaged())
             {
                 // Generate key from key and salt
-                Rfc2898DeriveBytes key = new Rfc2898DeriveBytes(_key, salt);
+                Rfc2898DeriveBytes key = new Rfc2898DeriveBytes(CryptoKey, salt);
 
                 // Set key and generate initialization vector
                 aesAlgorithm.Key = key.GetBytes(aesAlgorithm.KeySize / 8);
@@ -41,12 +44,12 @@ namespace Stegosaurus.Cryptography
             }
         }
 
-        public byte[] Decrypt(byte[] _data, string _key)
+        public byte[] Decrypt(byte[] _data)
         {
             using (AesManaged aesManaged = new AesManaged())
             {
                 // Generate key from key and salt
-                Rfc2898DeriveBytes key = new Rfc2898DeriveBytes(_key, salt);
+                Rfc2898DeriveBytes key = new Rfc2898DeriveBytes(CryptoKey, salt);
 
                 // Set key and generate initialization vector
                 aesManaged.Key = key.GetBytes(aesManaged.KeySize / 8);
@@ -71,6 +74,5 @@ namespace Stegosaurus.Cryptography
                 }
             }
         }
-
     }
 }

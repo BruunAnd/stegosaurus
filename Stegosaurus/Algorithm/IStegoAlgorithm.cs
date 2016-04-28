@@ -1,4 +1,5 @@
 ﻿using Stegosaurus.Carrier;
+using Stegosaurus.Cryptography;
 
 namespace Stegosaurus.Algorithm
 {
@@ -10,9 +11,9 @@ namespace Stegosaurus.Algorithm
         string Name { get; }
 
         /// <summary>
-        /// Get or set encryption key (optional) 
+        /// Get or set crypto provider
         /// </summary>
-        byte[] Key { get; set; }
+        ICryptoProvider CryptoProvider { get; set; }
 
         /// <summary>
         /// Returns the CarrierMedia used by this instance of the algorithm

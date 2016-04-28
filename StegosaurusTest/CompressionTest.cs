@@ -4,12 +4,25 @@ using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Stegosaurus.Utility;
 using System.Diagnostics;
+using System.Linq;
 
 namespace StegosaurusTest
 {
     [TestClass]
     public class CompressionTest
     {
+        [TestMethod]
+        public void TestCompressDecompress()
+        {
+            byte[] buffer = new byte[1024 * 64];
+            new Random().NextBytes(buffer);
+
+            byte[] compressed = Compression.Compress(buffer);
+            byte[] decompress = Compression.Decompress(compressed);
+
+            Assert.AreEqual(decompress.SequenceEqual(buffer), true);
+        }
+
         [TestMethod]
         public void Compression_MatchingArrays_ReturnsTrue()
         {
