@@ -18,15 +18,30 @@ namespace Stegosaurus.Forms
 {
     public partial class FormMain : Form
     {
-        StegoMessage stegoMessage = new StegoMessage();
-        ICarrierMedia carrierMedia = null;
-        IStegoAlgorithm algorithm = null;
+        private Dictionary<string, IStegoAlgorithm> algorithmDictionary = new Dictionary<string, IStegoAlgorithm>(); 
+
+        private StegoMessage stegoMessage = new StegoMessage();
+        private ICarrierMedia carrierMedia;
+        private IStegoAlgorithm algorithm;
 
         public FormMain()
         {
             InitializeComponent();
+
+            AddAlgorithm(typeof(LSBAlgorithm));
+            AddAlgorithm(typeof(GraphTheoreticAlgorithm));
+
             comboBoxAlgorithmSelection.SelectedIndex = 0;
-            algorithm = (IStegoAlgorithm)comboBoxAlgorithmSelection.SelectedItem;
+        }
+
+        /// <summary>
+        /// Add an algorithm to the algorithm dictionary and combolist
+        /// </summary>
+        private void AddAlgorithm(Type algorithmType)
+        {
+            IStegoAlgorithm stegoAlgorithm = (IStegoAlgorithm) Activator.CreateInstance(algorithmType);
+            algorithmDictionary.Add(stegoAlgorithm.Name, stegoAlgorithm);
+            comboBoxAlgorithmSelection.Items.Add(stegoAlgorithm.Name);
         }
 
         /// <summary>
@@ -38,11 +53,9 @@ namespace Stegosaurus.Forms
         {
             string[] inputFiles = (string[])e.Data.GetData(DataFormats.FileDrop);
 
-            IInputType inputContent;
             foreach (string filePath in inputFiles)
             {
-                inputContent = new ContentType(filePath);
-                InputHelper(inputContent);
+                InputHelper(new ContentType(filePath));
             }
 
             listViewMessageContentFiles.BackColor = Color.White;
@@ -85,7 +98,7 @@ namespace Stegosaurus.Forms
         private void textBoxTextMessage_TextChanged(object sender, EventArgs e)
         {
             stegoMessage.TextMessage = textBoxTextMessage.Text;
-            updateCapacityBar();
+            UpdateCapacityBar();
         }
 
         /// <summary>
@@ -109,46 +122,59 @@ namespace Stegosaurus.Forms
             if (carrierMedia == null)
             {
                 MessageBox.Show("You must supply a carrier media.");
+                return;
+            }
+
+            if (stegoMessage.InputFiles.Count == 0 && string.IsNullOrEmpty(stegoMessage.TextMessage))
+            {
+                Extract();
             }
             else
             {
-                if (stegoMessage.InputFiles.Count == 0 && string.IsNullOrEmpty(stegoMessage.TextMessage))
+                Embed();
+            }
+        }
+
+        /// <summary>
+        /// Extract hidden content from CarrierMedia
+        /// </summary>
+        private void Extract()
+        {
+            algorithm.CarrierMedia = carrierMedia;
+            algorithm.Key = Encoding.UTF8.GetBytes(textBoxEncryptionKey.Text);
+            stegoMessage = algorithm.Extract();
+            if (stegoMessage.InputFiles.Count != 0)
+            {
+                foreach (InputFile file in stegoMessage.InputFiles)
                 {
-                    algorithm.CarrierMedia = carrierMedia;
-                    algorithm.Key = Encoding.UTF8.GetBytes(textBoxEncryptionKey.Text);
-                    stegoMessage = algorithm.Extract();
-                    if (stegoMessage.InputFiles.Count != 0)
-                    {
-                        ListViewItem fileItem;
-                        foreach (InputFile file in stegoMessage.InputFiles)
-                        {
-                            fileItem = new ListViewItem(file.Name);
-                            fileItem.SubItems.Add(FileSizeExtensions.StringFormatBytes(file.Content.LongLength));
-                            fileItem.ImageKey = file.Name.Substring(file.Name.LastIndexOf('.'));
-                            if (!imageListIcons.Images.ContainsKey(fileItem.ImageKey))
-                                imageListIcons.Images.Add(fileItem.ImageKey, IconExtractor.ExtractIcon(fileItem.ImageKey));
-                            
-                            listViewMessageContentFiles.Items.Add(fileItem);
-                        }
-                    }
-                    textBoxTextMessage.Text = stegoMessage.TextMessage;
-                }
-                else
-                {
-                    try
-                    {
-                        algorithm.CarrierMedia = carrierMedia;
-                        algorithm.Key = Encoding.UTF8.GetBytes(textBoxEncryptionKey.Text);
-                        algorithm.Embed(stegoMessage);
-                        algorithm.CarrierMedia.SaveToFile("new.png");
-                    }
-                    catch (StegoAlgorithmException ex)
-                    {
-                        MessageBox.Show(ex.Message);
-                    }
+                    ListViewItem fileItem = new ListViewItem(file.Name);
+                    fileItem.SubItems.Add(FileSizeExtensions.StringFormatBytes(file.Content.LongLength));
+                    fileItem.ImageKey = file.Name.Substring(file.Name.LastIndexOf('.'));
+                    if (!imageListIcons.Images.ContainsKey(fileItem.ImageKey))
+                        imageListIcons.Images.Add(fileItem.ImageKey, IconExtractor.ExtractIcon(fileItem.ImageKey));
+
+                    listViewMessageContentFiles.Items.Add(fileItem);
                 }
             }
+            textBoxTextMessage.Text = stegoMessage.TextMessage;
+        }
 
+        /// <summary>
+        /// Embed hidden content into CarrierMedia
+        /// </summary>
+        private void Embed()
+        {
+            try
+            {
+                algorithm.CarrierMedia = carrierMedia;
+                algorithm.Key = Encoding.UTF8.GetBytes(textBoxEncryptionKey.Text);
+                algorithm.Embed(stegoMessage);
+                algorithm.CarrierMedia.SaveToFile("new.png");
+            }
+            catch (StegoAlgorithmException ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
         }
         
         /// <summary>
@@ -159,20 +185,14 @@ namespace Stegosaurus.Forms
         private void inputBrowseButton_Click(object sender, EventArgs e)
         {
             DialogResult result = InputBrowseDialog.ShowDialog();
-            if (result == DialogResult.OK)
-            {
-                IInputType inputContent;
-                foreach (string fileName in InputBrowseDialog.FileNames)
-                {
-                    inputContent = new ContentType(fileName);
-                    InputHelper(inputContent);
-                }
-            }
-        }
 
-        private void FormMain_Load(object sender, EventArgs e)
-        {
-            
+            if (result != DialogResult.OK)
+                return;
+
+            foreach (string fileName in InputBrowseDialog.FileNames)
+            {
+                InputHelper(new ContentType(fileName));
+            }
         }
 
         /// <summary>
@@ -182,14 +202,7 @@ namespace Stegosaurus.Forms
         /// <param name="e"></param>
         private void panelCarrierMedia_DragEnter(object sender, DragEventArgs e)
         {
-            if (e.Data.GetDataPresent(DataFormats.FileDrop))
-            {
-                e.Effect = DragDropEffects.Copy;
-            }
-            else
-            {
-                e.Effect = DragDropEffects.None;
-            }
+            e.Effect = e.Data.GetDataPresent(DataFormats.FileDrop) ? DragDropEffects.Copy : DragDropEffects.None;
         }
 
         /// <summary>
@@ -218,7 +231,6 @@ namespace Stegosaurus.Forms
             {
                 MessageBox.Show("Invalid file type. Carrier must be picture or .wav audio file.");
             }
-            
         }
 
         /// <summary>
@@ -229,7 +241,7 @@ namespace Stegosaurus.Forms
         {
             InputFile inputFile = new InputFile(_input.FilePath);
             FileInfo fileInfo = new FileInfo(_input.FilePath);
-            //
+            
             if (_input is ContentType)
             {
                 ListViewItem fileItem = new ListViewItem(inputFile.Name);
@@ -254,27 +266,15 @@ namespace Stegosaurus.Forms
                     pictureBoxCarrier.Image = Image.FromFile(fileInfo.FullName);
                 }
             }
-            updateCapacityBar();
-            
-        }
 
-        /// <summary>
-        /// Assigns the chosen algorithm to the algorithm variable and supplies the algorithm with the current carrierMedia. At last the progressBarCapacity is updated.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void AlgorithmSelectionCombobox_SelectionChangeCommitted(object sender, EventArgs e)
-        {
-            algorithm = (IStegoAlgorithm) comboBoxAlgorithmSelection.SelectedItem;
-            algorithm.CarrierMedia = carrierMedia;
-            updateCapacityBar();
+            UpdateCapacityBar();
+            
         }
 
         private void saveToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            int[] fileIndices = getSelectedContentIndices();
+            int[] fileIndices = GetSelectedContentIndices();
             int len = fileIndices.Length;
-            DialogResult result;
             if (len == 0)
             {
                 MessageBox.Show("You must have items selected to save.", "Save Error");
@@ -282,76 +282,66 @@ namespace Stegosaurus.Forms
             if (len == 1)
             {
                 saveFileDialog.FileName = stegoMessage.InputFiles[fileIndices[0]].Name;
-                result = saveFileDialog.ShowDialog();
-                if(result == DialogResult.OK)
+
+                if (saveFileDialog.ShowDialog() != DialogResult.OK)
+                    return;
+
+                if (saveFileDialog.FileName == "")
                 {
-                    if (saveFileDialog.FileName == "")
-                    {
-                        MessageBox.Show("The chosen destination cannot be blank.", "Save Error");
-                    }
-                    else
-                    {
-                        stegoMessage.InputFiles[fileIndices[0]].SaveTo(saveFileDialog.FileName);
-                    }
+                    MessageBox.Show("The chosen destination cannot be blank.", "Save Error");
+                }
+                else
+                {
+                    stegoMessage.InputFiles[fileIndices[0]].SaveTo(saveFileDialog.FileName);
                 }
             }
             else
             {
-                result = folderBrowserDialog.ShowDialog();
-                if (result == DialogResult.OK)
+                if (folderBrowserDialog.ShowDialog() != DialogResult.OK)
+                    return;
+
+                if (folderBrowserDialog.SelectedPath == "")
                 {
-                    if (folderBrowserDialog.SelectedPath == "")
+                    MessageBox.Show("The chosen destination cannot be blank.", "Save Error");
+                }
+                else
+                {
+                    foreach (int index in fileIndices)
                     {
-                        MessageBox.Show("The chosen destination cannot be blank.", "Save Error");
-                    }
-                    else
-                    {
-                        foreach (int index in fileIndices)
-                        {
-                            stegoMessage.InputFiles[fileIndices[index]].SaveTo($"{folderBrowserDialog.SelectedPath}\\{stegoMessage.InputFiles[fileIndices[index]].Name}");
-                        }
+                        stegoMessage.InputFiles[fileIndices[index]].SaveTo($"{folderBrowserDialog.SelectedPath}\\{stegoMessage.InputFiles[fileIndices[index]].Name}");
                     }
                 }
-
             }
-
-
         }
 
         private void deleteToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            int[] fileIndices = getSelectedContentIndices();
-            if (fileIndices.Length == 0)
+            int[] fileIndices = GetSelectedContentIndices();
+
+            for (int index = fileIndices.Length - 1; index >= 0; index--)
             {
-                MessageBox.Show("You must have items selected to delete.", "Delete Error");
+                stegoMessage.InputFiles.RemoveAt(fileIndices[index]);
+                listViewMessageContentFiles.Items.RemoveAt(fileIndices[index]);
             }
-            else
-            {
-                for (int index = fileIndices.Length - 1; index >= 0; index--)
-                {
-                    stegoMessage.InputFiles.RemoveAt(fileIndices[index]);
-                    listViewMessageContentFiles.Items.RemoveAt(fileIndices[index]);
-                }
-                updateCapacityBar();
-            }
+
+            UpdateCapacityBar();
         }
 
-        private int[] getSelectedContentIndices()
+        private int[] GetSelectedContentIndices()
         {
             int[] indices = new int[listViewMessageContentFiles.SelectedIndices.Count];
             listViewMessageContentFiles.SelectedIndices.CopyTo(indices, 0);
             return indices;
         }
 
-        private void updateCapacityBar()
+        private void UpdateCapacityBar()
         {
-            long capacity = 0, size;
-            decimal ratio, max = (decimal)progressBarCapacity.Maximum;
-            size = stegoMessage.GetCompressedSize();
+            decimal ratio, max = progressBarCapacity.Maximum;
+            long size = stegoMessage.GetCompressedSize();
             if (carrierMedia != null)
             {
                 algorithm.CarrierMedia = carrierMedia;
-                capacity = algorithm.ComputeBandwidth();
+                long capacity = algorithm.ComputeBandwidth();
                 if (capacity >= size)
                 {
                     ratio = 100 * ((decimal)size / capacity);
@@ -378,6 +368,21 @@ namespace Stegosaurus.Forms
             }
             progressBarCapacity.Value = (int) ratio;
         }
-        
+
+        private void contextMenuStripMain_Opening(object sender, CancelEventArgs e)
+        {
+            e.Cancel = listViewMessageContentFiles.SelectedItems.Count == 0;
+        }
+
+        /// <summary>
+        /// Assigns the chosen algorithm to the algorithm variable and supplies the algorithm with the current carrierMedia. At last the progressBarCapacity is updated.
+        /// </summary>
+        private void comboBoxAlgorithmSelection_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            algorithm = algorithmDictionary[comboBoxAlgorithmSelection.Text];
+            algorithm.CarrierMedia = carrierMedia;
+
+            UpdateCapacityBar();
+        }
     }
 }
