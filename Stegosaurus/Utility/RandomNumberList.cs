@@ -9,7 +9,7 @@ namespace Stegosaurus.Utility
     {
         // Private variables
         private Random random;
-        private List<int> generatedIntegers = new List<int>();
+        private HashSet<int> generatedIntegers = new HashSet<int>();
         private int maxValue;
 
         public RandomNumberList(int _seed, int _maxValue)
@@ -27,10 +27,12 @@ namespace Stegosaurus.Utility
                 throw new ArgumentOutOfRangeException("No more integers to generate.");
 
             // Generate an integer which has not yet been generated
+            int requestedCount = generatedIntegers.Count + 1;
             do
             {
                 generatedInt = random.Next(maxValue + 1);
-            } while (generatedIntegers.Contains(generatedInt));
+                generatedIntegers.Add(generatedInt);
+            } while (generatedIntegers.Count < requestedCount);
 
             generatedIntegers.Add(generatedInt);
 
