@@ -23,14 +23,14 @@ namespace Stegosaurus.Utility
             int generatedInt;
 
             // Check if there are any more integers to generate
-            if (generatedIntegers.Count >= maxValue + 1)
+            if (generatedIntegers.Count >= maxValue)
                 throw new ArgumentOutOfRangeException("No more integers to generate.");
 
             // Generate an integer which has not yet been generated
             int requestedCount = generatedIntegers.Count + 1;
             do
             {
-                generatedInt = random.Next(maxValue + 1);
+                generatedInt = random.Next(maxValue);
                 generatedIntegers.Add(generatedInt);
             } while (generatedIntegers.Count < requestedCount);
 

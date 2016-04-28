@@ -20,10 +20,7 @@ namespace Stegosaurus
             if (!fileInfo.Exists)
                 throw new InvalidFileException("File does not exist.", _filePath);
 
-            // Set name
             Name = fileInfo.Name;
-
-            // Set content
             Content = File.ReadAllBytes(_filePath);
         }
 
