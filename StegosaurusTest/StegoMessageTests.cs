@@ -33,10 +33,8 @@ namespace StegosaurusTest
 
             stegoMessage.InputFiles.Add(new InputFile("mat.png", new byte[] { 0, 0, 0, 0, 0, 0, 0, 1 }));
 
-            byte[] expectedOutput = new byte[] { 39, 0, 0, 0, 31, 139, 8, 0, 0, 0, 0, 0, 4, 0, 99,
-                                                100, 96, 96, 96, 7, 226, 220, 196, 18, 189, 130,
-                                                188, 116, 14, 6, 56, 96, 4, 17, 0, 173, 73, 103,
-                                                222, 31, 0, 0, 0 };
+            byte[] expectedOutput = new byte[] { 32, 0, 0, 0, 1, 1, 0, 0, 0, 7, 0, 0, 0, 109, 97, 116, 46, 112, 110,
+                                                 103, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0 };
 
 
             string expectedString = "", actualString="";
