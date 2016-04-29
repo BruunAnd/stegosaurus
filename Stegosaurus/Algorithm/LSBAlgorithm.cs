@@ -5,6 +5,8 @@ using System.Linq;
 using Stegosaurus.Exceptions;
 using Stegosaurus.Utility;
 using System.Collections.Generic;
+using Stegosaurus.Cryptography;
+using Stegosaurus.Utility.Extensions;
 
 namespace Stegosaurus.Algorithm
 {
@@ -12,18 +14,17 @@ namespace Stegosaurus.Algorithm
     {
         private static readonly byte[] LsbSignature = { 0x6C, 0x73, 0x62 };
 
+        public ICryptoProvider CryptoProvider { get; set; }
         public ICarrierMedia CarrierMedia { get; set; }
 
         public string Name => "LSB Algorithm";
 
-        public int Seed => 0; // Key?.GetHashCode() ?? 0
-
-        public byte[] Key { get; set; }
+        public int Seed => CryptoProvider.CryptoKey.ComputeHash();
 
         public void Embed(StegoMessage _message)
         {
             // Combine LsbSignature with byteArray and convert to bitArray
-            BitArray messageInBits = new BitArray(LsbSignature.Concat(_message.ToByteArray(Key)).ToArray());
+            BitArray messageInBits = new BitArray(LsbSignature.Concat(_message.ToByteArray(CryptoProvider)).ToArray());
 
             // Generate random sequence of integers
             IEnumerable<int> numberList = new RandomNumberList(Seed, CarrierMedia.ByteArray.Length);
@@ -60,7 +61,7 @@ namespace Stegosaurus.Algorithm
             int dataSize = BitConverter.ToInt32(ReadBytes(numberList, 4), 0);
 
             // Return new instance from read data
-            return new StegoMessage(ReadBytes(numberList, dataSize), Key);
+            return new StegoMessage(ReadBytes(numberList, dataSize), CryptoProvider);
         }
 
         public long ComputeBandwidth()
@@ -83,11 +84,5 @@ namespace Stegosaurus.Algorithm
 
             return tempByteArray;
         }
-
-        public override string ToString()
-        {
-            return Name;
-        }
-
     }
 }

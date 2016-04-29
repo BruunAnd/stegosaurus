@@ -3,22 +3,21 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Stegosaurus.Carrier;
+using Stegosaurus.Cryptography;
 
 namespace Stegosaurus.Algorithm
 {
     public class GraphTheoreticAlgorithm : IStegoAlgorithm
     {
+        public ICryptoProvider CryptoProvider { get; set; }
+
         public ICarrierMedia CarrierMedia
         {
             get; set;
         }
 
-        public byte[] Key
-        {
-            get; set;
-        }
-
         public string Name => "Graph Theoretic Algorithm";
+        public string CryptoKey { get; set; }
 
         public long ComputeBandwidth()
         {

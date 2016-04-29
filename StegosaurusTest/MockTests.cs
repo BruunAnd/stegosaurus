@@ -6,6 +6,7 @@ using System.Text;
 using Stegosaurus;
 using Stegosaurus.Carrier;
 using System.Drawing;
+using Stegosaurus.Cryptography;
 
 namespace StegosaurusTest
 {
@@ -18,6 +19,8 @@ namespace StegosaurusTest
             const string coverFile = "cover.png";
             const string testMessageString = "Example text message.";
             const string testKey = "Example Key";
+            ICryptoProvider cryptoProvider = new AESProvider();
+            cryptoProvider.CryptoKey = testKey;
 
             // Test requires a cover file
             if (!File.Exists(coverFile))
@@ -28,7 +31,7 @@ namespace StegosaurusTest
             // Instantiate algorithm
             IStegoAlgorithm algorithm = (IStegoAlgorithm) Activator.CreateInstance(typeof(LSBAlgorithm));
             algorithm.CarrierMedia = new ImageCarrier(coverFile);
-            algorithm.Key = Encoding.UTF8.GetBytes(testKey);
+            algorithm.CryptoProvider = cryptoProvider;
 
             // Instantiate StegoMessage
             StegoMessage inMessage = new StegoMessage();

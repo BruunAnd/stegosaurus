@@ -33,9 +33,8 @@ namespace StegosaurusTest
 
             stegoMessage.InputFiles.Add(new InputFile("mat.png", new byte[] { 0, 0, 0, 0, 0, 0, 0, 1 }));
 
-            byte[] expectedOutput = new byte[] { 32, 0, 0, 0, 1, 1, 0, 0, 0, 7, 0, 0, 0, 109, 97, 116, 46, 112, 110,
+            byte[] expectedOutput = { 32, 0, 0, 0, 1, 1, 0, 0, 0, 7, 0, 0, 0, 109, 97, 116, 46, 112, 110,
                                                  103, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0 };
-
 
             string expectedString = "", actualString="";
             foreach (byte item in expectedOutput)

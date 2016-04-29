@@ -9,21 +9,21 @@ using System.Windows.Forms;
 
 namespace Stegosaurus
 {
+    [Flags]
+    public enum StegoMessageFlags
+    {
+        Encoded = 0x1,
+        Compressed = 0x2,
+        Encrypted = 0x4,
+        Signed = 0x8,
+    }
+
     public class StegoMessage
     {
         public string TextMessage { get; set; }
         public List<InputFile> InputFiles { get; } = new List<InputFile>();
 
-        [Flags]
-        public enum FlagEnum
-        {
-            Encoded = 0x1,
-            Compressed = 0x2,
-            Encrypted = 0x4,
-            Signed = 0x8,
-        }
-
-        private FlagEnum flags = new FlagEnum();
+        private StegoMessageFlags flags;
 
         public StegoMessage()
         {
@@ -34,29 +34,34 @@ namespace Stegosaurus
             TextMessage = _textMessage;
         }
 
-        public StegoMessage(byte[] _fromArray, byte[] _decryptionKey = null)
+        public StegoMessage(byte[] _fromArray, ICryptoProvider _cryptoProvider = null)
         {
             using (MemoryStream inputStream = new MemoryStream(_fromArray))
             {
-                flags = (FlagEnum) inputStream.ReadByte();
+                flags = (StegoMessageFlags) inputStream.ReadByte();
 
                 // Read encoded data
                 byte[] encodedData = inputStream.ReadBytes(_fromArray.Length - sizeof(byte));
 
                 // Decrypt if a key is specified
-                if (_decryptionKey != null && flags.HasFlag(FlagEnum.Encrypted))
+                if (flags.HasFlag(StegoMessageFlags.Encrypted) && _cryptoProvider != null)
                 {
-                    encodedData = RC4.Decrypt(encodedData, _decryptionKey);
+                    Console.WriteLine("Decrypt..");
+                    encodedData = _cryptoProvider.Decrypt(encodedData);
                 }
 
                 // Decompress the array
-                if (flags.HasFlag(FlagEnum.Compressed))
+                if (flags.HasFlag(StegoMessageFlags.Compressed))
                 {
+                    Console.WriteLine("Decompress.. {0}", encodedData.Length);
                     encodedData = Compression.Decompress(encodedData);
                 }
 
                 // Decode array
-                Decode(encodedData);
+                if (flags.HasFlag(StegoMessageFlags.Encoded))
+                {
+                    Decode(encodedData);
+                }
             }
         }
 
@@ -95,46 +100,46 @@ namespace Stegosaurus
         /// First part of the byte array contains the message file(s).
         /// The last part of the byte array is the text message if there is any.
         /// </summary>
-        public byte[] ToByteArray(byte[] _encryptionKey = null)
+        public byte[] ToByteArray(ICryptoProvider _cryptoProvider = null)
         {
             // Encode and compress array
             byte[] encodedData = Encode();
-            SetFlag(FlagEnum.Encoded, true);
+            SetFlag(StegoMessageFlags.Encoded, true);
 
             // Compress data
             byte[] compressedData = Compression.Compress(encodedData);
             if (compressedData.Length < encodedData.Length)
             {
                 encodedData = compressedData;
-                SetFlag(FlagEnum.Compressed, true);
+                SetFlag(StegoMessageFlags.Compressed, true);
             }
             else
             {
-                SetFlag(FlagEnum.Compressed, false);
+                SetFlag(StegoMessageFlags.Compressed, false);
             }
 
             // Encrypt if key is specified
-            if (_encryptionKey != null)
+            if (_cryptoProvider != null)
             {
-                encodedData = RC4.Encrypt(encodedData, _encryptionKey);
-                SetFlag(FlagEnum.Encrypted, true);
+                encodedData = _cryptoProvider.Encrypt(encodedData);
+                SetFlag(StegoMessageFlags.Encrypted, true);
             }
             else
             {
-                SetFlag(FlagEnum.Encrypted, false);
+                SetFlag(StegoMessageFlags.Encrypted, false);
             }
 
             // Combine array and length header
             List<byte> returnList = new List<byte>();
             returnList.AddRange(BitConverter.GetBytes(encodedData.Length + sizeof(byte)));
             returnList.Add((byte)flags);
-            MessageBox.Show(encodedData.Length.ToString());
             returnList.AddRange(encodedData);
+            Console.WriteLine("Actual data {0}", encodedData.Length);
 
             return returnList.ToArray();
         }
 
-        private void SetFlag(FlagEnum _flag, bool _state)
+        private void SetFlag(StegoMessageFlags _flag, bool _state)
         {
             if (_state != flags.HasFlag(_flag))
             {

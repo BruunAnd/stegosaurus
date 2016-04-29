@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -16,6 +17,8 @@ namespace Stegosaurus.Carrier
 
         private Bitmap innerImage;
 
+        public Image InnerImage => innerImage;
+
         /// <summary>
         /// Main constructer. Gets image, checks if null pointer and sets private variable to cloned image if not null.
         /// </summary>
@@ -25,7 +28,8 @@ namespace Stegosaurus.Carrier
                 throw new ArgumentNullException("Invalid input image in ImageCarrier.\n");
 
             // Clones to make sure no changes are made in the original imagefile
-            innerImage = (Bitmap) _innerImage.Clone();
+            innerImage = (Bitmap) _innerImage;
+
             // TODO convert to 3 channels, convert to png
             Decode();
         }
@@ -34,7 +38,7 @@ namespace Stegosaurus.Carrier
         /// Gets file path to image file and sends image to constructer.
         /// </summary>
         /// <param name="_filePath"></param>
-        public ImageCarrier(string _filePath) : this(Image.FromFile(_filePath))
+        public ImageCarrier(string _filePath) : this(LoadImageFromFile(_filePath))
         {
         }
 
@@ -46,6 +50,14 @@ namespace Stegosaurus.Carrier
         {
             Rectangle imageRectangle = new Rectangle(new Point(0, 0), innerImage.Size);
             return innerImage.LockBits(imageRectangle, ImageLockMode.ReadWrite, innerImage.PixelFormat);
+        }
+
+        /// <summary>
+        /// Custom Image.FromFile method, since that method does not release the file handle
+        /// </summary>
+        private static Image LoadImageFromFile(string _filePath)
+        {
+            return Image.FromStream(new MemoryStream(File.ReadAllBytes(_filePath)));
         }
 
         /// <summary>
