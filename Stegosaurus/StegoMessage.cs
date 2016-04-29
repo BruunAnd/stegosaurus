@@ -46,14 +46,12 @@ namespace Stegosaurus
                 // Decrypt if a key is specified
                 if (flags.HasFlag(StegoMessageFlags.Encrypted) && _cryptoProvider != null)
                 {
-                    Console.WriteLine("Decrypt..");
                     encodedData = _cryptoProvider.Decrypt(encodedData);
                 }
 
                 // Decompress the array
                 if (flags.HasFlag(StegoMessageFlags.Compressed))
                 {
-                    Console.WriteLine("Decompress.. {0}", encodedData.Length);
                     encodedData = Compression.Decompress(encodedData);
                 }
 
