@@ -28,6 +28,7 @@ namespace Stegosaurus.Forms
         private ICryptoProvider cryptoProvider;
 
         private string carrierName;
+        private string carrierExtension;
 
         private bool CanEmbed => carrierMedia != null && (!string.IsNullOrEmpty(textBoxTextMessage.Text) || listViewMessageContentFiles.Items.Count > 0);
 
@@ -415,7 +416,7 @@ namespace Stegosaurus.Forms
             algorithm.CarrierMedia = carrierMedia;
             algorithm.CryptoProvider.CryptoKey = textBoxEncryptionKey.Text;
             algorithm.Embed(stegoMessage);
-            algorithm.CarrierMedia.SaveToFile($"Stego-{carrierName}");
+            algorithm.CarrierMedia.SaveToFile($"Stego-{carrierName}{carrierExtension}");
         }
         #endregion
         
@@ -445,13 +446,15 @@ namespace Stegosaurus.Forms
                 {
                     carrierMedia = new AudioCarrier(_input.FilePath);
                     pictureBoxCarrier.Image = Icon.ExtractAssociatedIcon(_input.FilePath)?.ToBitmap();
+                    carrierExtension = fileInfo.Extension;
                 }
                 else
                 {
                     carrierMedia = new ImageCarrier(_input.FilePath);
                     pictureBoxCarrier.Image = ((ImageCarrier) carrierMedia).InnerImage;
+                    carrierExtension = ".png";
                 }
-                carrierName = fileInfo.Name;
+                carrierName = fileInfo.Name.Remove(fileInfo.Name.LastIndexOf('.'));
             }
 
             UpdateCapacityBar();
