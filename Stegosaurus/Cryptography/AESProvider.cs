@@ -2,6 +2,7 @@
 using System.Security.Cryptography;
 using Stegosaurus.Utility.Extensions;
 using Stegosaurus.Exceptions;
+using Stegosaurus.Utility;
 
 namespace Stegosaurus.Cryptography
 {
@@ -48,11 +49,7 @@ namespace Stegosaurus.Cryptography
         {
             using (AesManaged aesManaged = new AesManaged())
             {
-                // Generate key from key and salt
-                Rfc2898DeriveBytes key = new Rfc2898DeriveBytes(CryptoKey, salt);
-
-                // Set key and generate initialization vector
-                aesManaged.Key = key.GetBytes(aesManaged.KeySize / 8);
+                aesManaged.Key = KeyDeriver.DeriveKey(CryptoKey, aesManaged.KeySize);
 
                 using (MemoryStream inputStream = new MemoryStream(_data))
                 {
