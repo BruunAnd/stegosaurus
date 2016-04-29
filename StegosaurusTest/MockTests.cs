@@ -2,7 +2,6 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.IO;
 using Stegosaurus.Algorithm;
-using System.Text;
 using Stegosaurus;
 using Stegosaurus.Carrier;
 using System.Drawing;
@@ -22,7 +21,7 @@ namespace StegosaurusTest
             const string testMessageString = "Example text message.";
             const string testKey = "Example Key";
             const string testFileName = "Example.bin";
-            byte[] testFileBuffer = new byte[1024 * 128];
+            byte[] testFileBuffer = new byte[1024 * 64];
             new Random().NextBytes(testFileBuffer);
 
             ICryptoProvider cryptoProvider = new AESProvider();
