@@ -41,7 +41,6 @@ namespace Stegosaurus.Forms
             this.imageListIcons = new System.Windows.Forms.ImageList(this.components);
             this.buttonInputBrowse = new System.Windows.Forms.Button();
             this.labelInputFiles = new System.Windows.Forms.Label();
-            this.buttonTest = new System.Windows.Forms.Button();
             this.labelTextMesage = new System.Windows.Forms.Label();
             this.buttonActivateSteganography = new System.Windows.Forms.Button();
             this.textBoxEncryptionKey = new System.Windows.Forms.TextBox();
@@ -156,17 +155,6 @@ namespace Stegosaurus.Forms
             this.labelInputFiles.TabIndex = 5;
             this.labelInputFiles.Text = "Message content files";
             // 
-            // buttonTest
-            // 
-            this.buttonTest.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.buttonTest.Location = new System.Drawing.Point(191, 341);
-            this.buttonTest.Name = "buttonTest";
-            this.buttonTest.Size = new System.Drawing.Size(75, 23);
-            this.buttonTest.TabIndex = 7;
-            this.buttonTest.Text = "Test";
-            this.buttonTest.UseVisualStyleBackColor = true;
-            this.buttonTest.Click += new System.EventHandler(this.button1_Click);
-            // 
             // labelTextMesage
             // 
             this.labelTextMesage.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
@@ -180,9 +168,9 @@ namespace Stegosaurus.Forms
             // buttonActivateSteganography
             // 
             this.buttonActivateSteganography.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.buttonActivateSteganography.Location = new System.Drawing.Point(6, 314);
+            this.buttonActivateSteganography.Location = new System.Drawing.Point(6, 281);
             this.buttonActivateSteganography.Name = "buttonActivateSteganography";
-            this.buttonActivateSteganography.Size = new System.Drawing.Size(154, 50);
+            this.buttonActivateSteganography.Size = new System.Drawing.Size(285, 83);
             this.buttonActivateSteganography.TabIndex = 9;
             this.buttonActivateSteganography.Text = "Extract";
             this.buttonActivateSteganography.UseVisualStyleBackColor = true;
@@ -341,7 +329,7 @@ namespace Stegosaurus.Forms
             // buttonCarrierMediaBrowse
             // 
             this.buttonCarrierMediaBrowse.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.buttonCarrierMediaBrowse.Location = new System.Drawing.Point(213, 6);
+            this.buttonCarrierMediaBrowse.Location = new System.Drawing.Point(216, 6);
             this.buttonCarrierMediaBrowse.Name = "buttonCarrierMediaBrowse";
             this.buttonCarrierMediaBrowse.Size = new System.Drawing.Size(75, 25);
             this.buttonCarrierMediaBrowse.TabIndex = 27;
@@ -372,7 +360,6 @@ namespace Stegosaurus.Forms
             this.tabPageMain.Controls.Add(this.labelCapacityWarning);
             this.tabPageMain.Controls.Add(this.labelInputFiles);
             this.tabPageMain.Controls.Add(this.labelStorageRatio);
-            this.tabPageMain.Controls.Add(this.buttonTest);
             this.tabPageMain.Controls.Add(this.buttonActivateSteganography);
             this.tabPageMain.Controls.Add(this.labelCarrierMedia);
             this.tabPageMain.Controls.Add(this.textBoxEncryptionKey);
@@ -435,7 +422,6 @@ namespace Stegosaurus.Forms
         private System.Windows.Forms.ImageList imageListIcons;
         private System.Windows.Forms.Button buttonInputBrowse;
         private System.Windows.Forms.Label labelInputFiles;
-        private System.Windows.Forms.Button buttonTest;
         private System.Windows.Forms.Label labelTextMesage;
         private System.Windows.Forms.Button buttonActivateSteganography;
         private System.Windows.Forms.Label labelEncryptionKey;
