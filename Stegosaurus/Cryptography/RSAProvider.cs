@@ -15,8 +15,7 @@ namespace Stegosaurus.Cryptography
         public string Name => "RSA";
 
         public int Seed => 0;
-
-        private const int KeySize = 2048;
+        public int KeySize => 2048;
 
         private RSAParameters Parameters
         {

@@ -12,8 +12,7 @@ namespace Stegosaurus.Cryptography
         public string Name => "AES";
 
         public int Seed => KeyDeriver.DeriveKey(CryptoKey, KeySize).ComputeHash();
-
-        private const int KeySize = 256;
+        public int KeySize => 256;
 
         public byte[] Encrypt(byte[] _data)
         {

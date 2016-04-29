@@ -11,8 +11,7 @@ namespace Stegosaurus.Cryptography
         public string Name => "TripleDES";
 
         public int Seed => KeyDeriver.DeriveKey(CryptoKey, KeySize).ComputeHash();
-
-        private const int KeySize = 192;
+        public int KeySize => 192;
 
         public byte[] Decrypt(byte[] _data)
         {
