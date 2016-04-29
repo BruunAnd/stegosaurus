@@ -132,7 +132,6 @@ namespace Stegosaurus
             returnList.AddRange(BitConverter.GetBytes(encodedData.Length + sizeof(byte)));
             returnList.Add((byte)flags);
             returnList.AddRange(encodedData);
-            Console.WriteLine("Actual data {0}", encodedData.Length);
 
             return returnList.ToArray();
         }

@@ -28,10 +28,21 @@ namespace Stegosaurus.Carrier
             if (_innerImage == null)
                 throw new ArgumentNullException("Invalid input image in ImageCarrier.\n");
 
-            // Clones to make sure no changes are made in the original imagefile
-            innerImage = (Bitmap) _innerImage;
+            // Clone image or convert to PNG
+            if (_innerImage.RawFormat == ImageFormat.Png)
+            {
+                innerImage = (Bitmap) _innerImage.Clone();
+            }
+            else
+            {
+                innerImage = new Bitmap( _innerImage.Width, _innerImage.Height, PixelFormat.Format24bppRgb);
+                using (Graphics graphics = Graphics.FromImage(innerImage))
+                {
+                    graphics.DrawImage(_innerImage, new Rectangle(0, 0, _innerImage.Width, _innerImage.Height));
+                }
+            }
+            _innerImage.Dispose();
 
-            // TODO convert to 3 channels, convert to png
             Decode();
         }
 
@@ -109,7 +120,7 @@ namespace Stegosaurus.Carrier
         public void SaveToFile(string destination)
         {
             Encode();
-            innerImage.Save(destination);
+            innerImage.Save(destination, ImageFormat.Png);
         }
     }
 }

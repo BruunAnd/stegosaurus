@@ -21,17 +21,17 @@ namespace StegosaurusTest
             const string testMessageString = "Example text message.";
             const string testKey = "Example Key";
             const string testFileName = "Example.bin";
-            byte[] testFileBuffer = new byte[1024 * 64];
+            Random random = new Random();
+            byte[] testFileBuffer = new byte[random.Next(1024 * 24, 1024 * 48)];
             new Random().NextBytes(testFileBuffer);
 
             ICryptoProvider cryptoProvider = new AESProvider();
             cryptoProvider.CryptoKey = testKey;
 
             // Test requires a cover file
-            if (!File.Exists(coverFile))
-            {
-                new Bitmap(500, 500).Save(coverFile);
-            }
+            if (File.Exists(coverFile))
+                File.Delete(coverFile);
+            new Bitmap(random.Next(500, 600), random.Next(500, 600)).Save(coverFile);
 
             // Instantiate algorithm
             IStegoAlgorithm algorithm = (IStegoAlgorithm) Activator.CreateInstance(typeof(LSBAlgorithm));
