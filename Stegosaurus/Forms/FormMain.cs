@@ -306,8 +306,8 @@ namespace Stegosaurus.Forms
         private void comboBoxCryptoProviderSelection_SelectedIndexChanged(object sender, EventArgs e)
         {
             cryptoProvider = cryptoProviderDictionary[comboBoxCryptoProviderSelection.Text];
+            textBoxEncryptionKey.MaxLength = cryptoProvider.
             cryptoProvider.CryptoKey = textBoxEncryptionKey.Text;
-
             algorithm.CryptoProvider = cryptoProvider;
         }
 
