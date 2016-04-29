@@ -9,14 +9,14 @@ namespace StegosaurusTest
     {
         AESProvider AESCryptation = new AESProvider();
 
+        byte[] input = new byte[] { 39, 0, 0, 0, 31, 139, 8, 0, 0, 0, 0, 0, 4, 0, 99, 100, 96,
+                                        96, 96, 7, 226, 220, 196, 18, 189, 130, 188, 116, 14,
+                                        6, 56, 96, 4, 17, 0, 173, 73, 103, 222, 31, 0, 0, 0 };
+
         [TestMethod]
         public void Encrypt_MatchingArrays_ReturnsFalse()
         {
             AESCryptation.CryptoKey = "KeyKeyKey";
-
-            byte[] input = new byte[] { 39, 0, 0, 0, 31, 139, 8, 0, 0, 0, 0, 0, 4, 0, 99, 100, 96,
-                                        96, 96, 7, 226, 220, 196, 18, 189, 130, 188, 116, 14,
-                                        6, 56, 96, 4, 17, 0, 173, 73, 103, 222, 31, 0, 0, 0 };
 
             byte[] encryptedArray = AESCryptation.Encrypt(input);
 
@@ -28,10 +28,6 @@ namespace StegosaurusTest
         public void Decrypt_MatchingArrays_ReturnsTrue()
         {
             AESCryptation.CryptoKey = "KeyKeyKey";
-
-            byte[] input = new byte[] { 39, 0, 0, 0, 31, 139, 8, 0, 0, 0, 0, 0, 4, 0, 99, 100, 96,
-                                        96, 96, 7, 226, 220, 196, 18, 189, 130, 188, 116, 14,
-                                        6, 56, 96, 4, 17, 0, 173, 73, 103, 222, 31, 0, 0, 0 };
 
             byte[] decryptedArray = AESCryptation.Decrypt(AESCryptation.Encrypt(input));
 
