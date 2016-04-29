@@ -129,7 +129,7 @@ namespace Stegosaurus.Forms
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void EmbedButton_Click(object sender, EventArgs e)
+        private void buttonActivateSteganography_Click(object sender, EventArgs e)
         {
             if (carrierMedia == null)
             {
@@ -203,14 +203,14 @@ namespace Stegosaurus.Forms
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void inputBrowseButton_Click(object sender, EventArgs e)
+        private void openFileDialogBrowseInput_Click(object sender, EventArgs e)
         {
-            DialogResult result = InputBrowseDialog.ShowDialog();
+            DialogResult result = openFileDialogBrowseInput.ShowDialog();
 
             if (result != DialogResult.OK)
                 return;
 
-            foreach (string fileName in InputBrowseDialog.FileNames)
+            foreach (string fileName in openFileDialogBrowseInput.FileNames)
             {
                 InputHelper(new ContentType(fileName));
             }
@@ -455,7 +455,7 @@ namespace Stegosaurus.Forms
         /// </summary>
         private void UpdateButtonText()
         {
-            buttonEmbed.Text = CanEmbed ? "Embed" : "Extract";
+            buttonActivateSteganography.Text = CanEmbed ? "Embed" : "Extract";
         }
 
         /// <summary>

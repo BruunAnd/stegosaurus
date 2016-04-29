@@ -43,10 +43,10 @@ namespace Stegosaurus.Forms
             this.labelInputFiles = new System.Windows.Forms.Label();
             this.buttonTest = new System.Windows.Forms.Button();
             this.labelTextMesage = new System.Windows.Forms.Label();
-            this.buttonEmbed = new System.Windows.Forms.Button();
+            this.buttonActivateSteganography = new System.Windows.Forms.Button();
             this.textBoxEncryptionKey = new System.Windows.Forms.TextBox();
             this.labelEncryptionKey = new System.Windows.Forms.Label();
-            this.InputBrowseDialog = new System.Windows.Forms.OpenFileDialog();
+            this.openFileDialogBrowseInput = new System.Windows.Forms.OpenFileDialog();
             this.pictureBoxCarrier = new System.Windows.Forms.PictureBox();
             this.progressBarCapacity = new System.Windows.Forms.ProgressBar();
             this.panel1 = new System.Windows.Forms.Panel();
@@ -105,20 +105,20 @@ namespace Stegosaurus.Forms
             this.saveToolStripMenuItem,
             this.deleteToolStripMenuItem});
             this.contextMenuStripMain.Name = "contextMenuStrip1";
-            this.contextMenuStripMain.Size = new System.Drawing.Size(123, 52);
+            this.contextMenuStripMain.Size = new System.Drawing.Size(129, 56);
             this.contextMenuStripMain.Opening += new System.ComponentModel.CancelEventHandler(this.contextMenuStripMain_Opening);
             // 
             // saveToolStripMenuItem
             // 
             this.saveToolStripMenuItem.Name = "saveToolStripMenuItem";
-            this.saveToolStripMenuItem.Size = new System.Drawing.Size(122, 24);
+            this.saveToolStripMenuItem.Size = new System.Drawing.Size(128, 26);
             this.saveToolStripMenuItem.Text = "Save";
             this.saveToolStripMenuItem.Click += new System.EventHandler(this.saveToolStripMenuItem_Click);
             // 
             // deleteToolStripMenuItem
             // 
             this.deleteToolStripMenuItem.Name = "deleteToolStripMenuItem";
-            this.deleteToolStripMenuItem.Size = new System.Drawing.Size(122, 24);
+            this.deleteToolStripMenuItem.Size = new System.Drawing.Size(128, 26);
             this.deleteToolStripMenuItem.Text = "Delete";
             this.deleteToolStripMenuItem.Click += new System.EventHandler(this.deleteToolStripMenuItem_Click);
             // 
@@ -137,7 +137,7 @@ namespace Stegosaurus.Forms
             this.buttonInputBrowse.TabIndex = 4;
             this.buttonInputBrowse.Text = "Browse";
             this.buttonInputBrowse.UseVisualStyleBackColor = true;
-            this.buttonInputBrowse.Click += new System.EventHandler(this.inputBrowseButton_Click);
+            this.buttonInputBrowse.Click += new System.EventHandler(this.openFileDialogBrowseInput_Click);
             // 
             // labelInputFiles
             // 
@@ -169,16 +169,16 @@ namespace Stegosaurus.Forms
             this.labelTextMesage.TabIndex = 8;
             this.labelTextMesage.Text = "Text message";
             // 
-            // buttonEmbed
+            // buttonActivateSteganography
             // 
-            this.buttonEmbed.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.buttonEmbed.Location = new System.Drawing.Point(12, 316);
-            this.buttonEmbed.Name = "buttonEmbed";
-            this.buttonEmbed.Size = new System.Drawing.Size(154, 50);
-            this.buttonEmbed.TabIndex = 9;
-            this.buttonEmbed.Text = "Extract";
-            this.buttonEmbed.UseVisualStyleBackColor = true;
-            this.buttonEmbed.Click += new System.EventHandler(this.EmbedButton_Click);
+            this.buttonActivateSteganography.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.buttonActivateSteganography.Location = new System.Drawing.Point(12, 316);
+            this.buttonActivateSteganography.Name = "buttonActivateSteganography";
+            this.buttonActivateSteganography.Size = new System.Drawing.Size(154, 50);
+            this.buttonActivateSteganography.TabIndex = 9;
+            this.buttonActivateSteganography.Text = "Extract";
+            this.buttonActivateSteganography.UseVisualStyleBackColor = true;
+            this.buttonActivateSteganography.Click += new System.EventHandler(this.buttonActivateSteganography_Click);
             // 
             // textBoxEncryptionKey
             // 
@@ -200,9 +200,9 @@ namespace Stegosaurus.Forms
             this.labelEncryptionKey.TabIndex = 11;
             this.labelEncryptionKey.Text = "Encryption key";
             // 
-            // InputBrowseDialog
+            // openFileDialogBrowseInput
             // 
-            this.InputBrowseDialog.Multiselect = true;
+            this.openFileDialogBrowseInput.Multiselect = true;
             // 
             // pictureBoxCarrier
             // 
@@ -335,7 +335,7 @@ namespace Stegosaurus.Forms
             this.Controls.Add(this.progressBarCapacity);
             this.Controls.Add(this.labelEncryptionKey);
             this.Controls.Add(this.textBoxEncryptionKey);
-            this.Controls.Add(this.buttonEmbed);
+            this.Controls.Add(this.buttonActivateSteganography);
             this.Controls.Add(this.buttonTest);
             this.Controls.Add(this.labelInputFiles);
             this.Controls.Add(this.buttonInputBrowse);
@@ -369,10 +369,10 @@ namespace Stegosaurus.Forms
         private System.Windows.Forms.Label labelInputFiles;
         private System.Windows.Forms.Button buttonTest;
         private System.Windows.Forms.Label labelTextMesage;
-        private System.Windows.Forms.Button buttonEmbed;
+        private System.Windows.Forms.Button buttonActivateSteganography;
         private System.Windows.Forms.Label labelEncryptionKey;
         private System.Windows.Forms.TextBox textBoxEncryptionKey;
-        private System.Windows.Forms.OpenFileDialog InputBrowseDialog;
+        private System.Windows.Forms.OpenFileDialog openFileDialogBrowseInput;
         private System.Windows.Forms.PictureBox pictureBoxCarrier;
         private System.Windows.Forms.ProgressBar progressBarCapacity;
         private System.Windows.Forms.Panel panel1;
