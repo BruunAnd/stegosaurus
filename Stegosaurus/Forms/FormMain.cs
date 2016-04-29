@@ -27,6 +27,8 @@ namespace Stegosaurus.Forms
         private IStegoAlgorithm algorithm;
         private ICryptoProvider cryptoProvider;
 
+        private string carrierName;
+
         private bool CanEmbed => carrierMedia != null && (!string.IsNullOrEmpty(textBoxTextMessage.Text) || listViewMessageContentFiles.Items.Count > 0);
 
         public FormMain()
@@ -413,7 +415,7 @@ namespace Stegosaurus.Forms
             algorithm.CarrierMedia = carrierMedia;
             algorithm.CryptoProvider.CryptoKey = textBoxEncryptionKey.Text;
             algorithm.Embed(stegoMessage);
-            algorithm.CarrierMedia.SaveToFile("new.png");
+            algorithm.CarrierMedia.SaveToFile($"Stego-{carrierName}");
         }
         #endregion
         
@@ -449,6 +451,7 @@ namespace Stegosaurus.Forms
                     carrierMedia = new ImageCarrier(_input.FilePath);
                     pictureBoxCarrier.Image = ((ImageCarrier) carrierMedia).InnerImage;
                 }
+                carrierName = fileInfo.Name;
             }
 
             UpdateCapacityBar();
@@ -492,18 +495,6 @@ namespace Stegosaurus.Forms
             }
             progressBarCapacity.Value = (int) ratio;
         }
-
-        #region DEBUG
-        /// <summary>
-        /// DEBUG: shows the content of the stegoMessage's TextMessage property.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void button1_Click(object sender, EventArgs e)
-        {
-            MessageBox.Show(stegoMessage.TextMessage);
-        }
-        #endregion
-
+        
     }
 }
