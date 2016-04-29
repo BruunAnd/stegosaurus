@@ -159,7 +159,7 @@ namespace Stegosaurus.Forms
             // 
             this.labelTextMesage.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.labelTextMesage.AutoSize = true;
-            this.labelTextMesage.Location = new System.Drawing.Point(309, 219);
+            this.labelTextMesage.Location = new System.Drawing.Point(309, 218);
             this.labelTextMesage.Name = "labelTextMesage";
             this.labelTextMesage.Size = new System.Drawing.Size(90, 19);
             this.labelTextMesage.TabIndex = 8;
@@ -183,7 +183,8 @@ namespace Stegosaurus.Forms
             this.textBoxEncryptionKey.MaxLength = 0;
             this.textBoxEncryptionKey.Multiline = true;
             this.textBoxEncryptionKey.Name = "textBoxEncryptionKey";
-            this.textBoxEncryptionKey.Size = new System.Drawing.Size(347, 22);
+            this.textBoxEncryptionKey.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
+            this.textBoxEncryptionKey.Size = new System.Drawing.Size(347, 40);
             this.textBoxEncryptionKey.TabIndex = 10;
             // 
             // labelEncryptionKey

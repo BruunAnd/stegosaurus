@@ -310,6 +310,8 @@ namespace Stegosaurus.Forms
 
             algorithm.CryptoProvider = cryptoProvider;
         }
+
+        //TODO: Implement Key size limit for textboxEncryptionKey.
         #endregion
 
         #region Steganography Handling
@@ -331,7 +333,6 @@ namespace Stegosaurus.Forms
             algorithm = algorithmDictionary[comboBoxAlgorithmSelection.Text];
             algorithm.CarrierMedia = carrierMedia;
             algorithm.CryptoProvider = cryptoProvider;
-
             UpdateCapacityBar();
         }
 
@@ -499,6 +500,8 @@ namespace Stegosaurus.Forms
             }
             progressBarCapacity.Value = (int) ratio;
         }
+        
+
         
     }
 }
