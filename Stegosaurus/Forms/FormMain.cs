@@ -46,25 +46,84 @@ namespace Stegosaurus.Forms
             comboBoxAlgorithmSelection.SelectedIndex = 0;
             comboBoxCryptoProviderSelection.SelectedIndex = 0;
         }
-
+        
+        #region Carrier Media Handling
         /// <summary>
-        /// Adds a crypto provider to the cryptoprovider dictionary and combolist
+        /// Checks that the files dragged into the panelCarrierMedia control are valid and assigs the effect of the Drag&Drop accordingly.
         /// </summary>
-        private void AddCryptoProvider(Type cryptoProviderType)
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void panelCarrierMedia_DragEnter(object sender, DragEventArgs e)
         {
-            ICryptoProvider cryptoProvider = (ICryptoProvider) Activator.CreateInstance(cryptoProviderType);
-            cryptoProviderDictionary.Add(cryptoProvider.Name, cryptoProvider);
-            comboBoxCryptoProviderSelection.Items.Add(cryptoProvider.Name);
+            e.Effect = e.Data.GetDataPresent(DataFormats.FileDrop) ? DragDropEffects.Copy : DragDropEffects.None;
         }
 
         /// <summary>
-        /// Add an algorithm to the algorithm dictionary and combolist
+        /// Gets the paths of the dropped files and converts the first to CarrierType and calls InputHelper.
+        /// TODO: Implement chack for multiple dropped files and show apropriate error.
         /// </summary>
-        private void AddAlgorithm(Type algorithmType)
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void panelCarrierMedia_DragDrop(object sender, DragEventArgs e)
         {
-            IStegoAlgorithm stegoAlgorithm = (IStegoAlgorithm) Activator.CreateInstance(algorithmType);
-            algorithmDictionary.Add(stegoAlgorithm.Name, stegoAlgorithm);
-            comboBoxAlgorithmSelection.Items.Add(stegoAlgorithm.Name);
+            string[] inputFile = (string[]) e.Data.GetData(DataFormats.FileDrop);
+            if (inputFile.Length == 1)
+            {
+                try
+                {
+                    IInputType inputContent = new CarrierType(inputFile[0]);
+                    InputHelper(inputContent);
+                }
+                catch (ArgumentNullException ex)
+                {
+                    MessageBox.Show(ex.Message);
+                }
+                catch (InvalidWaveFileException ex)
+                {
+                    MessageBox.Show(ex.Message);
+                }
+                catch (OutOfMemoryException)
+                {
+                    MessageBox.Show("Invalid file type. Carrier must be picture or .wav audio file.");
+                }
+            }
+            else
+            {
+                MessageBox.Show("Cannot have multiple carrier medias.", "Error");
+            }
+
+        }
+
+        /// <summary>
+        /// Opens a dialog where the user can browse for a file to make the carrier media.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void buttonCarrierMediaBrowse_Click(object sender, EventArgs e)
+        {
+            openFileDialogBrowseInput.Multiselect = false;
+            DialogResult result = openFileDialogBrowseInput.ShowDialog();
+
+            if (result != DialogResult.OK)
+                return;
+
+           InputHelper(new CarrierType(openFileDialogBrowseInput.FileName));
+        }
+
+        #endregion
+
+        #region StegoMessage Content Handling
+        /// <summary>
+        /// Assigns the content of the textBoxTextMessage.Text property to the stegoMessage.TextMessage property and updates the  to be the progressBarCapacity control.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void textBoxTextMessage_TextChanged(object sender, EventArgs e)
+        {
+            stegoMessage.TextMessage = textBoxTextMessage.Text;
+
+            UpdateCapacityBar();
+            UpdateButtonText();
         }
 
         /// <summary>
@@ -114,13 +173,170 @@ namespace Stegosaurus.Forms
         }
 
         /// <summary>
-        /// DEBUG: shows the content of the stegoMessage's TextMessage property.
+        /// Opens a dialog where the user can browse for files to add to the message content.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void button1_Click(object sender, EventArgs e)
+        private void buttonInputBrowse_Click(object sender, EventArgs e)
         {
-            MessageBox.Show(stegoMessage.TextMessage);
+            openFileDialogBrowseInput.Multiselect = true;
+            DialogResult result = openFileDialogBrowseInput.ShowDialog();
+
+            if (result != DialogResult.OK)
+                return;
+
+            foreach (string fileName in openFileDialogBrowseInput.FileNames)
+            {
+                InputHelper(new ContentType(fileName));
+            }
+        }
+        
+        /// <summary>
+        /// Ensures that the contextMenuStripMain wont open if no items from listViewMessageContentFiles are selected.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void contextMenuStripMain_Opening(object sender, CancelEventArgs e)
+        {
+            e.Cancel = listViewMessageContentFiles.SelectedItems.Count == 0;
+        }
+
+        /// <summary>
+        /// Allows saving of files from the stegoMessage.InputFiles, as selected in the listViewMessageContentFiles control,
+        /// to a custom location. If single file is selected user is prompted with dialog to select destination and filename, 
+        /// and if multiple files are selected the user is prompted to select a folder to which all selected file will be saved
+        /// with their default names.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void saveToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            int[] fileIndices = GetSelectedContentIndices();
+            int len = fileIndices.Length;
+            if (len == 0)
+            {
+                MessageBox.Show("You must have items selected to save.", "Save Error");
+            }
+            if (len == 1)
+            {
+                saveFileDialog.FileName = stegoMessage.InputFiles[fileIndices[0]].Name;
+
+                if (saveFileDialog.ShowDialog() != DialogResult.OK)
+                    return;
+
+                if (saveFileDialog.FileName == "")
+                {
+                    MessageBox.Show("The chosen destination cannot be blank.", "Save Error");
+                }
+                else
+                {
+                    stegoMessage.InputFiles[fileIndices[0]].SaveTo(saveFileDialog.FileName);
+                }
+            }
+            else
+            {
+                if (folderBrowserDialog.ShowDialog() != DialogResult.OK)
+                    return;
+
+                if (folderBrowserDialog.SelectedPath == "")
+                {
+                    MessageBox.Show("The chosen destination cannot be blank.", "Save Error");
+                }
+                else
+                {
+                    foreach (int index in fileIndices)
+                    {
+                        stegoMessage.InputFiles[fileIndices[index]].SaveTo($"{folderBrowserDialog.SelectedPath}\\{stegoMessage.InputFiles[fileIndices[index]].Name}");
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Handles the deletion of items from the listViewMessageContentFiles control and stegoMessage.InputFiles collection.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void deleteToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            int[] fileIndices = GetSelectedContentIndices();
+
+            for (int index = fileIndices.Length - 1; index >= 0; index--)
+            {
+                stegoMessage.InputFiles.RemoveAt(fileIndices[index]);
+                listViewMessageContentFiles.Items.RemoveAt(fileIndices[index]);
+            }
+
+            UpdateCapacityBar();
+            UpdateButtonText();
+        }
+        
+        /// <summary>
+        /// Returns an array of integers containing the indices of all selected items in the listViewMessageContentFiles control.
+        /// </summary>
+        /// <returns></returns>
+        private int[] GetSelectedContentIndices()
+        {
+            int[] indices = new int[listViewMessageContentFiles.SelectedIndices.Count];
+            listViewMessageContentFiles.SelectedIndices.CopyTo(indices, 0);
+            return indices;
+        }
+        #endregion
+
+        #region Cryptography Handling
+        /// <summary>
+        /// Adds a crypto provider to the cryptoprovider dictionary and combolist
+        /// </summary>
+        private void AddCryptoProvider(Type cryptoProviderType)
+        {
+            ICryptoProvider cryptoProvider = (ICryptoProvider) Activator.CreateInstance(cryptoProviderType);
+            cryptoProviderDictionary.Add(cryptoProvider.Name, cryptoProvider);
+            comboBoxCryptoProviderSelection.Items.Add(cryptoProvider.Name);
+        }
+
+        /// <summary>
+        /// Updates the cryptoProvider to reflect the chosen item in the comboBoxCryptoProviderSelection control.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void comboBoxCryptoProviderSelection_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            cryptoProvider = cryptoProviderDictionary[comboBoxCryptoProviderSelection.Text];
+            cryptoProvider.CryptoKey = textBoxEncryptionKey.Text;
+
+            algorithm.CryptoProvider = cryptoProvider;
+        }
+        #endregion
+
+        #region Steganography Handling
+        /// <summary>
+        /// Add an algorithm to the algorithm dictionary and combolist
+        /// </summary>
+        private void AddAlgorithm(Type algorithmType)
+        {
+            IStegoAlgorithm stegoAlgorithm = (IStegoAlgorithm) Activator.CreateInstance(algorithmType);
+            algorithmDictionary.Add(stegoAlgorithm.Name, stegoAlgorithm);
+            comboBoxAlgorithmSelection.Items.Add(stegoAlgorithm.Name);
+        }
+
+        /// <summary>
+        /// Assigns the chosen algorithm to the algorithm variable and supplies the algorithm with the current carrierMedia. At last the progressBarCapacity is updated.
+        /// </summary>
+        private void comboBoxAlgorithmSelection_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            algorithm = algorithmDictionary[comboBoxAlgorithmSelection.Text];
+            algorithm.CarrierMedia = carrierMedia;
+            algorithm.CryptoProvider = cryptoProvider;
+
+            UpdateCapacityBar();
+        }
+
+        /// <summary>
+        /// Updates the Embed/Extract buttons text to reflect action the button will activate.
+        /// </summary>
+        private void UpdateButtonText()
+        {
+            buttonActivateSteganography.Text = CanEmbed ? "Embed" : "Extract";
         }
 
         /// <summary>
@@ -197,67 +413,8 @@ namespace Stegosaurus.Forms
                 MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
-
-        /// <summary>
-        /// Opens a dialog where the user can browse for files to add to the message content.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void openFileDialogBrowseInput_Click(object sender, EventArgs e)
-        {
-            DialogResult result = openFileDialogBrowseInput.ShowDialog();
-
-            if (result != DialogResult.OK)
-                return;
-
-            foreach (string fileName in openFileDialogBrowseInput.FileNames)
-            {
-                InputHelper(new ContentType(fileName));
-            }
-        }
-
-        /// <summary>
-        /// Checks that the files dragged into the panelCarrierMedia control are valid and assigs the effect of the Drag&Drop accordingly.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void panelCarrierMedia_DragEnter(object sender, DragEventArgs e)
-        {
-            e.Effect = e.Data.GetDataPresent(DataFormats.FileDrop) ? DragDropEffects.Copy : DragDropEffects.None;
-        }
-
-        /// <summary>
-        /// Gets the paths of the dropped files and converts the first to CarrierType and calls InputHelper.
-        /// TODO: Implement chack for multiple dropped files and show apropriate error.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void panelCarrierMedia_DragDrop(object sender, DragEventArgs e)
-        {
-            string[] inputFile = (string[]) e.Data.GetData(DataFormats.FileDrop);
-            if (inputFile.Length == )
-            {
-
-            }
-            try
-            {
-                IInputType inputContent = new CarrierType(inputFile[0]);
-                InputHelper(inputContent);
-            }
-            catch (ArgumentNullException ex)
-            {
-                MessageBox.Show(ex.Message);
-            }
-            catch (InvalidWaveFileException ex)
-            {
-                MessageBox.Show(ex.Message);
-            }
-            catch (OutOfMemoryException)
-            {
-                MessageBox.Show("Invalid file type. Carrier must be picture or .wav audio file.");
-            }
-        }
-
+        #endregion
+        
         /// <summary>
         /// Gets and IInputType with a file path. Checks the type of the input and handles it accordingly.
         /// </summary>
@@ -295,88 +452,7 @@ namespace Stegosaurus.Forms
             UpdateCapacityBar();
             UpdateButtonText();
         }
-
-        /// <summary>
-        /// Allows saving of files from the stegoMessage.InputFiles, as selected in the listViewMessageContentFiles control,
-        /// to a custom location. If single file is selected user is prompted with dialog to select destination and filename, 
-        /// and if multiple files are selected the user is prompted to select a folder to which all selected file will be saved
-        /// with their default names.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void saveToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            int[] fileIndices = GetSelectedContentIndices();
-            int len = fileIndices.Length;
-            if (len == 0)
-            {
-                MessageBox.Show("You must have items selected to save.", "Save Error");
-            }
-            if (len == 1)
-            {
-                saveFileDialog.FileName = stegoMessage.InputFiles[fileIndices[0]].Name;
-
-                if (saveFileDialog.ShowDialog() != DialogResult.OK)
-                    return;
-
-                if (saveFileDialog.FileName == "")
-                {
-                    MessageBox.Show("The chosen destination cannot be blank.", "Save Error");
-                }
-                else
-                {
-                    stegoMessage.InputFiles[fileIndices[0]].SaveTo(saveFileDialog.FileName);
-                }
-            }
-            else
-            {
-                if (folderBrowserDialog.ShowDialog() != DialogResult.OK)
-                    return;
-
-                if (folderBrowserDialog.SelectedPath == "")
-                {
-                    MessageBox.Show("The chosen destination cannot be blank.", "Save Error");
-                }
-                else
-                {
-                    foreach (int index in fileIndices)
-                    {
-                        stegoMessage.InputFiles[fileIndices[index]].SaveTo($"{folderBrowserDialog.SelectedPath}\\{stegoMessage.InputFiles[fileIndices[index]].Name}");
-                    }
-                }
-            }
-        }
-
-        /// <summary>
-        /// Handles the deletion of items from the listViewMessageContentFiles control and stegoMessage.InputFiles collection.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void deleteToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            int[] fileIndices = GetSelectedContentIndices();
-
-            for (int index = fileIndices.Length - 1; index >= 0; index--)
-            {
-                stegoMessage.InputFiles.RemoveAt(fileIndices[index]);
-                listViewMessageContentFiles.Items.RemoveAt(fileIndices[index]);
-            }
-
-            UpdateCapacityBar();
-            UpdateButtonText();
-        }
-
-        /// <summary>
-        /// Returns an array of integers containing the indices of all selected items in the listViewMessageContentFiles control.
-        /// </summary>
-        /// <returns></returns>
-        private int[] GetSelectedContentIndices()
-        {
-            int[] indices = new int[listViewMessageContentFiles.SelectedIndices.Count];
-            listViewMessageContentFiles.SelectedIndices.CopyTo(indices, 0);
-            return indices;
-        }
-
+        
         /// <summary>
         /// Checks the size of the message content and the capacity of the carrierMedia and updates the progressBarCapacity and labelCapacityWarning controls accordingly.
         /// </summary>
@@ -415,60 +491,17 @@ namespace Stegosaurus.Forms
             progressBarCapacity.Value = (int) ratio;
         }
 
+        #region DEBUG
         /// <summary>
-        /// Ensures that the contextMenuStripMain wont open if no items from listViewMessageContentFiles are selected.
+        /// DEBUG: shows the content of the stegoMessage's TextMessage property.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void contextMenuStripMain_Opening(object sender, CancelEventArgs e)
+        private void button1_Click(object sender, EventArgs e)
         {
-            e.Cancel = listViewMessageContentFiles.SelectedItems.Count == 0;
+            MessageBox.Show(stegoMessage.TextMessage);
         }
+        #endregion
 
-        /// <summary>
-        /// Assigns the chosen algorithm to the algorithm variable and supplies the algorithm with the current carrierMedia. At last the progressBarCapacity is updated.
-        /// </summary>
-        private void comboBoxAlgorithmSelection_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            algorithm = algorithmDictionary[comboBoxAlgorithmSelection.Text];
-            algorithm.CarrierMedia = carrierMedia;
-            algorithm.CryptoProvider = cryptoProvider;
-
-            UpdateCapacityBar();
-        }
-
-        /// <summary>
-        /// Assigns the content of the textBoxTextMessage.Text property to the stegoMessage.TextMessage property and updates the  to be the progressBarCapacity control.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void textBoxTextMessage_TextChanged(object sender, EventArgs e)
-        {
-            stegoMessage.TextMessage = textBoxTextMessage.Text;
-
-            UpdateCapacityBar();
-            UpdateButtonText();
-        }
-       
-        /// <summary>
-        /// Updates the Embed/Extract buttons text to reflect action the button will activate.
-        /// </summary>
-        private void UpdateButtonText()
-        {
-            buttonActivateSteganography.Text = CanEmbed ? "Embed" : "Extract";
-        }
-
-        /// <summary>
-        /// Updates the cryptoProvider to reflect the chosen item in the comboBoxCryptoProviderSelection control.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void comboBoxCryptoProviderSelection_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            cryptoProvider = cryptoProviderDictionary[comboBoxCryptoProviderSelection.Text];
-            cryptoProvider.CryptoKey = textBoxEncryptionKey.Text;
-
-            algorithm.CryptoProvider = cryptoProvider;
-        }
     }
 }

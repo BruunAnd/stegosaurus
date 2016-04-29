@@ -62,6 +62,7 @@ namespace Stegosaurus.Forms
             this.textBoxTextMessage = new System.Windows.Forms.RichTextBox();
             this.labelCryptoProvider = new System.Windows.Forms.Label();
             this.comboBoxCryptoProviderSelection = new System.Windows.Forms.ComboBox();
+            this.buttonCarrierMediaBrowse = new System.Windows.Forms.Button();
             this.contextMenuStripMain.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxCarrier)).BeginInit();
             this.panel1.SuspendLayout();
@@ -137,7 +138,7 @@ namespace Stegosaurus.Forms
             this.buttonInputBrowse.TabIndex = 4;
             this.buttonInputBrowse.Text = "Browse";
             this.buttonInputBrowse.UseVisualStyleBackColor = true;
-            this.buttonInputBrowse.Click += new System.EventHandler(this.openFileDialogBrowseInput_Click);
+            this.buttonInputBrowse.Click += new System.EventHandler(this.buttonInputBrowse_Click);
             // 
             // labelInputFiles
             // 
@@ -320,11 +321,23 @@ namespace Stegosaurus.Forms
             this.comboBoxCryptoProviderSelection.TabIndex = 26;
             this.comboBoxCryptoProviderSelection.SelectedIndexChanged += new System.EventHandler(this.comboBoxCryptoProviderSelection_SelectedIndexChanged);
             // 
+            // buttonCarrierMediaBrowse
+            // 
+            this.buttonCarrierMediaBrowse.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.buttonCarrierMediaBrowse.Location = new System.Drawing.Point(219, 8);
+            this.buttonCarrierMediaBrowse.Name = "buttonCarrierMediaBrowse";
+            this.buttonCarrierMediaBrowse.Size = new System.Drawing.Size(75, 25);
+            this.buttonCarrierMediaBrowse.TabIndex = 27;
+            this.buttonCarrierMediaBrowse.Text = "Browse";
+            this.buttonCarrierMediaBrowse.UseVisualStyleBackColor = true;
+            this.buttonCarrierMediaBrowse.Click += new System.EventHandler(this.buttonCarrierMediaBrowse_Click);
+            // 
             // FormMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(682, 378);
+            this.Controls.Add(this.buttonCarrierMediaBrowse);
             this.Controls.Add(this.comboBoxCryptoProviderSelection);
             this.Controls.Add(this.textBoxTextMessage);
             this.Controls.Add(this.labelCapacityWarning);
@@ -388,6 +401,7 @@ namespace Stegosaurus.Forms
         private System.Windows.Forms.RichTextBox textBoxTextMessage;
         private System.Windows.Forms.Label labelCryptoProvider;
         private System.Windows.Forms.ComboBox comboBoxCryptoProviderSelection;
+        private System.Windows.Forms.Button buttonCarrierMediaBrowse;
     }
 }
 
