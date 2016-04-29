@@ -246,7 +246,6 @@ namespace Stegosaurus.Forms
             this.panel1.TabIndex = 14;
             this.panel1.DragDrop += new System.Windows.Forms.DragEventHandler(this.panelCarrierMedia_DragDrop);
             this.panel1.DragEnter += new System.Windows.Forms.DragEventHandler(this.panelCarrierMedia_DragEnter);
-            this.panel1.DragLeave += new System.EventHandler(this.CarrierMediaPanel_DragLeave);
             // 
             // labelCarrierMedia
             // 
