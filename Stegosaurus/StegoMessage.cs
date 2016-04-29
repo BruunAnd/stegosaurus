@@ -52,7 +52,7 @@ namespace Stegosaurus
                 // Decompress the array
                 if (flags.HasFlag(StegoMessageFlags.Compressed))
                 {
-                    encodedData = Compression.Decompress(encodedData);
+                    encodedData = Ionic.Zlib.ZlibStream.UncompressBuffer(encodedData);
                 }
 
                 // Decode array
@@ -105,7 +105,7 @@ namespace Stegosaurus
             SetFlag(StegoMessageFlags.Encoded, true);
 
             // Compress data
-            byte[] compressedData = Compression.Compress(encodedData);
+            byte[] compressedData = Ionic.Zlib.ZlibStream.CompressBuffer(encodedData);
             if (compressedData.Length < encodedData.Length)
             {
                 encodedData = compressedData;
