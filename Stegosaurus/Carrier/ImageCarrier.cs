@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Stegosaurus.Exceptions;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
@@ -57,7 +58,14 @@ namespace Stegosaurus.Carrier
         /// </summary>
         private static Image LoadImageFromFile(string _filePath)
         {
-            return Image.FromStream(new MemoryStream(File.ReadAllBytes(_filePath)));
+            try
+            {
+                return Image.FromStream(new MemoryStream(File.ReadAllBytes(_filePath)));
+            }
+            catch (ArgumentException)
+            {
+                throw new InvalidImageFileException("Could not read image from stream.", _filePath);
+            }
         }
 
         /// <summary>
