@@ -1,10 +1,5 @@
-﻿using Stegosaurus.Utility.Extensions;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
+﻿using System.IO;
 using System.Security.Cryptography;
-using System.Text;
 using System.Xml.Serialization;
 
 namespace Stegosaurus.Cryptography
@@ -49,9 +44,9 @@ namespace Stegosaurus.Cryptography
             }
         }
 
-        public static void GenerateKeys()
+        public static void GenerateKeys(int _keySize)
         {
-            using (RSACryptoServiceProvider rsaProvider = new RSACryptoServiceProvider(KeySize))
+            using (RSACryptoServiceProvider rsaProvider = new RSACryptoServiceProvider(_keySize))
             {
                 RSAParameters publicKey = rsaProvider.ExportParameters(false);
                 File.WriteAllText("public_key.xml", SerializeKey(publicKey));

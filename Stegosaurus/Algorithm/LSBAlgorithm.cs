@@ -6,8 +6,6 @@ using Stegosaurus.Exceptions;
 using Stegosaurus.Utility;
 using System.Collections.Generic;
 using Stegosaurus.Cryptography;
-using Stegosaurus.Utility.Extensions;
-using System.IO;
 
 namespace Stegosaurus.Algorithm
 {

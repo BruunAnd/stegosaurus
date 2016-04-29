@@ -3,9 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using Stegosaurus.Utility.Extensions;
 using Stegosaurus.Cryptography;
-using Stegosaurus.Utility;
-using System.Linq;
-using System.Windows.Forms;
 
 namespace Stegosaurus
 {
