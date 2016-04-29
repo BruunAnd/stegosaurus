@@ -39,11 +39,12 @@ namespace Stegosaurus.Forms
             cryptoProvider = new AESProvider();
 
             // Add algorithms
-            AddAlgorithm(typeof (LSBAlgorithm));
-            AddAlgorithm(typeof (GraphTheoreticAlgorithm));
+            AddAlgorithm(typeof(LSBAlgorithm));
+            AddAlgorithm(typeof(GraphTheoreticAlgorithm));
 
             // Add crypto providers
-            AddCryptoProvider(typeof (AESProvider));
+            AddCryptoProvider(typeof(AESProvider));
+            AddCryptoProvider(typeof(TripleDESProvider));
 
             // Set default values
             comboBoxAlgorithmSelection.SelectedIndex = 0;
