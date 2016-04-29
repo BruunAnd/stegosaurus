@@ -2,11 +2,11 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.IO;
 using Stegosaurus.Algorithm;
-using System.Text;
 using Stegosaurus;
 using Stegosaurus.Carrier;
 using System.Drawing;
 using Stegosaurus.Cryptography;
+using System.Linq;
 
 namespace StegosaurusTest
 {
@@ -14,18 +14,23 @@ namespace StegosaurusTest
     public class MockTests
     {
         [TestMethod]
+
         public void TestMainImplementation()
         {
             const string coverFile = "cover.png";
             const string testMessageString = "Example text message.";
             const string testKey = "Example Key";
+            const string testFileName = "Example.bin";
+            byte[] testFileBuffer = new byte[1024 * 64];
+            new Random().NextBytes(testFileBuffer);
+
             ICryptoProvider cryptoProvider = new AESProvider();
             cryptoProvider.CryptoKey = testKey;
 
             // Test requires a cover file
             if (!File.Exists(coverFile))
             {
-                new Bitmap(200, 200).Save(coverFile);
+                new Bitmap(500, 500).Save(coverFile);
             }
 
             // Instantiate algorithm
@@ -36,6 +41,7 @@ namespace StegosaurusTest
             // Instantiate StegoMessage
             StegoMessage inMessage = new StegoMessage();
             inMessage.TextMessage = testMessageString;
+            inMessage.InputFiles.Add(new InputFile(testFileName, testFileBuffer));
             algorithm.Embed(inMessage);
 
             // Save to an output file
@@ -48,6 +54,10 @@ namespace StegosaurusTest
             StegoMessage outMessage = algorithm.Extract();
 
             Assert.AreEqual(testMessageString, outMessage.TextMessage);
+
+            InputFile outputFile = outMessage.InputFiles[0];
+            Assert.AreEqual(outputFile.Name, testFileName);
+            Assert.AreEqual(outputFile.Content.SequenceEqual(testFileBuffer), true);
         }
     }
 }

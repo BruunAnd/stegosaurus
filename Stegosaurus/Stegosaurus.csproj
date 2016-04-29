@@ -41,6 +41,9 @@
     </StartupObject>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Ionic.Zip.Reduced">
+      <HintPath>.\Ionic.Zip.Reduced.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -65,6 +68,7 @@
     <Compile Include="Cryptography\AESProvider.cs" />
     <Compile Include="Cryptography\ICryptoProvider.cs" />
     <Compile Include="Exceptions\InvalidFileException.cs" />
+    <Compile Include="Exceptions\InvalidImageFileException.cs" />
     <Compile Include="Exceptions\InvalidWaveFileException.cs" />
     <Compile Include="Exceptions\StegoAlgorithmException.cs" />
     <Compile Include="Exceptions\StegoMessageException.cs" />
