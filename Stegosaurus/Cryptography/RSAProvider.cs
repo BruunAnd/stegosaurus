@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Stegosaurus.Utility.Extensions;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -11,8 +12,9 @@ namespace Stegosaurus.Cryptography
     public class RSAProvider : ICryptoProvider
     {
         public string CryptoKey { get; set; }
-
         public string Name => "RSA";
+
+        public int Seed => 0;
 
         private const int KeySize = 2048;
 

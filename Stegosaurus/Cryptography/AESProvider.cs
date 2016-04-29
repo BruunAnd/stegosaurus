@@ -11,17 +11,18 @@ namespace Stegosaurus.Cryptography
         public string CryptoKey { get; set; }
         public string Name => "AES";
 
-        private static byte[] salt = { 0x4e, 0x27, 0xaa, 0x18, 0x8b, 0xf7, 0x7f, 0x76 };
+        public int Seed => KeyDeriver.DeriveKey(CryptoKey, KeySize).ComputeHash();
+
+        private const int KeySize = 256;
 
         public byte[] Encrypt(byte[] _data)
         {
             using (AesManaged aesAlgorithm = new AesManaged())
             {
-                // Generate key from key and salt
-                Rfc2898DeriveBytes key = new Rfc2898DeriveBytes(CryptoKey, salt);
+                aesAlgorithm.KeySize = 256;
 
                 // Set key and generate initialization vector
-                aesAlgorithm.Key = key.GetBytes(aesAlgorithm.KeySize / 8);
+                aesAlgorithm.Key = KeyDeriver.DeriveKey(CryptoKey, aesAlgorithm.KeySize);
                 aesAlgorithm.GenerateIV();
 
                 // Create encryptor

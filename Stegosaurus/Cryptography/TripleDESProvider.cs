@@ -1,9 +1,6 @@
 ﻿using Stegosaurus.Utility;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+using Stegosaurus.Utility.Extensions;
 using System.Security.Cryptography;
-using System.Text;
 
 namespace Stegosaurus.Cryptography
 {
@@ -13,10 +10,15 @@ namespace Stegosaurus.Cryptography
 
         public string Name => "TripleDES";
 
+        public int Seed => KeyDeriver.DeriveKey(CryptoKey, KeySize).ComputeHash();
+
+        private const int KeySize = 192;
+
         public byte[] Decrypt(byte[] _data)
         {
             using (TripleDESCryptoServiceProvider des = new TripleDESCryptoServiceProvider())
             {
+                des.KeySize = KeySize;
                 des.Mode = CipherMode.ECB;
                 des.Key = KeyDeriver.DeriveKey(CryptoKey, des.KeySize);
 

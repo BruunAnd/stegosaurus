@@ -20,7 +20,7 @@ namespace Stegosaurus.Algorithm
 
         public string Name => "LSB Algorithm";
 
-        public int Seed => CryptoProvider.CryptoKey.ComputeHash();
+        public int Seed => CryptoProvider != null ? CryptoProvider.Seed : 0;
 
         public void Embed(StegoMessage _message)
         {
