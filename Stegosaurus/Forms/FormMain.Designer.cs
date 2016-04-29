@@ -105,20 +105,20 @@ namespace Stegosaurus.Forms
             this.saveToolStripMenuItem,
             this.deleteToolStripMenuItem});
             this.contextMenuStripMain.Name = "contextMenuStrip1";
-            this.contextMenuStripMain.Size = new System.Drawing.Size(108, 48);
+            this.contextMenuStripMain.Size = new System.Drawing.Size(123, 52);
             this.contextMenuStripMain.Opening += new System.ComponentModel.CancelEventHandler(this.contextMenuStripMain_Opening);
             // 
             // saveToolStripMenuItem
             // 
             this.saveToolStripMenuItem.Name = "saveToolStripMenuItem";
-            this.saveToolStripMenuItem.Size = new System.Drawing.Size(107, 22);
+            this.saveToolStripMenuItem.Size = new System.Drawing.Size(122, 24);
             this.saveToolStripMenuItem.Text = "Save";
             this.saveToolStripMenuItem.Click += new System.EventHandler(this.saveToolStripMenuItem_Click);
             // 
             // deleteToolStripMenuItem
             // 
             this.deleteToolStripMenuItem.Name = "deleteToolStripMenuItem";
-            this.deleteToolStripMenuItem.Size = new System.Drawing.Size(107, 22);
+            this.deleteToolStripMenuItem.Size = new System.Drawing.Size(122, 24);
             this.deleteToolStripMenuItem.Text = "Delete";
             this.deleteToolStripMenuItem.Click += new System.EventHandler(this.deleteToolStripMenuItem_Click);
             // 
@@ -145,7 +145,7 @@ namespace Stegosaurus.Forms
             this.labelInputFiles.AutoSize = true;
             this.labelInputFiles.Location = new System.Drawing.Point(315, 12);
             this.labelInputFiles.Name = "labelInputFiles";
-            this.labelInputFiles.Size = new System.Drawing.Size(119, 13);
+            this.labelInputFiles.Size = new System.Drawing.Size(141, 19);
             this.labelInputFiles.TabIndex = 5;
             this.labelInputFiles.Text = "Message content files";
             // 
@@ -165,7 +165,7 @@ namespace Stegosaurus.Forms
             this.labelTextMesage.AutoSize = true;
             this.labelTextMesage.Location = new System.Drawing.Point(315, 221);
             this.labelTextMesage.Name = "labelTextMesage";
-            this.labelTextMesage.Size = new System.Drawing.Size(73, 13);
+            this.labelTextMesage.Size = new System.Drawing.Size(90, 19);
             this.labelTextMesage.TabIndex = 8;
             this.labelTextMesage.Text = "Text message";
             // 
@@ -196,7 +196,7 @@ namespace Stegosaurus.Forms
             this.labelEncryptionKey.AutoSize = true;
             this.labelEncryptionKey.Location = new System.Drawing.Point(315, 310);
             this.labelEncryptionKey.Name = "labelEncryptionKey";
-            this.labelEncryptionKey.Size = new System.Drawing.Size(82, 13);
+            this.labelEncryptionKey.Size = new System.Drawing.Size(99, 19);
             this.labelEncryptionKey.TabIndex = 11;
             this.labelEncryptionKey.Text = "Encryption key";
             // 
@@ -242,7 +242,7 @@ namespace Stegosaurus.Forms
             this.labelCarrierMedia.AutoSize = true;
             this.labelCarrierMedia.Location = new System.Drawing.Point(13, 8);
             this.labelCarrierMedia.Name = "labelCarrierMedia";
-            this.labelCarrierMedia.Size = new System.Drawing.Size(76, 13);
+            this.labelCarrierMedia.Size = new System.Drawing.Size(92, 19);
             this.labelCarrierMedia.TabIndex = 17;
             this.labelCarrierMedia.Text = "Carrier Media";
             // 
@@ -251,7 +251,7 @@ namespace Stegosaurus.Forms
             this.labelAlgorithmList.AutoSize = true;
             this.labelAlgorithmList.Location = new System.Drawing.Point(8, 215);
             this.labelAlgorithmList.Name = "labelAlgorithmList";
-            this.labelAlgorithmList.Size = new System.Drawing.Size(140, 13);
+            this.labelAlgorithmList.Size = new System.Drawing.Size(167, 19);
             this.labelAlgorithmList.TabIndex = 18;
             this.labelAlgorithmList.Text = "Steganography Algorithm";
             // 
@@ -261,7 +261,7 @@ namespace Stegosaurus.Forms
             this.comboBoxAlgorithmSelection.FormattingEnabled = true;
             this.comboBoxAlgorithmSelection.Location = new System.Drawing.Point(12, 237);
             this.comboBoxAlgorithmSelection.Name = "comboBoxAlgorithmSelection";
-            this.comboBoxAlgorithmSelection.Size = new System.Drawing.Size(154, 21);
+            this.comboBoxAlgorithmSelection.Size = new System.Drawing.Size(154, 25);
             this.comboBoxAlgorithmSelection.TabIndex = 19;
             this.comboBoxAlgorithmSelection.SelectedIndexChanged += new System.EventHandler(this.comboBoxAlgorithmSelection_SelectedIndexChanged);
             // 
@@ -275,7 +275,7 @@ namespace Stegosaurus.Forms
             this.labelStorageRatio.AutoSize = true;
             this.labelStorageRatio.Location = new System.Drawing.Point(8, 265);
             this.labelStorageRatio.Name = "labelStorageRatio";
-            this.labelStorageRatio.Size = new System.Drawing.Size(77, 13);
+            this.labelStorageRatio.Size = new System.Drawing.Size(91, 19);
             this.labelStorageRatio.TabIndex = 20;
             this.labelStorageRatio.Text = "Storage Ratio";
             // 
@@ -306,7 +306,7 @@ namespace Stegosaurus.Forms
             this.labelCryptoProvider.AutoSize = true;
             this.labelCryptoProvider.Location = new System.Drawing.Point(169, 215);
             this.labelCryptoProvider.Name = "labelCryptoProvider";
-            this.labelCryptoProvider.Size = new System.Drawing.Size(86, 13);
+            this.labelCryptoProvider.Size = new System.Drawing.Size(106, 19);
             this.labelCryptoProvider.TabIndex = 25;
             this.labelCryptoProvider.Text = "Crypto Provider";
             // 
@@ -316,17 +316,16 @@ namespace Stegosaurus.Forms
             this.comboBoxCryptoProviderSelection.FormattingEnabled = true;
             this.comboBoxCryptoProviderSelection.Location = new System.Drawing.Point(172, 237);
             this.comboBoxCryptoProviderSelection.Name = "comboBoxCryptoProviderSelection";
-            this.comboBoxCryptoProviderSelection.Size = new System.Drawing.Size(137, 21);
+            this.comboBoxCryptoProviderSelection.Size = new System.Drawing.Size(137, 25);
             this.comboBoxCryptoProviderSelection.TabIndex = 26;
             this.comboBoxCryptoProviderSelection.SelectedIndexChanged += new System.EventHandler(this.comboBoxCryptoProviderSelection_SelectedIndexChanged);
             // 
             // FormMain
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(684, 386);
+            this.ClientSize = new System.Drawing.Size(682, 378);
             this.Controls.Add(this.comboBoxCryptoProviderSelection);
-            this.Controls.Add(this.labelCryptoProvider);
             this.Controls.Add(this.textBoxTextMessage);
             this.Controls.Add(this.labelCapacityWarning);
             this.Controls.Add(this.labelStorageRatio);
@@ -341,8 +340,9 @@ namespace Stegosaurus.Forms
             this.Controls.Add(this.labelInputFiles);
             this.Controls.Add(this.buttonInputBrowse);
             this.Controls.Add(this.listViewMessageContentFiles);
-            this.Controls.Add(this.labelAlgorithmList);
             this.Controls.Add(this.labelTextMesage);
+            this.Controls.Add(this.labelCryptoProvider);
+            this.Controls.Add(this.labelAlgorithmList);
             this.Font = new System.Drawing.Font("Segoe UI", 8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximumSize = new System.Drawing.Size(700, 425);

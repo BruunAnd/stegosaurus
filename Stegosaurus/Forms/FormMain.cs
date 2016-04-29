@@ -27,7 +27,7 @@ namespace Stegosaurus.Forms
         private IStegoAlgorithm algorithm;
         private ICryptoProvider cryptoProvider;
 
-        private bool CanEmbed => carrierMedia != null && !string.IsNullOrEmpty(textBoxTextMessage.Text) || listViewMessageContentFiles.Items.Count > 0;
+        private bool CanEmbed => carrierMedia != null && (!string.IsNullOrEmpty(textBoxTextMessage.Text) || listViewMessageContentFiles.Items.Count > 0);
 
         public FormMain()
         {
@@ -68,23 +68,6 @@ namespace Stegosaurus.Forms
         }
 
         /// <summary>
-        /// Gets the file paths of all dropped files, converts them to the ContentType and calls the InputHelper to handle them further.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void listViewMessageContentFiles_DragDrop(object sender, DragEventArgs e)
-        {
-            string[] inputFiles = (string[]) e.Data.GetData(DataFormats.FileDrop);
-
-            foreach (string filePath in inputFiles)
-            {
-                InputHelper(new ContentType(filePath));
-            }
-
-            listViewMessageContentFiles.BackColor = Color.White;
-        }
-
-        /// <summary>
         /// Checks that the items dragged into the listViewMessageContentFiles control are valid and changes the effect, and color accordingly.
         /// </summary>
         /// <param name="sender"></param>
@@ -110,6 +93,23 @@ namespace Stegosaurus.Forms
         /// <param name="e"></param>
         private void listViewMessageContentFiles_DragLeave(object sender, EventArgs e)
         {
+            listViewMessageContentFiles.BackColor = Color.White;
+        }
+
+        /// <summary>
+        /// Gets the file paths of all dropped files, converts them to the ContentType and calls the InputHelper to handle them further.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void listViewMessageContentFiles_DragDrop(object sender, DragEventArgs e)
+        {
+            string[] inputFiles = (string[]) e.Data.GetData(DataFormats.FileDrop);
+
+            foreach (string filePath in inputFiles)
+            {
+                InputHelper(new ContentType(filePath));
+            }
+
             listViewMessageContentFiles.BackColor = Color.White;
         }
 
@@ -148,7 +148,7 @@ namespace Stegosaurus.Forms
         }
 
         /// <summary>
-        /// Extract hidden content from CarrierMedia
+        /// Extract hidden content from CarrierMedia.
         /// </summary>
         private void Extract()
         {
@@ -181,7 +181,7 @@ namespace Stegosaurus.Forms
         }
 
         /// <summary>
-        /// Embed hidden content into CarrierMedia
+        /// Embed hidden content into CarrierMedia.
         /// </summary>
         private void Embed()
         {
@@ -235,6 +235,10 @@ namespace Stegosaurus.Forms
         private void panelCarrierMedia_DragDrop(object sender, DragEventArgs e)
         {
             string[] inputFile = (string[]) e.Data.GetData(DataFormats.FileDrop);
+            if (inputFile.Length == )
+            {
+
+            }
             try
             {
                 IInputType inputContent = new CarrierType(inputFile[0]);
@@ -292,6 +296,14 @@ namespace Stegosaurus.Forms
             UpdateButtonText();
         }
 
+        /// <summary>
+        /// Allows saving of files from the stegoMessage.InputFiles, as selected in the listViewMessageContentFiles control,
+        /// to a custom location. If single file is selected user is prompted with dialog to select destination and filename, 
+        /// and if multiple files are selected the user is prompted to select a folder to which all selected file will be saved
+        /// with their default names.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void saveToolStripMenuItem_Click(object sender, EventArgs e)
         {
             int[] fileIndices = GetSelectedContentIndices();
@@ -335,6 +347,11 @@ namespace Stegosaurus.Forms
             }
         }
 
+        /// <summary>
+        /// Handles the deletion of items from the listViewMessageContentFiles control and stegoMessage.InputFiles collection.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void deleteToolStripMenuItem_Click(object sender, EventArgs e)
         {
             int[] fileIndices = GetSelectedContentIndices();
@@ -349,6 +366,10 @@ namespace Stegosaurus.Forms
             UpdateButtonText();
         }
 
+        /// <summary>
+        /// Returns an array of integers containing the indices of all selected items in the listViewMessageContentFiles control.
+        /// </summary>
+        /// <returns></returns>
         private int[] GetSelectedContentIndices()
         {
             int[] indices = new int[listViewMessageContentFiles.SelectedIndices.Count];
@@ -356,6 +377,9 @@ namespace Stegosaurus.Forms
             return indices;
         }
 
+        /// <summary>
+        /// Checks the size of the message content and the capacity of the carrierMedia and updates the progressBarCapacity and labelCapacityWarning controls accordingly.
+        /// </summary>
         private void UpdateCapacityBar()
         {
             decimal ratio, max = progressBarCapacity.Maximum;
@@ -391,6 +415,11 @@ namespace Stegosaurus.Forms
             progressBarCapacity.Value = (int) ratio;
         }
 
+        /// <summary>
+        /// Ensures that the contextMenuStripMain wont open if no items from listViewMessageContentFiles are selected.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void contextMenuStripMain_Opening(object sender, CancelEventArgs e)
         {
             e.Cancel = listViewMessageContentFiles.SelectedItems.Count == 0;
@@ -420,12 +449,20 @@ namespace Stegosaurus.Forms
             UpdateCapacityBar();
             UpdateButtonText();
         }
-
+       
+        /// <summary>
+        /// Updates the Embed/Extract buttons text to reflect action the button will activate.
+        /// </summary>
         private void UpdateButtonText()
         {
             buttonEmbed.Text = CanEmbed ? "Embed" : "Extract";
         }
 
+        /// <summary>
+        /// Updates the cryptoProvider to reflect the chosen item in the comboBoxCryptoProviderSelection control.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void comboBoxCryptoProviderSelection_SelectedIndexChanged(object sender, EventArgs e)
         {
             cryptoProvider = cryptoProviderDictionary[comboBoxCryptoProviderSelection.Text];
