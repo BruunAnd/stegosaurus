@@ -3,7 +3,7 @@ using System.IO;
 
 namespace Stegosaurus.Carrier.AudioFormats
 {
-    abstract class AudioFile
+    public abstract class AudioFile
     {
         public short NumberOfChannels { get; protected set; }
         public int SampleRate { get; protected set; }

@@ -1,12 +1,7 @@
 ﻿namespace Stegosaurus.Utility.InputTypes
 {
-    interface IInputType
+    public interface IInputType
     {
         string FilePath { get; set; }
-        
     }
-
-
-
-
 }
