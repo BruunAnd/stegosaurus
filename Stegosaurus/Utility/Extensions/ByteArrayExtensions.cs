@@ -8,8 +8,8 @@ namespace Stegosaurus.Utility.Extensions
         {
             int hash = 17;
 
-            foreach (char value in _array)
-                hash = hash * 23 + value.GetHashCode();
+            foreach (byte value in _array)
+                hash = hash * 23 + value;
 
             return hash;
         }

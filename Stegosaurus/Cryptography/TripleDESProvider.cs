@@ -10,8 +10,10 @@ namespace Stegosaurus.Cryptography
 
         public string Name => "TripleDES";
 
-        public int Seed => KeyDeriver.DeriveKey(CryptoKey, KeySize).ComputeHash();
+        public int Seed => string.IsNullOrEmpty(CryptoKey) ? 0 : KeyDeriver.DeriveKey(CryptoKey, KeySize).ComputeHash();
         public int KeySize => 192;
+
+        public byte[] OverriddenKey { get; set; }
 
         public byte[] Decrypt(byte[] _data)
         {
@@ -19,7 +21,7 @@ namespace Stegosaurus.Cryptography
             {
                 des.KeySize = KeySize;
                 des.Mode = CipherMode.ECB;
-                des.Key = KeyDeriver.DeriveKey(CryptoKey, des.KeySize);
+                des.Key = OverriddenKey ?? KeyDeriver.DeriveKey(CryptoKey, des.KeySize);
 
                 ICryptoTransform desTransform = des.CreateDecryptor();
                 return desTransform.TransformFinalBlock(_data, 0, _data.Length);
@@ -31,10 +33,19 @@ namespace Stegosaurus.Cryptography
             using (TripleDESCryptoServiceProvider des = new TripleDESCryptoServiceProvider())
             {
                 des.Mode = CipherMode.ECB;
-                des.Key = KeyDeriver.DeriveKey(CryptoKey, des.KeySize);
+                des.Key = OverriddenKey ?? KeyDeriver.DeriveKey(CryptoKey, des.KeySize);
 
                 ICryptoTransform desTransform = des.CreateEncryptor();
                 return desTransform.TransformFinalBlock(_data, 0, _data.Length);
+            }
+        }
+
+        public byte[] GenerateKey()
+        {
+            using (TripleDESCryptoServiceProvider des = new TripleDESCryptoServiceProvider())
+            {
+                des.GenerateKey();
+                return des.Key;
             }
         }
     }

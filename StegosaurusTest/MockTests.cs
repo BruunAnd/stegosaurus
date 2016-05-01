@@ -14,15 +14,13 @@ namespace StegosaurusTest
     public class MockTests
     {
         [TestMethod]
-
         public void TestMainImplementation()
         {
             const string coverFile = "cover.png";
             const string testMessageString = "Example text message.";
             const string testKey = "Example Key";
             const string testFileName = "Example.bin";
-            Random random = new Random();
-            byte[] testFileBuffer = new byte[random.Next(1024 * 24, 1024 * 48)];
+            byte[] testFileBuffer = new byte[1024 * 32];
             new Random().NextBytes(testFileBuffer);
 
             ICryptoProvider cryptoProvider = new AESProvider();
@@ -31,7 +29,7 @@ namespace StegosaurusTest
             // Test requires a cover file
             if (File.Exists(coverFile))
                 File.Delete(coverFile);
-            new Bitmap(random.Next(500, 600), random.Next(500, 600)).Save(coverFile);
+            new Bitmap(500, 500).Save(coverFile);
 
             // Instantiate algorithm
             IStegoAlgorithm algorithm = (IStegoAlgorithm) Activator.CreateInstance(typeof(LSBAlgorithm));

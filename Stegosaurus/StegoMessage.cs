@@ -114,7 +114,7 @@ namespace Stegosaurus
             }
 
             // Encrypt if key is specified
-            if (_cryptoProvider != null)
+            if (_cryptoProvider != null && !string.IsNullOrEmpty(_cryptoProvider.CryptoKey))
             {
                 encodedData = _cryptoProvider.Encrypt(encodedData);
                 SetFlag(StegoMessageFlags.Encrypted, true);
@@ -135,8 +135,10 @@ namespace Stegosaurus
 
         private void SetFlag(StegoMessageFlags _flag, bool _state)
         {
+            // Check if current flag state does not equal wanted state
             if (_state != flags.HasFlag(_flag))
             {
+                // Flip state
                 flags ^= _flag;
             }
         }

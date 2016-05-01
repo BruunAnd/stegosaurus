@@ -117,5 +117,13 @@ namespace Stegosaurus.Utility.Extensions
             _stream.Write(_value.Content.Length);
             _stream.Write(_value.Content);
         }
+
+        /// <summary>
+        /// Returns the remaining length of the stream
+        /// </summary>
+        public static long GetRemainingLength(this Stream _stream)
+        {
+            return _stream.Length - _stream.Position;
+        }
     }
 }

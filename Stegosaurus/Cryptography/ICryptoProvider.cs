@@ -18,7 +18,8 @@
         int KeySize { get; }
 
         /// <summary>
-        /// Some algorithms incorporate a seed to randomize the order in which vertices are exchanged.
+        /// The seed to be optionally used by algorithms, typically a hash of the encryption key.
+        /// If an implementation of ICryptoProvider is assymetric, it should still provide a symmetric seed.
         /// </summary>
         int Seed { get; }
 

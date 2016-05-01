@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.IO;
+using System.Text;
 using System.Windows.Forms;
 using Stegosaurus.Cryptography;
 
@@ -16,8 +17,8 @@ namespace Stegosaurus.Forms
 {
     public partial class FormMain : Form
     {
-        private Dictionary<string, IStegoAlgorithm> algorithmDictionary = new Dictionary<string, IStegoAlgorithm>();
-        private Dictionary<string, ICryptoProvider> cryptoProviderDictionary = new Dictionary<string, ICryptoProvider>();
+        private readonly Dictionary<string, IStegoAlgorithm> algorithmDictionary = new Dictionary<string, IStegoAlgorithm>();
+        private readonly Dictionary<string, ICryptoProvider> cryptoProviderDictionary = new Dictionary<string, ICryptoProvider>();
 
         private StegoMessage stegoMessage = new StegoMessage();
         private ICarrierMedia carrierMedia;
@@ -42,6 +43,7 @@ namespace Stegosaurus.Forms
             // Add crypto providers
             AddCryptoProvider(typeof(AESProvider));
             AddCryptoProvider(typeof(TripleDESProvider));
+            AddCryptoProvider(typeof(RSAProvider));
 
             // Set default values
             comboBoxAlgorithmSelection.SelectedIndex = 0;
@@ -290,9 +292,9 @@ namespace Stegosaurus.Forms
         /// </summary>
         private void AddCryptoProvider(Type cryptoProviderType)
         {
-            ICryptoProvider cryptoProvider = (ICryptoProvider) Activator.CreateInstance(cryptoProviderType);
-            cryptoProviderDictionary.Add(cryptoProvider.Name, cryptoProvider);
-            comboBoxCryptoProviderSelection.Items.Add(cryptoProvider.Name);
+            ICryptoProvider newCryptoProvider = (ICryptoProvider) Activator.CreateInstance(cryptoProviderType);
+            cryptoProviderDictionary.Add(newCryptoProvider.Name, newCryptoProvider);
+            comboBoxCryptoProviderSelection.Items.Add(newCryptoProvider.Name);
         }
 
         /// <summary>
@@ -497,7 +499,26 @@ namespace Stegosaurus.Forms
             }
             progressBarCapacity.Value = (int) ratio;
         }
-        
+
+        private void buttonGenerate_Click(object sender, EventArgs e)
+        {
+            RSAKeyPair keyPair = RSAProvider.GenerateKeys(2048);
+            ShowSaveDialog("Save public key to...", "public_key", "XML File (*.xml)|*.xml", Encoding.UTF8.GetBytes(keyPair.PublicKey));
+            ShowSaveDialog("Save private key to...", "private_key", "XML File (*.xml)|*.xml", Encoding.UTF8.GetBytes(keyPair.PrivateKey));
+        }
+
+        private void ShowSaveDialog(string title, string suggestedName, string filter, byte[] content)
+        {
+            SaveFileDialog sfd = new SaveFileDialog();
+            sfd.FileName = suggestedName;
+            sfd.Title = title;
+            sfd.Filter = filter;
+
+            if (sfd.ShowDialog() != DialogResult.OK)
+                return;
+
+            File.WriteAllBytes(sfd.FileName, content);
+        }
 
         
     }
