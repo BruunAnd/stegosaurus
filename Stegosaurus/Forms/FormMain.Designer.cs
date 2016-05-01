@@ -48,11 +48,9 @@ namespace Stegosaurus.Forms
             this.pictureBoxCarrier = new System.Windows.Forms.PictureBox();
             this.progressBarCapacity = new System.Windows.Forms.ProgressBar();
             this.panel1 = new System.Windows.Forms.Panel();
-            this.pageSetupDialog1 = new System.Windows.Forms.PageSetupDialog();
             this.labelCarrierMedia = new System.Windows.Forms.Label();
             this.labelAlgorithmList = new System.Windows.Forms.Label();
             this.comboBoxAlgorithmSelection = new System.Windows.Forms.ComboBox();
-            this.colorDialog1 = new System.Windows.Forms.ColorDialog();
             this.saveFileDialog = new System.Windows.Forms.SaveFileDialog();
             this.folderBrowserDialog = new System.Windows.Forms.FolderBrowserDialog();
             this.labelStorageRatio = new System.Windows.Forms.Label();
@@ -67,12 +65,14 @@ namespace Stegosaurus.Forms
             this.tabPageAdvanced = new System.Windows.Forms.TabPage();
             this.buttonGenerate = new System.Windows.Forms.Button();
             this.tabPageSignatures = new System.Windows.Forms.TabPage();
-            this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.label1 = new System.Windows.Forms.Label();
-            this.buttonExportSignature = new System.Windows.Forms.Button();
-            this.buttonGenerateSignature = new System.Windows.Forms.Button();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.listViewKnownSignatures = new System.Windows.Forms.ListView();
+            this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.buttonGenerateSignature = new System.Windows.Forms.Button();
+            this.buttonExportSignature = new System.Windows.Forms.Button();
+            this.label1 = new System.Windows.Forms.Label();
+            this.checkBoxSignMessage = new System.Windows.Forms.CheckBox();
+            this.buttonImportKey = new System.Windows.Forms.Button();
             this.contextMenuStripMain.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxCarrier)).BeginInit();
             this.panel1.SuspendLayout();
@@ -80,21 +80,21 @@ namespace Stegosaurus.Forms
             this.tabPageMain.SuspendLayout();
             this.tabPageAdvanced.SuspendLayout();
             this.tabPageSignatures.SuspendLayout();
-            this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
+            this.groupBox1.SuspendLayout();
             this.SuspendLayout();
             // 
             // listViewMessageContentFiles
             // 
             this.listViewMessageContentFiles.AllowDrop = true;
-            this.listViewMessageContentFiles.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.listViewMessageContentFiles.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.listViewMessageContentFiles.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
             this.columnHeader1,
             this.columnHeader2});
             this.listViewMessageContentFiles.ContextMenuStrip = this.contextMenuStripMain;
             this.listViewMessageContentFiles.FullRowSelect = true;
             this.listViewMessageContentFiles.GridLines = true;
-            this.listViewMessageContentFiles.Location = new System.Drawing.Point(308, 29);
+            this.listViewMessageContentFiles.Location = new System.Drawing.Point(310, 29);
             this.listViewMessageContentFiles.Name = "listViewMessageContentFiles";
             this.listViewMessageContentFiles.Size = new System.Drawing.Size(347, 184);
             this.listViewMessageContentFiles.SmallImageList = this.imageListIcons;
@@ -147,8 +147,8 @@ namespace Stegosaurus.Forms
             // 
             // buttonInputBrowse
             // 
-            this.buttonInputBrowse.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.buttonInputBrowse.Location = new System.Drawing.Point(580, 3);
+            this.buttonInputBrowse.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.buttonInputBrowse.Location = new System.Drawing.Point(582, 3);
             this.buttonInputBrowse.Name = "buttonInputBrowse";
             this.buttonInputBrowse.Size = new System.Drawing.Size(75, 25);
             this.buttonInputBrowse.TabIndex = 4;
@@ -158,9 +158,9 @@ namespace Stegosaurus.Forms
             // 
             // labelInputFiles
             // 
-            this.labelInputFiles.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.labelInputFiles.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.labelInputFiles.AutoSize = true;
-            this.labelInputFiles.Location = new System.Drawing.Point(308, 7);
+            this.labelInputFiles.Location = new System.Drawing.Point(310, 7);
             this.labelInputFiles.Name = "labelInputFiles";
             this.labelInputFiles.Size = new System.Drawing.Size(119, 13);
             this.labelInputFiles.TabIndex = 5;
@@ -168,9 +168,9 @@ namespace Stegosaurus.Forms
             // 
             // labelTextMesage
             // 
-            this.labelTextMesage.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.labelTextMesage.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.labelTextMesage.AutoSize = true;
-            this.labelTextMesage.Location = new System.Drawing.Point(308, 215);
+            this.labelTextMesage.Location = new System.Drawing.Point(310, 215);
             this.labelTextMesage.Name = "labelTextMesage";
             this.labelTextMesage.Size = new System.Drawing.Size(73, 13);
             this.labelTextMesage.TabIndex = 8;
@@ -178,8 +178,8 @@ namespace Stegosaurus.Forms
             // 
             // buttonActivateSteganography
             // 
-            this.buttonActivateSteganography.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.buttonActivateSteganography.Location = new System.Drawing.Point(5, 278);
+            this.buttonActivateSteganography.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.buttonActivateSteganography.Location = new System.Drawing.Point(7, 278);
             this.buttonActivateSteganography.Name = "buttonActivateSteganography";
             this.buttonActivateSteganography.Size = new System.Drawing.Size(285, 40);
             this.buttonActivateSteganography.TabIndex = 9;
@@ -189,13 +189,13 @@ namespace Stegosaurus.Forms
             // 
             // labelEncryptionKey
             // 
-            this.labelEncryptionKey.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.labelEncryptionKey.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.labelEncryptionKey.AutoSize = true;
-            this.labelEncryptionKey.Location = new System.Drawing.Point(308, 305);
+            this.labelEncryptionKey.Location = new System.Drawing.Point(310, 305);
             this.labelEncryptionKey.Name = "labelEncryptionKey";
-            this.labelEncryptionKey.Size = new System.Drawing.Size(82, 13);
+            this.labelEncryptionKey.Size = new System.Drawing.Size(24, 13);
             this.labelEncryptionKey.TabIndex = 11;
-            this.labelEncryptionKey.Text = "Encryption key";
+            this.labelEncryptionKey.Text = "Key";
             // 
             // openFileDialogBrowseInput
             // 
@@ -215,8 +215,8 @@ namespace Stegosaurus.Forms
             // 
             // progressBarCapacity
             // 
-            this.progressBarCapacity.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.progressBarCapacity.Location = new System.Drawing.Point(5, 249);
+            this.progressBarCapacity.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.progressBarCapacity.Location = new System.Drawing.Point(7, 249);
             this.progressBarCapacity.Maximum = 101;
             this.progressBarCapacity.Name = "progressBarCapacity";
             this.progressBarCapacity.Size = new System.Drawing.Size(285, 23);
@@ -227,9 +227,9 @@ namespace Stegosaurus.Forms
             // panel1
             // 
             this.panel1.AllowDrop = true;
-            this.panel1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.panel1.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.panel1.Controls.Add(this.pictureBoxCarrier);
-            this.panel1.Location = new System.Drawing.Point(6, 29);
+            this.panel1.Location = new System.Drawing.Point(8, 29);
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(284, 184);
             this.panel1.TabIndex = 14;
@@ -238,9 +238,9 @@ namespace Stegosaurus.Forms
             // 
             // labelCarrierMedia
             // 
-            this.labelCarrierMedia.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.labelCarrierMedia.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.labelCarrierMedia.AutoSize = true;
-            this.labelCarrierMedia.Location = new System.Drawing.Point(6, 3);
+            this.labelCarrierMedia.Location = new System.Drawing.Point(8, 3);
             this.labelCarrierMedia.Name = "labelCarrierMedia";
             this.labelCarrierMedia.Size = new System.Drawing.Size(76, 13);
             this.labelCarrierMedia.TabIndex = 17;
@@ -274,9 +274,9 @@ namespace Stegosaurus.Forms
             // 
             // labelStorageRatio
             // 
-            this.labelStorageRatio.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.labelStorageRatio.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.labelStorageRatio.AutoSize = true;
-            this.labelStorageRatio.Location = new System.Drawing.Point(7, 227);
+            this.labelStorageRatio.Location = new System.Drawing.Point(9, 227);
             this.labelStorageRatio.Name = "labelStorageRatio";
             this.labelStorageRatio.Size = new System.Drawing.Size(77, 13);
             this.labelStorageRatio.TabIndex = 20;
@@ -284,9 +284,9 @@ namespace Stegosaurus.Forms
             // 
             // labelCapacityWarning
             // 
-            this.labelCapacityWarning.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.labelCapacityWarning.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.labelCapacityWarning.BackColor = System.Drawing.Color.Transparent;
-            this.labelCapacityWarning.Location = new System.Drawing.Point(212, 227);
+            this.labelCapacityWarning.Location = new System.Drawing.Point(214, 227);
             this.labelCapacityWarning.Name = "labelCapacityWarning";
             this.labelCapacityWarning.RightToLeft = System.Windows.Forms.RightToLeft.No;
             this.labelCapacityWarning.Size = new System.Drawing.Size(78, 19);
@@ -296,9 +296,9 @@ namespace Stegosaurus.Forms
             // 
             // textBoxTextMessage
             // 
-            this.textBoxTextMessage.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.textBoxTextMessage.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.textBoxTextMessage.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.textBoxTextMessage.Location = new System.Drawing.Point(308, 237);
+            this.textBoxTextMessage.Location = new System.Drawing.Point(310, 237);
             this.textBoxTextMessage.Name = "textBoxTextMessage";
             this.textBoxTextMessage.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.Vertical;
             this.textBoxTextMessage.Size = new System.Drawing.Size(347, 65);
@@ -329,8 +329,8 @@ namespace Stegosaurus.Forms
             // 
             // buttonCarrierMediaBrowse
             // 
-            this.buttonCarrierMediaBrowse.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.buttonCarrierMediaBrowse.Location = new System.Drawing.Point(215, 3);
+            this.buttonCarrierMediaBrowse.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.buttonCarrierMediaBrowse.Location = new System.Drawing.Point(217, 3);
             this.buttonCarrierMediaBrowse.Name = "buttonCarrierMediaBrowse";
             this.buttonCarrierMediaBrowse.Size = new System.Drawing.Size(75, 25);
             this.buttonCarrierMediaBrowse.TabIndex = 27;
@@ -348,11 +348,13 @@ namespace Stegosaurus.Forms
             this.tabControlMain.Location = new System.Drawing.Point(0, 0);
             this.tabControlMain.Name = "tabControlMain";
             this.tabControlMain.SelectedIndex = 0;
-            this.tabControlMain.Size = new System.Drawing.Size(684, 411);
+            this.tabControlMain.Size = new System.Drawing.Size(684, 456);
             this.tabControlMain.TabIndex = 29;
             // 
             // tabPageMain
             // 
+            this.tabPageMain.Controls.Add(this.buttonImportKey);
+            this.tabPageMain.Controls.Add(this.checkBoxSignMessage);
             this.tabPageMain.Controls.Add(this.textBoxEncryptionKey);
             this.tabPageMain.Controls.Add(this.panel1);
             this.tabPageMain.Controls.Add(this.buttonCarrierMediaBrowse);
@@ -370,19 +372,19 @@ namespace Stegosaurus.Forms
             this.tabPageMain.Location = new System.Drawing.Point(4, 25);
             this.tabPageMain.Name = "tabPageMain";
             this.tabPageMain.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPageMain.Size = new System.Drawing.Size(676, 382);
+            this.tabPageMain.Size = new System.Drawing.Size(676, 427);
             this.tabPageMain.TabIndex = 0;
             this.tabPageMain.Text = "Main";
             this.tabPageMain.UseVisualStyleBackColor = true;
             // 
             // textBoxEncryptionKey
             // 
-            this.textBoxEncryptionKey.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.textBoxEncryptionKey.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.textBoxEncryptionKey.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.textBoxEncryptionKey.Location = new System.Drawing.Point(308, 321);
+            this.textBoxEncryptionKey.Location = new System.Drawing.Point(310, 321);
             this.textBoxEncryptionKey.Name = "textBoxEncryptionKey";
             this.textBoxEncryptionKey.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.Vertical;
-            this.textBoxEncryptionKey.Size = new System.Drawing.Size(347, 47);
+            this.textBoxEncryptionKey.Size = new System.Drawing.Size(347, 64);
             this.textBoxEncryptionKey.TabIndex = 28;
             this.textBoxEncryptionKey.Text = "";
             // 
@@ -396,14 +398,14 @@ namespace Stegosaurus.Forms
             this.tabPageAdvanced.Location = new System.Drawing.Point(4, 25);
             this.tabPageAdvanced.Name = "tabPageAdvanced";
             this.tabPageAdvanced.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPageAdvanced.Size = new System.Drawing.Size(676, 382);
+            this.tabPageAdvanced.Size = new System.Drawing.Size(676, 427);
             this.tabPageAdvanced.TabIndex = 1;
             this.tabPageAdvanced.Text = "Advanced options";
             this.tabPageAdvanced.UseVisualStyleBackColor = true;
             // 
             // buttonGenerate
             // 
-            this.buttonGenerate.Location = new System.Drawing.Point(90, 117);
+            this.buttonGenerate.Location = new System.Drawing.Point(45, 152);
             this.buttonGenerate.Name = "buttonGenerate";
             this.buttonGenerate.Size = new System.Drawing.Size(524, 31);
             this.buttonGenerate.TabIndex = 27;
@@ -417,10 +419,29 @@ namespace Stegosaurus.Forms
             this.tabPageSignatures.Controls.Add(this.groupBox1);
             this.tabPageSignatures.Location = new System.Drawing.Point(4, 25);
             this.tabPageSignatures.Name = "tabPageSignatures";
-            this.tabPageSignatures.Size = new System.Drawing.Size(676, 382);
+            this.tabPageSignatures.Size = new System.Drawing.Size(676, 427);
             this.tabPageSignatures.TabIndex = 2;
             this.tabPageSignatures.Text = "Signatures";
             this.tabPageSignatures.UseVisualStyleBackColor = true;
+            // 
+            // groupBox2
+            // 
+            this.groupBox2.Controls.Add(this.listViewKnownSignatures);
+            this.groupBox2.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.groupBox2.Location = new System.Drawing.Point(8, 81);
+            this.groupBox2.Name = "groupBox2";
+            this.groupBox2.Size = new System.Drawing.Size(660, 338);
+            this.groupBox2.TabIndex = 1;
+            this.groupBox2.TabStop = false;
+            this.groupBox2.Text = "Known signatures";
+            // 
+            // listViewKnownSignatures
+            // 
+            this.listViewKnownSignatures.Location = new System.Drawing.Point(6, 21);
+            this.listViewKnownSignatures.Name = "listViewKnownSignatures";
+            this.listViewKnownSignatures.Size = new System.Drawing.Size(654, 311);
+            this.listViewKnownSignatures.TabIndex = 0;
+            this.listViewKnownSignatures.UseCompatibleStateImageBehavior = false;
             // 
             // groupBox1
             // 
@@ -435,6 +456,27 @@ namespace Stegosaurus.Forms
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "My signature";
             // 
+            // buttonGenerateSignature
+            // 
+            this.buttonGenerateSignature.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.buttonGenerateSignature.Location = new System.Drawing.Point(388, 39);
+            this.buttonGenerateSignature.Name = "buttonGenerateSignature";
+            this.buttonGenerateSignature.Size = new System.Drawing.Size(130, 27);
+            this.buttonGenerateSignature.TabIndex = 2;
+            this.buttonGenerateSignature.Text = "Generate signature";
+            this.buttonGenerateSignature.UseVisualStyleBackColor = true;
+            // 
+            // buttonExportSignature
+            // 
+            this.buttonExportSignature.Enabled = false;
+            this.buttonExportSignature.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.buttonExportSignature.Location = new System.Drawing.Point(524, 39);
+            this.buttonExportSignature.Name = "buttonExportSignature";
+            this.buttonExportSignature.Size = new System.Drawing.Size(130, 27);
+            this.buttonExportSignature.TabIndex = 1;
+            this.buttonExportSignature.Text = "Export signature";
+            this.buttonExportSignature.UseVisualStyleBackColor = true;
+            // 
             // label1
             // 
             this.label1.AutoSize = true;
@@ -446,50 +488,31 @@ namespace Stegosaurus.Forms
             this.label1.Text = "You have not yet created a signature. Create a signature in order to sign stego-f" +
     "iles.";
             // 
-            // buttonExportSignature
+            // checkBoxSignMessage
             // 
-            this.buttonExportSignature.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.buttonExportSignature.Location = new System.Drawing.Point(524, 39);
-            this.buttonExportSignature.Name = "buttonExportSignature";
-            this.buttonExportSignature.Size = new System.Drawing.Size(130, 27);
-            this.buttonExportSignature.TabIndex = 1;
-            this.buttonExportSignature.Text = "Export signature";
-            this.buttonExportSignature.UseVisualStyleBackColor = true;
+            this.checkBoxSignMessage.AutoSize = true;
+            this.checkBoxSignMessage.Location = new System.Drawing.Point(13, 377);
+            this.checkBoxSignMessage.Name = "checkBoxSignMessage";
+            this.checkBoxSignMessage.Size = new System.Drawing.Size(253, 17);
+            this.checkBoxSignMessage.TabIndex = 29;
+            this.checkBoxSignMessage.Text = "Sign message (TODO: move somewhere else)";
+            this.checkBoxSignMessage.UseVisualStyleBackColor = true;
             // 
-            // buttonGenerateSignature
+            // buttonImportKey
             // 
-            this.buttonGenerateSignature.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.buttonGenerateSignature.Location = new System.Drawing.Point(388, 39);
-            this.buttonGenerateSignature.Name = "buttonGenerateSignature";
-            this.buttonGenerateSignature.Size = new System.Drawing.Size(130, 27);
-            this.buttonGenerateSignature.TabIndex = 2;
-            this.buttonGenerateSignature.Text = "Generate signature";
-            this.buttonGenerateSignature.UseVisualStyleBackColor = true;
-            // 
-            // groupBox2
-            // 
-            this.groupBox2.Controls.Add(this.listViewKnownSignatures);
-            this.groupBox2.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.groupBox2.Location = new System.Drawing.Point(8, 81);
-            this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(660, 293);
-            this.groupBox2.TabIndex = 1;
-            this.groupBox2.TabStop = false;
-            this.groupBox2.Text = "Known signatures";
-            // 
-            // listViewKnownSignatures
-            // 
-            this.listViewKnownSignatures.Location = new System.Drawing.Point(6, 21);
-            this.listViewKnownSignatures.Name = "listViewKnownSignatures";
-            this.listViewKnownSignatures.Size = new System.Drawing.Size(654, 272);
-            this.listViewKnownSignatures.TabIndex = 0;
-            this.listViewKnownSignatures.UseCompatibleStateImageBehavior = false;
+            this.buttonImportKey.Location = new System.Drawing.Point(488, 391);
+            this.buttonImportKey.Name = "buttonImportKey";
+            this.buttonImportKey.Size = new System.Drawing.Size(169, 28);
+            this.buttonImportKey.TabIndex = 30;
+            this.buttonImportKey.Text = "Import (todo: move around)";
+            this.buttonImportKey.UseVisualStyleBackColor = true;
+            this.buttonImportKey.Click += new System.EventHandler(this.buttonImportKey_Click);
             // 
             // FormMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(684, 411);
+            this.ClientSize = new System.Drawing.Size(684, 456);
             this.Controls.Add(this.tabControlMain);
             this.Font = new System.Drawing.Font("Segoe UI", 8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
@@ -506,9 +529,9 @@ namespace Stegosaurus.Forms
             this.tabPageAdvanced.ResumeLayout(false);
             this.tabPageAdvanced.PerformLayout();
             this.tabPageSignatures.ResumeLayout(false);
+            this.groupBox2.ResumeLayout(false);
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
-            this.groupBox2.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -530,11 +553,9 @@ namespace Stegosaurus.Forms
         private System.Windows.Forms.PictureBox pictureBoxCarrier;
         private System.Windows.Forms.ProgressBar progressBarCapacity;
         private System.Windows.Forms.Panel panel1;
-        private System.Windows.Forms.PageSetupDialog pageSetupDialog1;
         private System.Windows.Forms.Label labelCarrierMedia;
         private System.Windows.Forms.Label labelAlgorithmList;
         private System.Windows.Forms.ComboBox comboBoxAlgorithmSelection;
-        private System.Windows.Forms.ColorDialog colorDialog1;
         private System.Windows.Forms.SaveFileDialog saveFileDialog;
         private System.Windows.Forms.FolderBrowserDialog folderBrowserDialog;
         private System.Windows.Forms.Label labelStorageRatio;
@@ -555,6 +576,8 @@ namespace Stegosaurus.Forms
         private System.Windows.Forms.Button buttonExportSignature;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.ListView listViewKnownSignatures;
+        private System.Windows.Forms.CheckBox checkBoxSignMessage;
+        private System.Windows.Forms.Button buttonImportKey;
     }
 }
 

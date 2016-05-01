@@ -62,7 +62,7 @@ namespace Stegosaurus.Forms
         }
 
         /// <summary>
-        /// Gets the paths of the dropped files and converts the first to CarrierType and calls InputHelper.
+        /// Gets the paths of the dropped files and converts the first to CarrierType and calls HandleInput.
         /// TODO: Implement chack for multiple dropped files and show apropriate error.
         /// </summary>
         /// <param name="sender"></param>
@@ -75,7 +75,7 @@ namespace Stegosaurus.Forms
                 try
                 {
                     IInputType inputContent = new CarrierType(inputFiles[0]);
-                    InputHelper(inputContent);
+                    HandleInput(inputContent);
                 }
                 catch (ArgumentNullException ex)
                 {
@@ -110,7 +110,7 @@ namespace Stegosaurus.Forms
             if (result != DialogResult.OK)
                 return;
 
-           InputHelper(new CarrierType(openFileDialogBrowseInput.FileName));
+           HandleInput(new CarrierType(openFileDialogBrowseInput.FileName));
         }
 
         #endregion
@@ -159,7 +159,7 @@ namespace Stegosaurus.Forms
         }
 
         /// <summary>
-        /// Gets the file paths of all dropped files, converts them to the ContentType and calls the InputHelper to handle them further.
+        /// Gets the file paths of all dropped files, converts them to the ContentType and calls the HandleInput to handle them further.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -169,7 +169,7 @@ namespace Stegosaurus.Forms
 
             foreach (string filePath in inputFiles)
             {
-                InputHelper(new ContentType(filePath));
+                HandleInput(new ContentType(filePath));
             }
 
             listViewMessageContentFiles.BackColor = Color.White;
@@ -190,7 +190,7 @@ namespace Stegosaurus.Forms
 
             foreach (string fileName in openFileDialogBrowseInput.FileNames)
             {
-                InputHelper(new ContentType(fileName));
+                HandleInput(new ContentType(fileName));
             }
         }
         
@@ -441,10 +441,10 @@ namespace Stegosaurus.Forms
         #endregion
         
         /// <summary>
-        /// Gets and IInputType with a file path. Checks the type of the input and handles it accordingly.
+        /// Gets an IInputType with a file path. Checks the type of the input and handles it accordingly.
         /// </summary>
         /// <param name="_input"></param>
-        private void InputHelper(IInputType _input)
+        private void HandleInput(IInputType _input)
         {
             InputFile inputFile = new InputFile(_input.FilePath);
             FileInfo fileInfo = new FileInfo(_input.FilePath);
@@ -539,6 +539,15 @@ namespace Stegosaurus.Forms
             File.WriteAllBytes(sfd.FileName, content);  
         }
 
-        
+        private void buttonImportKey_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog ofd = new OpenFileDialog();
+            ofd.Filter = "XML files (*.xml)|*.xml|All files (*.*)|*.*";
+
+            if (ofd.ShowDialog() != DialogResult.OK)
+                return;
+
+            textBoxEncryptionKey.Text = File.ReadAllText(ofd.FileName);
+        }
     }
 }

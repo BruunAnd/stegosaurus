@@ -60,7 +60,7 @@ namespace Stegosaurus.Cryptography
                     des.OverriddenKey = des.GenerateKey();
 
                     // Write the encrypted key and its length
-                    tempStream.Write(rsaProvider.Encrypt(des.OverriddenKey, false), true);
+                    tempStream.Write(rsaProvider.Encrypt(des.OverriddenKey, true), true);
                     // Encrypt and write the main data
                     tempStream.Write(des.Encrypt(_data));
 
