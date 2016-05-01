@@ -38,7 +38,7 @@ namespace Stegosaurus.Cryptography
                 // Decrypt the TripleDES key first, then decrypt main data using TripleDES
                 using (MemoryStream tempStream = new MemoryStream(_data))
                 {
-                    byte[] tripleDesKey = rsaProvider.Decrypt(tempStream.ReadBytes(), false);
+                    byte[] tripleDesKey = rsaProvider.Decrypt(tempStream.ReadBytes(), true);
 
                     TripleDESProvider des = new TripleDESProvider();
                     des.OverriddenKey = tripleDesKey;
