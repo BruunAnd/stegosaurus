@@ -373,7 +373,7 @@ namespace Stegosaurus.Forms
                 {
                     if (string.IsNullOrEmpty(textBoxEncryptionKey.Text))
                     {
-                        if (MessageBox.Show("You are about to embed without an encryption key. Do you want to continue?", "Warning", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Warning) != DialogResult.Yes)
+                        if (MessageBox.Show("You are about to embed without using an encryption key. Do you want to continue?", "Warning", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Warning) != DialogResult.Yes)
                         {
                             textBoxEncryptionKey.Focus();
                             return;
@@ -381,7 +381,7 @@ namespace Stegosaurus.Forms
                     }
 
                     Embed();
-                    MessageBox.Show("Message was succesfully extracted.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    MessageBox.Show("Message was succesfully embedded.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
                 catch (StegoAlgorithmException ex)
                 {

@@ -22,6 +22,8 @@ namespace Stegosaurus
 
         public StegoMessageFlags Flags;
 
+        public string PrivateSigningKey { get; set; }
+
         public StegoMessage()
         {
         }
@@ -38,7 +40,7 @@ namespace Stegosaurus
                 Flags = (StegoMessageFlags) inputStream.ReadByte();
 
                 // Read encoded data
-                byte[] encodedData = inputStream.ReadBytes(_fromArray.Length - sizeof(byte));
+                byte[] encodedData = inputStream.ReadBytes();
 
                 // Decrypt if a key is specified
                 if (Flags.HasFlag(StegoMessageFlags.Encrypted) && _cryptoProvider != null)
@@ -67,7 +69,9 @@ namespace Stegosaurus
                 // Read input files
                 int numberOfFiles = tempStream.ReadInt();
                 for (int i = 0; i < numberOfFiles; i++)
+                {
                     InputFiles.Add(tempStream.ReadInputFile());
+                }
 
                 // Read text message
                 TextMessage = tempStream.ReadString();
@@ -81,7 +85,9 @@ namespace Stegosaurus
                 // Write input files
                 tempStream.Write(InputFiles.Count);
                 foreach (InputFile inputFile in InputFiles)
+                {
                     tempStream.Write(inputFile);
+                }
 
                 // Write text message
                 tempStream.Write(TextMessage);
@@ -124,13 +130,26 @@ namespace Stegosaurus
                 SetFlag(StegoMessageFlags.Encrypted, false);
             }
 
-            // Combine array and length header
-            List<byte> returnList = new List<byte>();
-            returnList.AddRange(BitConverter.GetBytes(encodedData.Length + sizeof(byte)));
-            returnList.Add((byte)Flags);
-            returnList.AddRange(encodedData);
+            // Combine all the data using a MemoryStream
+            using (MemoryStream tempStream = new MemoryStream())
+            {
+                // Do not write at the beginning of the stream
+                // Allocate some space for the int that contains size
+                tempStream.Seek(sizeof(int), SeekOrigin.Begin);
+                tempStream.WriteByte((byte) Flags);
+                tempStream.Write(encodedData, true);
+                if (!string.IsNullOrEmpty(PrivateSigningKey))
+                {
+                    // TODO add signing stuff here
+                    SetFlag(StegoMessageFlags.Signed, true);    
+                }
 
-            return returnList.ToArray();
+                // Go back to beginning of stream and write length
+                tempStream.Seek(0, SeekOrigin.Begin);
+                tempStream.Write((int)tempStream.Length - sizeof(int));
+
+                return tempStream.ToArray();
+            }
         }
 
         private void SetFlag(StegoMessageFlags _flag, bool _state)
