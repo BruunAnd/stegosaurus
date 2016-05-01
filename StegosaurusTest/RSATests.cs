@@ -26,7 +26,7 @@ namespace StegosaurusTest
             byte[] decryptedBytes = rsa.Decrypt(encryptedBytes);
 
             // check if decrypted equals original
-            Assert.AreEqual(decryptedBytes.SequenceEqual(randomBytes), true);
+            Assert.IsTrue(decryptedBytes.SequenceEqual(randomBytes));
         }
     }
 }

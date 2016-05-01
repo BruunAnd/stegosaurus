@@ -21,7 +21,7 @@ namespace StegosaurusTest
             byte[] compressed = Compression.Compress(buffer);
             byte[] decompress = Compression.Decompress(compressed);
 
-            Assert.AreEqual(decompress.SequenceEqual(buffer), true);
+            Assert.IsTrue(decompress.SequenceEqual(buffer));
         }
 
         [TestMethod]
@@ -34,7 +34,7 @@ namespace StegosaurusTest
                                                  237, 109, 218, 83, 194, 199, 102, 145, 192, 34, 200, 176, 214, 51,
                                                  253, 158, 60, 80, 26, 0, 130, 66, 240, 205, 43, 0, 0, 0 };
 
-            Assert.AreEqual(actualOutput.SequenceEqual(expectedOutput), true);
+            Assert.IsTrue(actualOutput.SequenceEqual(expectedOutput));
         }
 
         [TestMethod]
@@ -44,7 +44,7 @@ namespace StegosaurusTest
 
             byte[] decompressedArray = Compression.Decompress(compressedArray);
 
-            Assert.AreEqual(decompressedArray.SequenceEqual(input), true);
+            Assert.IsTrue(decompressedArray.SequenceEqual(input));
         }
     }
 }

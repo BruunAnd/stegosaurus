@@ -69,32 +69,32 @@ namespace Stegosaurus.Forms
         /// <param name="e"></param>
         private void panelCarrierMedia_DragDrop(object sender, DragEventArgs e)
         {
-            string[] inputFile = (string[]) e.Data.GetData(DataFormats.FileDrop);
-            if (inputFile.Length == 1)
+            string[] inputFiles = (string[]) e.Data.GetData(DataFormats.FileDrop);
+            if (inputFiles.Length == 1)
             {
                 try
                 {
-                    IInputType inputContent = new CarrierType(inputFile[0]);
+                    IInputType inputContent = new CarrierType(inputFiles[0]);
                     InputHelper(inputContent);
                 }
                 catch (ArgumentNullException ex)
                 {
-                    MessageBox.Show(ex.Message);
+                    ShowError(ex.Message, "Unknown error");
                 }
-                catch (InvalidWaveFileException ex)
+                catch (InvalidFileException ex)
                 {
-                    MessageBox.Show(ex.Message);
-                }
-                catch (OutOfMemoryException)
-                {
-                    MessageBox.Show("Invalid file type. Carrier must be picture or .wav audio file.");
+                    ShowError(ex.Message, "Invalid file");
                 }
             }
             else
             {
-                MessageBox.Show("Cannot have multiple carrier medias.", "Error");
+                ShowError("Cannot have multiple carrier media.");
             }
+        }
 
+        private void ShowError(string message, string title = "Error")
+        {
+            MessageBox.Show(message, title, MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
 
         /// <summary>
@@ -215,12 +215,12 @@ namespace Stegosaurus.Forms
         private void saveToolStripMenuItem_Click(object sender, EventArgs e)
         {
             int[] fileIndices = GetSelectedContentIndices();
-            int len = fileIndices.Length;
-            if (len == 0)
+            int selectedCount = fileIndices.Length;
+            if (selectedCount == 0)
             {
-                MessageBox.Show("You must have items selected to save.", "Save Error");
+                ShowError("You must have items selected to save.", "Save error");
             }
-            if (len == 1)
+            else if (selectedCount == 1)
             {
                 saveFileDialog.FileName = stegoMessage.InputFiles[fileIndices[0]].Name;
 
@@ -229,7 +229,7 @@ namespace Stegosaurus.Forms
 
                 if (saveFileDialog.FileName == "")
                 {
-                    MessageBox.Show("The chosen destination cannot be blank.", "Save Error");
+                    ShowError("The chosen destination cannot be blank.", "Save error");
                 }
                 else
                 {
@@ -241,7 +241,7 @@ namespace Stegosaurus.Forms
                 if (folderBrowserDialog.ShowDialog() != DialogResult.OK)
                     return;
 
-                if (folderBrowserDialog.SelectedPath == "")
+                if (string.IsNullOrEmpty(folderBrowserDialog.SelectedPath))
                 {
                     MessageBox.Show("The chosen destination cannot be blank.", "Save Error");
                 }
@@ -249,7 +249,17 @@ namespace Stegosaurus.Forms
                 {
                     foreach (int index in fileIndices)
                     {
-                        stegoMessage.InputFiles[fileIndices[index]].SaveTo($"{folderBrowserDialog.SelectedPath}\\{stegoMessage.InputFiles[fileIndices[index]].Name}");
+                        string fileName = stegoMessage.InputFiles[fileIndices[index]].Name;
+                        string saveDestination = Path.Combine(folderBrowserDialog.SelectedPath, fileName);
+
+                        // Ask to overwrite if file exists
+                        if (File.Exists(saveDestination))
+                        {
+                            if (MessageBox.Show($"The file {fileName} already exists. Do you want to overwrite it?", "File already exists", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question) != DialogResult.Yes)
+                                continue;
+                        }
+
+                        stegoMessage.InputFiles[fileIndices[index]].SaveTo(saveDestination);
                     }
                 }
             }
@@ -310,7 +320,7 @@ namespace Stegosaurus.Forms
             algorithm.CryptoProvider = cryptoProvider;
         }
 
-        //TODO: Implement Key size limit for textboxEncryptionKey.
+        //TODO: Implement Key size limit for textboxEncryptionKey (REMEMBER rsa uses XML keys)
         #endregion
 
         #region Steganography Handling
@@ -361,12 +371,21 @@ namespace Stegosaurus.Forms
             {
                 try
                 {
+                    if (string.IsNullOrEmpty(textBoxEncryptionKey.Text))
+                    {
+                        if (MessageBox.Show("You are about to embed without an encryption key. Do you want to continue?", "Warning", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Warning) != DialogResult.Yes)
+                        {
+                            textBoxEncryptionKey.Focus();
+                            return;
+                        }
+                    }
+
                     Embed();
-                    MessageBox.Show("Message was succesfully embedded.", "Success", MessageBoxButtons.OK);
+                    MessageBox.Show("Message was succesfully extracted.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
                 catch (StegoAlgorithmException ex)
                 {
-                    MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    ShowError(ex.Message);
                 }
             }
             else
@@ -374,11 +393,11 @@ namespace Stegosaurus.Forms
                 try
                 {
                     Extract();
-                    MessageBox.Show("Message was succesfully extracted.", "Success", MessageBoxButtons.OK);
+                    MessageBox.Show("Message was succesfully extracted.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
                 catch (StegoAlgorithmException ex)
                 {
-                    MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    ShowError(ex.Message);
                 }
             }
         }
@@ -517,7 +536,7 @@ namespace Stegosaurus.Forms
             if (sfd.ShowDialog() != DialogResult.OK)
                 return;
 
-            File.WriteAllBytes(sfd.FileName, content);
+            File.WriteAllBytes(sfd.FileName, content);  
         }
 
         

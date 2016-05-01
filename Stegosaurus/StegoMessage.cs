@@ -6,21 +6,21 @@ using Stegosaurus.Cryptography;
 
 namespace Stegosaurus
 {
-    [Flags]
-    public enum StegoMessageFlags
-    {
-        Encoded = 0x1,
-        Compressed = 0x2,
-        Encrypted = 0x4,
-        Signed = 0x8,
-    }
-
     public class StegoMessage
     {
+        [Flags]
+        public enum StegoMessageFlags
+        {
+            Encoded = 0x1,
+            Compressed = 0x2,
+            Encrypted = 0x4,
+            Signed = 0x8,
+        }
+
         public string TextMessage { get; set; }
         public List<InputFile> InputFiles { get; } = new List<InputFile>();
 
-        private StegoMessageFlags flags;
+        public StegoMessageFlags Flags;
 
         public StegoMessage()
         {
@@ -35,25 +35,25 @@ namespace Stegosaurus
         {
             using (MemoryStream inputStream = new MemoryStream(_fromArray))
             {
-                flags = (StegoMessageFlags) inputStream.ReadByte();
+                Flags = (StegoMessageFlags) inputStream.ReadByte();
 
                 // Read encoded data
                 byte[] encodedData = inputStream.ReadBytes(_fromArray.Length - sizeof(byte));
 
                 // Decrypt if a key is specified
-                if (flags.HasFlag(StegoMessageFlags.Encrypted) && _cryptoProvider != null)
+                if (Flags.HasFlag(StegoMessageFlags.Encrypted) && _cryptoProvider != null)
                 {
                     encodedData = _cryptoProvider.Decrypt(encodedData);
                 }
 
                 // Decompress the array
-                if (flags.HasFlag(StegoMessageFlags.Compressed))
+                if (Flags.HasFlag(StegoMessageFlags.Compressed))
                 {
                     encodedData = Ionic.Zlib.ZlibStream.UncompressBuffer(encodedData);
                 }
 
                 // Decode array
-                if (flags.HasFlag(StegoMessageFlags.Encoded))
+                if (Flags.HasFlag(StegoMessageFlags.Encoded))
                 {
                     Decode(encodedData);
                 }
@@ -127,7 +127,7 @@ namespace Stegosaurus
             // Combine array and length header
             List<byte> returnList = new List<byte>();
             returnList.AddRange(BitConverter.GetBytes(encodedData.Length + sizeof(byte)));
-            returnList.Add((byte)flags);
+            returnList.Add((byte)Flags);
             returnList.AddRange(encodedData);
 
             return returnList.ToArray();
@@ -136,10 +136,10 @@ namespace Stegosaurus
         private void SetFlag(StegoMessageFlags _flag, bool _state)
         {
             // Check if current flag state does not equal wanted state
-            if (_state != flags.HasFlag(_flag))
+            if (_state != Flags.HasFlag(_flag))
             {
                 // Flip state
-                flags ^= _flag;
+                Flags ^= _flag;
             }
         }
 

@@ -13,7 +13,7 @@ namespace Stegosaurus.Carrier
 
         public int SamplesPerVertex => 3;
 
-        private Bitmap innerImage;
+        private readonly Bitmap innerImage;
 
         public Image InnerImage => innerImage;
 
@@ -26,7 +26,7 @@ namespace Stegosaurus.Carrier
                 throw new ArgumentNullException("Invalid input image in ImageCarrier.\n");
 
             // Clone image or convert to PNG
-            if (_innerImage.RawFormat == ImageFormat.Png)
+            if (Equals(_innerImage.RawFormat, ImageFormat.Png))
             {
                 innerImage = (Bitmap) _innerImage.Clone();
             }

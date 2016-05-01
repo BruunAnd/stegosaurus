@@ -66,12 +66,22 @@ namespace Stegosaurus.Forms
             this.textBoxEncryptionKey = new System.Windows.Forms.RichTextBox();
             this.tabPageAdvanced = new System.Windows.Forms.TabPage();
             this.buttonGenerate = new System.Windows.Forms.Button();
+            this.tabPageSignatures = new System.Windows.Forms.TabPage();
+            this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.label1 = new System.Windows.Forms.Label();
+            this.buttonExportSignature = new System.Windows.Forms.Button();
+            this.buttonGenerateSignature = new System.Windows.Forms.Button();
+            this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.listViewKnownSignatures = new System.Windows.Forms.ListView();
             this.contextMenuStripMain.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxCarrier)).BeginInit();
             this.panel1.SuspendLayout();
             this.tabControlMain.SuspendLayout();
             this.tabPageMain.SuspendLayout();
             this.tabPageAdvanced.SuspendLayout();
+            this.tabPageSignatures.SuspendLayout();
+            this.groupBox1.SuspendLayout();
+            this.groupBox2.SuspendLayout();
             this.SuspendLayout();
             // 
             // listViewMessageContentFiles
@@ -333,6 +343,7 @@ namespace Stegosaurus.Forms
             this.tabControlMain.Appearance = System.Windows.Forms.TabAppearance.FlatButtons;
             this.tabControlMain.Controls.Add(this.tabPageMain);
             this.tabControlMain.Controls.Add(this.tabPageAdvanced);
+            this.tabControlMain.Controls.Add(this.tabPageSignatures);
             this.tabControlMain.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tabControlMain.Location = new System.Drawing.Point(0, 0);
             this.tabControlMain.Name = "tabControlMain";
@@ -400,6 +411,80 @@ namespace Stegosaurus.Forms
             this.buttonGenerate.UseVisualStyleBackColor = true;
             this.buttonGenerate.Click += new System.EventHandler(this.buttonGenerate_Click);
             // 
+            // tabPageSignatures
+            // 
+            this.tabPageSignatures.Controls.Add(this.groupBox2);
+            this.tabPageSignatures.Controls.Add(this.groupBox1);
+            this.tabPageSignatures.Location = new System.Drawing.Point(4, 25);
+            this.tabPageSignatures.Name = "tabPageSignatures";
+            this.tabPageSignatures.Size = new System.Drawing.Size(676, 382);
+            this.tabPageSignatures.TabIndex = 2;
+            this.tabPageSignatures.Text = "Signatures";
+            this.tabPageSignatures.UseVisualStyleBackColor = true;
+            // 
+            // groupBox1
+            // 
+            this.groupBox1.Controls.Add(this.buttonGenerateSignature);
+            this.groupBox1.Controls.Add(this.buttonExportSignature);
+            this.groupBox1.Controls.Add(this.label1);
+            this.groupBox1.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.groupBox1.Location = new System.Drawing.Point(8, 3);
+            this.groupBox1.Name = "groupBox1";
+            this.groupBox1.Size = new System.Drawing.Size(660, 72);
+            this.groupBox1.TabIndex = 0;
+            this.groupBox1.TabStop = false;
+            this.groupBox1.Text = "My signature";
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label1.Location = new System.Drawing.Point(6, 18);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(436, 13);
+            this.label1.TabIndex = 0;
+            this.label1.Text = "You have not yet created a signature. Create a signature in order to sign stego-f" +
+    "iles.";
+            // 
+            // buttonExportSignature
+            // 
+            this.buttonExportSignature.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.buttonExportSignature.Location = new System.Drawing.Point(524, 39);
+            this.buttonExportSignature.Name = "buttonExportSignature";
+            this.buttonExportSignature.Size = new System.Drawing.Size(130, 27);
+            this.buttonExportSignature.TabIndex = 1;
+            this.buttonExportSignature.Text = "Export signature";
+            this.buttonExportSignature.UseVisualStyleBackColor = true;
+            // 
+            // buttonGenerateSignature
+            // 
+            this.buttonGenerateSignature.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.buttonGenerateSignature.Location = new System.Drawing.Point(388, 39);
+            this.buttonGenerateSignature.Name = "buttonGenerateSignature";
+            this.buttonGenerateSignature.Size = new System.Drawing.Size(130, 27);
+            this.buttonGenerateSignature.TabIndex = 2;
+            this.buttonGenerateSignature.Text = "Generate signature";
+            this.buttonGenerateSignature.UseVisualStyleBackColor = true;
+            // 
+            // groupBox2
+            // 
+            this.groupBox2.Controls.Add(this.listViewKnownSignatures);
+            this.groupBox2.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.groupBox2.Location = new System.Drawing.Point(8, 81);
+            this.groupBox2.Name = "groupBox2";
+            this.groupBox2.Size = new System.Drawing.Size(660, 293);
+            this.groupBox2.TabIndex = 1;
+            this.groupBox2.TabStop = false;
+            this.groupBox2.Text = "Known signatures";
+            // 
+            // listViewKnownSignatures
+            // 
+            this.listViewKnownSignatures.Location = new System.Drawing.Point(6, 21);
+            this.listViewKnownSignatures.Name = "listViewKnownSignatures";
+            this.listViewKnownSignatures.Size = new System.Drawing.Size(654, 272);
+            this.listViewKnownSignatures.TabIndex = 0;
+            this.listViewKnownSignatures.UseCompatibleStateImageBehavior = false;
+            // 
             // FormMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -420,6 +505,10 @@ namespace Stegosaurus.Forms
             this.tabPageMain.PerformLayout();
             this.tabPageAdvanced.ResumeLayout(false);
             this.tabPageAdvanced.PerformLayout();
+            this.tabPageSignatures.ResumeLayout(false);
+            this.groupBox1.ResumeLayout(false);
+            this.groupBox1.PerformLayout();
+            this.groupBox2.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -459,6 +548,13 @@ namespace Stegosaurus.Forms
         private System.Windows.Forms.TabPage tabPageAdvanced;
         private System.Windows.Forms.RichTextBox textBoxEncryptionKey;
         private System.Windows.Forms.Button buttonGenerate;
+        private System.Windows.Forms.TabPage tabPageSignatures;
+        private System.Windows.Forms.GroupBox groupBox1;
+        private System.Windows.Forms.GroupBox groupBox2;
+        private System.Windows.Forms.Button buttonGenerateSignature;
+        private System.Windows.Forms.Button buttonExportSignature;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.ListView listViewKnownSignatures;
     }
 }
 

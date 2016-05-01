@@ -55,7 +55,7 @@ namespace StegosaurusTest
 
             InputFile outputFile = outMessage.InputFiles[0];
             Assert.AreEqual(outputFile.Name, testFileName);
-            Assert.AreEqual(outputFile.Content.SequenceEqual(testFileBuffer), true);
+            Assert.IsTrue(outputFile.Content.SequenceEqual(testFileBuffer));
         }
     }
 }
