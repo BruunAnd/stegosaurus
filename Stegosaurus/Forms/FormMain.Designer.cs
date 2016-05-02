@@ -73,7 +73,6 @@ namespace Stegosaurus.Forms
             this.buttonGenerateSignature = new System.Windows.Forms.Button();
             this.buttonExportSignature = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
-            this.buttonTest = new System.Windows.Forms.Button();
             this.contextMenuStripMain.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxCarrier)).BeginInit();
             this.panel1.SuspendLayout();
@@ -354,7 +353,6 @@ namespace Stegosaurus.Forms
             // 
             // tabPageMain
             // 
-            this.tabPageMain.Controls.Add(this.buttonTest);
             this.tabPageMain.Controls.Add(this.buttonImportKey);
             this.tabPageMain.Controls.Add(this.checkBoxSignMessage);
             this.tabPageMain.Controls.Add(this.textBoxEncryptionKey);
@@ -510,16 +508,6 @@ namespace Stegosaurus.Forms
             this.label1.Text = "You have not yet created a signature. Create a signature in order to sign stego-f" +
     "iles.";
             // 
-            // buttonTest
-            // 
-            this.buttonTest.Location = new System.Drawing.Point(179, 348);
-            this.buttonTest.Name = "buttonTest";
-            this.buttonTest.Size = new System.Drawing.Size(75, 23);
-            this.buttonTest.TabIndex = 31;
-            this.buttonTest.Text = "TEST";
-            this.buttonTest.UseVisualStyleBackColor = true;
-            this.buttonTest.Click += new System.EventHandler(this.buttonTest_Click);
-            // 
             // FormMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
@@ -590,7 +578,6 @@ namespace Stegosaurus.Forms
         private System.Windows.Forms.ListView listViewKnownSignatures;
         private System.Windows.Forms.CheckBox checkBoxSignMessage;
         private System.Windows.Forms.Button buttonImportKey;
-        private System.Windows.Forms.Button buttonTest;
     }
 }
 
