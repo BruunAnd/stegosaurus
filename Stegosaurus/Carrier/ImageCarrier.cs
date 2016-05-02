@@ -1,12 +1,9 @@
 ﻿using Stegosaurus.Exceptions;
 using System;
-using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
-using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
 
 namespace Stegosaurus.Carrier
 {
@@ -16,7 +13,7 @@ namespace Stegosaurus.Carrier
 
         public int SamplesPerVertex => 3;
 
-        private Bitmap innerImage;
+        private readonly Bitmap innerImage;
 
         public Image InnerImage => innerImage;
 
@@ -29,7 +26,7 @@ namespace Stegosaurus.Carrier
                 throw new ArgumentNullException("Invalid input image in ImageCarrier.\n");
 
             // Clone image or convert to PNG
-            if (_innerImage.RawFormat == ImageFormat.Png)
+            if (Equals(_innerImage.RawFormat, ImageFormat.Png))
             {
                 innerImage = (Bitmap) _innerImage.Clone();
             }

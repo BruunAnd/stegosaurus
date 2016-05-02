@@ -1,11 +1,7 @@
-﻿using Stegosaurus.Utility.Extensions;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
+﻿using System.IO;
 using System.Security.Cryptography;
-using System.Text;
 using System.Xml.Serialization;
+using Stegosaurus.Utility.Extensions;
 
 namespace Stegosaurus.Cryptography
 {
@@ -14,7 +10,11 @@ namespace Stegosaurus.Cryptography
         public string CryptoKey { get; set; }
         public string Name => "RSA";
 
-        public int Seed => 0;
+        /// <summary>
+        /// The same seed is needed for encryption and decryption.
+        /// Since the public and private key share modulus, we use its hash as a seed.
+        /// </summary>
+        public int Seed => string.IsNullOrEmpty(CryptoKey) ? 0 : Parameters.Modulus.ComputeHash();
         public int KeySize => 2048;
 
         private RSAParameters Parameters
@@ -35,7 +35,16 @@ namespace Stegosaurus.Cryptography
             {
                 rsaProvider.ImportParameters(Parameters);
 
-                return rsaProvider.Decrypt(_data, false);
+                // Decrypt the TripleDES key first, then decrypt main data using TripleDES
+                using (MemoryStream tempStream = new MemoryStream(_data))
+                {
+                    byte[] tripleDesKey = rsaProvider.Decrypt(tempStream.ReadBytes(), true);
+
+                    TripleDESProvider des = new TripleDESProvider();
+                    des.OverriddenKey = tripleDesKey;
+
+                    return des.Decrypt(tempStream.ReadBytes((int) tempStream.GetRemainingLength()));
+                }
             }
         }
 
@@ -45,19 +54,30 @@ namespace Stegosaurus.Cryptography
             {
                 rsaProvider.ImportParameters(Parameters);
 
-                return rsaProvider.Encrypt(_data, false);
+                using (MemoryStream tempStream = new MemoryStream())
+                {
+                    TripleDESProvider des = new TripleDESProvider();
+                    des.OverriddenKey = des.GenerateKey();
+
+                    // Write the encrypted key and its length
+                    tempStream.Write(rsaProvider.Encrypt(des.OverriddenKey, true), true);
+                    // Encrypt and write the main data
+                    tempStream.Write(des.Encrypt(_data));
+
+                    return tempStream.ToArray();
+                }
             }
         }
 
-        public static void GenerateKeys()
+        public static RSAKeyPair GenerateKeys(int _keySize)
         {
-            using (RSACryptoServiceProvider rsaProvider = new RSACryptoServiceProvider(KeySize))
+            using (RSACryptoServiceProvider rsaProvider = new RSACryptoServiceProvider(_keySize))
             {
-                RSAParameters publicKey = rsaProvider.ExportParameters(false);
-                File.WriteAllText("public_key.xml", SerializeKey(publicKey));
+                RSAKeyPair newKeyPair = new RSAKeyPair();
+                newKeyPair.PublicKey = SerializeKey(rsaProvider.ExportParameters(false));
+                newKeyPair.PrivateKey = SerializeKey(rsaProvider.ExportParameters(true));
 
-                RSAParameters privateKey = rsaProvider.ExportParameters(true);
-                File.WriteAllText("private_key.xml", SerializeKey(privateKey));
+                return newKeyPair;
             }
         }
 

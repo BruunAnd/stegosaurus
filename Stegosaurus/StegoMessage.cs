@@ -3,27 +3,26 @@ using System.Collections.Generic;
 using System.IO;
 using Stegosaurus.Utility.Extensions;
 using Stegosaurus.Cryptography;
-using Stegosaurus.Utility;
-using System.Linq;
-using System.Windows.Forms;
 
 namespace Stegosaurus
 {
-    [Flags]
-    public enum StegoMessageFlags
-    {
-        Encoded = 0x1,
-        Compressed = 0x2,
-        Encrypted = 0x4,
-        Signed = 0x8,
-    }
-
     public class StegoMessage
     {
+        [Flags]
+        public enum StegoMessageFlags
+        {
+            Encoded = 0x1,
+            Compressed = 0x2,
+            Encrypted = 0x4,
+            Signed = 0x8,
+        }
+
         public string TextMessage { get; set; }
         public List<InputFile> InputFiles { get; } = new List<InputFile>();
 
-        private StegoMessageFlags flags;
+        public StegoMessageFlags Flags;
+
+        public string PrivateSigningKey { get; set; }
 
         public StegoMessage()
         {
@@ -38,25 +37,25 @@ namespace Stegosaurus
         {
             using (MemoryStream inputStream = new MemoryStream(_fromArray))
             {
-                flags = (StegoMessageFlags) inputStream.ReadByte();
+                Flags = (StegoMessageFlags) inputStream.ReadByte();
 
                 // Read encoded data
-                byte[] encodedData = inputStream.ReadBytes(_fromArray.Length - sizeof(byte));
+                byte[] encodedData = inputStream.ReadBytes();
 
                 // Decrypt if a key is specified
-                if (flags.HasFlag(StegoMessageFlags.Encrypted) && _cryptoProvider != null)
+                if (Flags.HasFlag(StegoMessageFlags.Encrypted) && _cryptoProvider != null)
                 {
                     encodedData = _cryptoProvider.Decrypt(encodedData);
                 }
 
                 // Decompress the array
-                if (flags.HasFlag(StegoMessageFlags.Compressed))
+                if (Flags.HasFlag(StegoMessageFlags.Compressed))
                 {
                     encodedData = Ionic.Zlib.ZlibStream.UncompressBuffer(encodedData);
                 }
 
                 // Decode array
-                if (flags.HasFlag(StegoMessageFlags.Encoded))
+                if (Flags.HasFlag(StegoMessageFlags.Encoded))
                 {
                     Decode(encodedData);
                 }
@@ -70,7 +69,9 @@ namespace Stegosaurus
                 // Read input files
                 int numberOfFiles = tempStream.ReadInt();
                 for (int i = 0; i < numberOfFiles; i++)
+                {
                     InputFiles.Add(tempStream.ReadInputFile());
+                }
 
                 // Read text message
                 TextMessage = tempStream.ReadString();
@@ -84,7 +85,9 @@ namespace Stegosaurus
                 // Write input files
                 tempStream.Write(InputFiles.Count);
                 foreach (InputFile inputFile in InputFiles)
+                {
                     tempStream.Write(inputFile);
+                }
 
                 // Write text message
                 tempStream.Write(TextMessage);
@@ -117,7 +120,7 @@ namespace Stegosaurus
             }
 
             // Encrypt if key is specified
-            if (_cryptoProvider != null)
+            if (_cryptoProvider != null && !string.IsNullOrEmpty(_cryptoProvider.CryptoKey))
             {
                 encodedData = _cryptoProvider.Encrypt(encodedData);
                 SetFlag(StegoMessageFlags.Encrypted, true);
@@ -127,20 +130,35 @@ namespace Stegosaurus
                 SetFlag(StegoMessageFlags.Encrypted, false);
             }
 
-            // Combine array and length header
-            List<byte> returnList = new List<byte>();
-            returnList.AddRange(BitConverter.GetBytes(encodedData.Length + sizeof(byte)));
-            returnList.Add((byte)flags);
-            returnList.AddRange(encodedData);
+            // Combine all the data using a MemoryStream
+            using (MemoryStream tempStream = new MemoryStream())
+            {
+                // Do not write at the beginning of the stream
+                // Allocate some space for the int that contains size
+                tempStream.Seek(sizeof(int), SeekOrigin.Begin);
+                tempStream.WriteByte((byte) Flags);
+                tempStream.Write(encodedData, true);
+                if (!string.IsNullOrEmpty(PrivateSigningKey))
+                {
+                    // TODO add signing stuff here
+                    SetFlag(StegoMessageFlags.Signed, true);    
+                }
 
-            return returnList.ToArray();
+                // Go back to beginning of stream and write length
+                tempStream.Seek(0, SeekOrigin.Begin);
+                tempStream.Write((int)tempStream.Length - sizeof(int));
+
+                return tempStream.ToArray();
+            }
         }
 
         private void SetFlag(StegoMessageFlags _flag, bool _state)
         {
-            if (_state != flags.HasFlag(_flag))
+            // Check if current flag state does not equal wanted state
+            if (_state != Flags.HasFlag(_flag))
             {
-                flags ^= _flag;
+                // Flip state
+                Flags ^= _flag;
             }
         }
 

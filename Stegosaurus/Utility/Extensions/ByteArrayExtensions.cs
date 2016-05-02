@@ -1,4 +1,6 @@
-﻿namespace Stegosaurus.Utility.Extensions
+﻿using System.Security.Cryptography;
+
+namespace Stegosaurus.Utility.Extensions
 {
     public static class ByteArrayExtensions
     {
@@ -6,10 +8,18 @@
         {
             int hash = 17;
 
-            foreach (char value in _array)
-                hash = hash * 23 + value.GetHashCode();
+            foreach (byte value in _array)
+                hash = hash * 23 + value;
 
             return hash;
+        }
+
+        public static byte[] ComputeSHAHash(this byte[] _array)
+        {
+            using (SHA1Managed sha = new SHA1Managed())
+            {
+                return sha.ComputeHash(_array);
+            }
         }
     }
 }

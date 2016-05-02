@@ -17,6 +17,14 @@ namespace Stegosaurus.Utility.Extensions
         }
 
         /// <summary>
+        /// Reads bytes with unknown length
+        /// </summary>
+        public static byte[] ReadBytes(this Stream _stream)
+        {
+            return _stream.ReadBytes(_stream.ReadInt());
+        }
+
+        /// <summary>
         /// Read and return int from stream
         /// </summary>
         public static int ReadInt(this Stream _stream)
@@ -55,8 +63,12 @@ namespace Stegosaurus.Utility.Extensions
         /// <summary>
         /// Write buffer to stream
         /// </summary>
-        public static void Write(this Stream _stream, byte[] _buffer)
+        public static void Write(this Stream _stream, byte[] _buffer, bool writeLength = false)
         {
+            if (writeLength)
+            {
+                _stream.Write(_buffer.Length);
+            }
             _stream.Write(_buffer, 0, _buffer.Length);
         }
 
@@ -104,6 +116,14 @@ namespace Stegosaurus.Utility.Extensions
             // Write content with length
             _stream.Write(_value.Content.Length);
             _stream.Write(_value.Content);
+        }
+
+        /// <summary>
+        /// Returns the remaining length of the stream
+        /// </summary>
+        public static long GetRemainingLength(this Stream _stream)
+        {
+            return _stream.Length - _stream.Position;
         }
     }
 }

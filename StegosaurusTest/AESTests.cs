@@ -21,7 +21,7 @@ namespace StegosaurusTest
             byte[] encryptedArray = AESCryptation.Encrypt(input);
 
             // Tests if the encrypted array is not the same as the inout array
-            Assert.AreEqual(encryptedArray.SequenceEqual(input), false);
+            Assert.IsFalse(encryptedArray.SequenceEqual(input));
         }
 
         [TestMethod]
@@ -32,7 +32,7 @@ namespace StegosaurusTest
             byte[] decryptedArray = AESCryptation.Decrypt(AESCryptation.Encrypt(input));
 
             //Tests if the decrypted array is the same as input array
-            Assert.AreEqual(decryptedArray.SequenceEqual(input), true);
+            Assert.IsTrue(decryptedArray.SequenceEqual(input));
         }
     }
 }

@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace Stegosaurus.Utility.InputTypes
+﻿namespace Stegosaurus.Utility.InputTypes
 {
     public class ContentType : IInputType
     {

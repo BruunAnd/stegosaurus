@@ -1,8 +1,6 @@
-﻿using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Stegosaurus;
 using System.Linq;
-using System.Diagnostics;
 
 namespace StegosaurusTest
 {
@@ -36,7 +34,7 @@ namespace StegosaurusTest
             byte[] expectedOutput = { 32, 0, 0, 0, 1, 1, 0, 0, 0, 7, 0, 0, 0, 109, 97, 116, 46, 112,
                                       110, 103, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0 };
 
-            Assert.AreEqual(stegoMessage.ToByteArray().SequenceEqual(expectedOutput), true);
+            Assert.IsTrue(stegoMessage.ToByteArray().SequenceEqual(expectedOutput));
         }
     }
 }

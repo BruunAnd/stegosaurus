@@ -7,10 +7,8 @@ using Stegosaurus.Utility.InputTypes;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Data;
 using System.Drawing;
 using System.IO;
-using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using Stegosaurus.Cryptography;
@@ -19,8 +17,8 @@ namespace Stegosaurus.Forms
 {
     public partial class FormMain : Form
     {
-        private Dictionary<string, IStegoAlgorithm> algorithmDictionary = new Dictionary<string, IStegoAlgorithm>();
-        private Dictionary<string, ICryptoProvider> cryptoProviderDictionary = new Dictionary<string, ICryptoProvider>();
+        private readonly Dictionary<string, IStegoAlgorithm> algorithmDictionary = new Dictionary<string, IStegoAlgorithm>();
+        private readonly Dictionary<string, ICryptoProvider> cryptoProviderDictionary = new Dictionary<string, ICryptoProvider>();
 
         private StegoMessage stegoMessage = new StegoMessage();
         private ICarrierMedia carrierMedia;
@@ -45,6 +43,7 @@ namespace Stegosaurus.Forms
             // Add crypto providers
             AddCryptoProvider(typeof(AESProvider));
             AddCryptoProvider(typeof(TripleDESProvider));
+            AddCryptoProvider(typeof(RSAProvider));
 
             // Set default values
             comboBoxAlgorithmSelection.SelectedIndex = 0;
@@ -63,39 +62,39 @@ namespace Stegosaurus.Forms
         }
 
         /// <summary>
-        /// Gets the paths of the dropped files and converts the first to CarrierType and calls InputHelper.
+        /// Gets the paths of the dropped files and converts the first to CarrierType and calls HandleInput.
         /// TODO: Implement chack for multiple dropped files and show apropriate error.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void panelCarrierMedia_DragDrop(object sender, DragEventArgs e)
         {
-            string[] inputFile = (string[]) e.Data.GetData(DataFormats.FileDrop);
-            if (inputFile.Length == 1)
+            string[] inputFiles = (string[]) e.Data.GetData(DataFormats.FileDrop);
+            if (inputFiles.Length == 1)
             {
                 try
                 {
-                    IInputType inputContent = new CarrierType(inputFile[0]);
-                    InputHelper(inputContent);
+                    IInputType inputContent = new CarrierType(inputFiles[0]);
+                    HandleInput(inputContent);
                 }
                 catch (ArgumentNullException ex)
                 {
-                    MessageBox.Show(ex.Message);
+                    ShowError(ex.Message, "Unknown error");
                 }
-                catch (InvalidWaveFileException ex)
+                catch (InvalidFileException ex)
                 {
-                    MessageBox.Show(ex.Message);
-                }
-                catch (OutOfMemoryException)
-                {
-                    MessageBox.Show("Invalid file type. Carrier must be picture or .wav audio file.");
+                    ShowError(ex.Message, "Invalid file");
                 }
             }
             else
             {
-                MessageBox.Show("Cannot have multiple carrier medias.", "Error");
+                ShowError("Cannot have multiple carrier media.");
             }
+        }
 
+        private void ShowError(string message, string title = "Error")
+        {
+            MessageBox.Show(message, title, MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
 
         /// <summary>
@@ -111,7 +110,7 @@ namespace Stegosaurus.Forms
             if (result != DialogResult.OK)
                 return;
 
-           InputHelper(new CarrierType(openFileDialogBrowseInput.FileName));
+           HandleInput(new CarrierType(openFileDialogBrowseInput.FileName));
         }
 
         #endregion
@@ -160,7 +159,7 @@ namespace Stegosaurus.Forms
         }
 
         /// <summary>
-        /// Gets the file paths of all dropped files, converts them to the ContentType and calls the InputHelper to handle them further.
+        /// Gets the file paths of all dropped files, converts them to the ContentType and calls the HandleInput to handle them further.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -170,7 +169,7 @@ namespace Stegosaurus.Forms
 
             foreach (string filePath in inputFiles)
             {
-                InputHelper(new ContentType(filePath));
+                HandleInput(new ContentType(filePath));
             }
 
             listViewMessageContentFiles.BackColor = Color.White;
@@ -191,7 +190,7 @@ namespace Stegosaurus.Forms
 
             foreach (string fileName in openFileDialogBrowseInput.FileNames)
             {
-                InputHelper(new ContentType(fileName));
+                HandleInput(new ContentType(fileName));
             }
         }
         
@@ -216,12 +215,12 @@ namespace Stegosaurus.Forms
         private void saveToolStripMenuItem_Click(object sender, EventArgs e)
         {
             int[] fileIndices = GetSelectedContentIndices();
-            int len = fileIndices.Length;
-            if (len == 0)
+            int selectedCount = fileIndices.Length;
+            if (selectedCount == 0)
             {
-                MessageBox.Show("You must have items selected to save.", "Save Error");
+                ShowError("You must have items selected to save.", "Save error");
             }
-            if (len == 1)
+            else if (selectedCount == 1)
             {
                 saveFileDialog.FileName = stegoMessage.InputFiles[fileIndices[0]].Name;
 
@@ -230,7 +229,7 @@ namespace Stegosaurus.Forms
 
                 if (saveFileDialog.FileName == "")
                 {
-                    MessageBox.Show("The chosen destination cannot be blank.", "Save Error");
+                    ShowError("The chosen destination cannot be blank.", "Save error");
                 }
                 else
                 {
@@ -242,7 +241,7 @@ namespace Stegosaurus.Forms
                 if (folderBrowserDialog.ShowDialog() != DialogResult.OK)
                     return;
 
-                if (folderBrowserDialog.SelectedPath == "")
+                if (string.IsNullOrEmpty(folderBrowserDialog.SelectedPath))
                 {
                     MessageBox.Show("The chosen destination cannot be blank.", "Save Error");
                 }
@@ -250,7 +249,17 @@ namespace Stegosaurus.Forms
                 {
                     foreach (int index in fileIndices)
                     {
-                        stegoMessage.InputFiles[fileIndices[index]].SaveTo($"{folderBrowserDialog.SelectedPath}\\{stegoMessage.InputFiles[fileIndices[index]].Name}");
+                        string fileName = stegoMessage.InputFiles[fileIndices[index]].Name;
+                        string saveDestination = Path.Combine(folderBrowserDialog.SelectedPath, fileName);
+
+                        // Ask to overwrite if file exists
+                        if (File.Exists(saveDestination))
+                        {
+                            if (MessageBox.Show($"The file {fileName} already exists. Do you want to overwrite it?", "File already exists", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question) != DialogResult.Yes)
+                                continue;
+                        }
+
+                        stegoMessage.InputFiles[fileIndices[index]].SaveTo(saveDestination);
                     }
                 }
             }
@@ -293,9 +302,9 @@ namespace Stegosaurus.Forms
         /// </summary>
         private void AddCryptoProvider(Type cryptoProviderType)
         {
-            ICryptoProvider cryptoProvider = (ICryptoProvider) Activator.CreateInstance(cryptoProviderType);
-            cryptoProviderDictionary.Add(cryptoProvider.Name, cryptoProvider);
-            comboBoxCryptoProviderSelection.Items.Add(cryptoProvider.Name);
+            ICryptoProvider newCryptoProvider = (ICryptoProvider) Activator.CreateInstance(cryptoProviderType);
+            cryptoProviderDictionary.Add(newCryptoProvider.Name, newCryptoProvider);
+            comboBoxCryptoProviderSelection.Items.Add(newCryptoProvider.Name);
         }
 
         /// <summary>
@@ -311,7 +320,7 @@ namespace Stegosaurus.Forms
             algorithm.CryptoProvider = cryptoProvider;
         }
 
-        //TODO: Implement Key size limit for textboxEncryptionKey.
+        //TODO: Implement Key size limit for textboxEncryptionKey (REMEMBER rsa uses XML keys)
         #endregion
 
         #region Steganography Handling
@@ -362,12 +371,21 @@ namespace Stegosaurus.Forms
             {
                 try
                 {
+                    if (string.IsNullOrEmpty(textBoxEncryptionKey.Text))
+                    {
+                        if (MessageBox.Show("You are about to embed without using an encryption key. Do you want to continue?", "Warning", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Warning) != DialogResult.Yes)
+                        {
+                            textBoxEncryptionKey.Focus();
+                            return;
+                        }
+                    }
+
                     Embed();
-                    MessageBox.Show("Message was succesfully embedded.", "Success", MessageBoxButtons.OK);
+                    MessageBox.Show("Message was succesfully embedded.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
                 catch (StegoAlgorithmException ex)
                 {
-                    MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    ShowError(ex.Message);
                 }
             }
             else
@@ -375,11 +393,11 @@ namespace Stegosaurus.Forms
                 try
                 {
                     Extract();
-                    MessageBox.Show("Message was succesfully extracted.", "Success", MessageBoxButtons.OK);
+                    MessageBox.Show("Message was succesfully extracted.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
                 catch (StegoAlgorithmException ex)
                 {
-                    MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    ShowError(ex.Message);
                 }
             }
         }
@@ -423,10 +441,10 @@ namespace Stegosaurus.Forms
         #endregion
         
         /// <summary>
-        /// Gets and IInputType with a file path. Checks the type of the input and handles it accordingly.
+        /// Gets an IInputType with a file path. Checks the type of the input and handles it accordingly.
         /// </summary>
         /// <param name="_input"></param>
-        private void InputHelper(IInputType _input)
+        private void HandleInput(IInputType _input)
         {
             InputFile inputFile = new InputFile(_input.FilePath);
             FileInfo fileInfo = new FileInfo(_input.FilePath);
@@ -500,8 +518,36 @@ namespace Stegosaurus.Forms
             }
             progressBarCapacity.Value = (int) ratio;
         }
-        
 
-        
+        private void buttonGenerate_Click(object sender, EventArgs e)
+        {
+            RSAKeyPair keyPair = RSAProvider.GenerateKeys(2048);
+            ShowSaveDialog("Save public key to...", "public_key", "XML File (*.xml)|*.xml", Encoding.UTF8.GetBytes(keyPair.PublicKey));
+            ShowSaveDialog("Save private key to...", "private_key", "XML File (*.xml)|*.xml", Encoding.UTF8.GetBytes(keyPair.PrivateKey));
+        }
+
+        private void ShowSaveDialog(string title, string suggestedName, string filter, byte[] content)
+        {
+            SaveFileDialog sfd = new SaveFileDialog();
+            sfd.FileName = suggestedName;
+            sfd.Title = title;
+            sfd.Filter = filter;
+
+            if (sfd.ShowDialog() != DialogResult.OK)
+                return;
+
+            File.WriteAllBytes(sfd.FileName, content);  
+        }
+
+        private void buttonImportKey_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog ofd = new OpenFileDialog();
+            ofd.Filter = "XML files (*.xml)|*.xml|All files (*.*)|*.*";
+
+            if (ofd.ShowDialog() != DialogResult.OK)
+                return;
+
+            textBoxEncryptionKey.Text = File.ReadAllText(ofd.FileName);
+        }
     }
 }

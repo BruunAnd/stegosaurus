@@ -1,12 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
 
 namespace Stegosaurus.Carrier.AudioFormats
 {
-    abstract class AudioFile
+    public abstract class AudioFile
     {
         public short NumberOfChannels { get; protected set; }
         public int SampleRate { get; protected set; }

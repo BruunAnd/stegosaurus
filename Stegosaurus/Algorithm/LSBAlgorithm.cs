@@ -6,8 +6,6 @@ using Stegosaurus.Exceptions;
 using Stegosaurus.Utility;
 using System.Collections.Generic;
 using Stegosaurus.Cryptography;
-using Stegosaurus.Utility.Extensions;
-using System.IO;
 
 namespace Stegosaurus.Algorithm
 {
@@ -20,7 +18,7 @@ namespace Stegosaurus.Algorithm
 
         public string Name => "LSB Algorithm";
 
-        public int Seed => CryptoProvider != null ? CryptoProvider.Seed : 0;
+        public int Seed => CryptoProvider?.Seed ?? 0;
 
         public void Embed(StegoMessage _message)
         {
@@ -67,17 +65,17 @@ namespace Stegosaurus.Algorithm
             return (CarrierMedia.ByteArray.Length / 8 ) - LsbSignature.Length;
         }
 
-        private byte[] ReadBytes(IEnumerable<int> numberList, int count)
+        private byte[] ReadBytes(IEnumerable<int> _numberList, int _count)
         {
             // Allocate BitArray with count * 8 bits
-            BitArray tempBitArray = new BitArray(count * 8);
+            BitArray tempBitArray = new BitArray(_count * 8);
 
             // Iterate through the allocated amount of bits
             for (int i = 0; i < tempBitArray.Length; i++)
-                tempBitArray[i] = (CarrierMedia.ByteArray[numberList.First()] & 0x1) == 0x1;
+                tempBitArray[i] = (CarrierMedia.ByteArray[_numberList.First()] & 0x1) == 0x1;
 
             // Copy bitArray to new byteArray
-            byte[] tempByteArray = new byte[count];
+            byte[] tempByteArray = new byte[_count];
             tempBitArray.CopyTo(tempByteArray, 0);
 
             return tempByteArray;

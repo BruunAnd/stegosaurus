@@ -68,6 +68,7 @@
     <Compile Include="Carrier\ImageCarrier.cs" />
     <Compile Include="Cryptography\AESProvider.cs" />
     <Compile Include="Cryptography\ICryptoProvider.cs" />
+    <Compile Include="Cryptography\RSAKeyPair.cs" />
     <Compile Include="Cryptography\RSAProvider.cs" />
     <Compile Include="Cryptography\TripleDESProvider.cs" />
     <Compile Include="Exceptions\InvalidFileException.cs" />

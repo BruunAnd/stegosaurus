@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace Stegosaurus.Exceptions
+﻿namespace Stegosaurus.Exceptions
 {
     public class InvalidImageFileException : InvalidFileException
     {
