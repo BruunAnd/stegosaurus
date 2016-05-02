@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Runtime.InteropServices;
+using System.Windows.Forms;
 
 namespace Stegosaurus.Carrier
 {
@@ -23,10 +24,12 @@ namespace Stegosaurus.Carrier
         public ImageCarrier(Image _innerImage)
         {
             if (_innerImage == null)
+            {
                 throw new ArgumentNullException("Invalid input image in ImageCarrier.\n");
+            }
 
             // Clone image or convert to PNG
-            if (Equals(_innerImage.RawFormat, ImageFormat.Png))
+            if (_innerImage.RawFormat.Equals(ImageFormat.Png) && _innerImage.PixelFormat == PixelFormat.Format24bppRgb)
             {
                 innerImage = (Bitmap) _innerImage.Clone();
             }

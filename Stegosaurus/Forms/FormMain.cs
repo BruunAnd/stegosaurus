@@ -316,7 +316,7 @@ namespace Stegosaurus.Forms
         {
             cryptoProvider = cryptoProviderDictionary[comboBoxCryptoProviderSelection.Text];
             textBoxEncryptionKey.MaxLength = cryptoProvider.KeySize / 8;
-            textBoxEncryptionKey.Text = textBoxEncryptionKey.Text.Remove(cryptoProvider.KeySize / 8);
+            //textBoxEncryptionKey.Text = textBoxEncryptionKey.Text.Remove(cryptoProvider.KeySize / 8);
             cryptoProvider.CryptoKey = textBoxEncryptionKey.Text;
             algorithm.CryptoProvider = cryptoProvider;
         }
