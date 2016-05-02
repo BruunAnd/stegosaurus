@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using Stegosaurus.Utility.Extensions;
 using Stegosaurus.Cryptography;
+using System.Linq;
+using Stegosaurus.Exceptions;
 
 namespace Stegosaurus
 {
@@ -41,6 +43,13 @@ namespace Stegosaurus
 
                 // Read encoded data
                 byte[] encodedData = inputStream.ReadBytes();
+                byte[] hash = inputStream.ReadBytes();
+
+                // Verify hash of encoded data
+                if (!encodedData.ComputeSHAHash().SequenceEqual(hash))
+                {
+                    throw new StegoMessageException("Hash does not match.");
+                }
 
                 // Decrypt if a key is specified
                 if (Flags.HasFlag(StegoMessageFlags.Encrypted) && _cryptoProvider != null)
@@ -120,7 +129,7 @@ namespace Stegosaurus
             }
 
             // Encrypt if key is specified
-            if (_cryptoProvider != null && !string.IsNullOrEmpty(_cryptoProvider.CryptoKey))
+            if (_cryptoProvider != null && _cryptoProvider.Key != null)
             {
                 encodedData = _cryptoProvider.Encrypt(encodedData);
                 SetFlag(StegoMessageFlags.Encrypted, true);
@@ -138,6 +147,7 @@ namespace Stegosaurus
                 tempStream.Seek(sizeof(int), SeekOrigin.Begin);
                 tempStream.WriteByte((byte) Flags);
                 tempStream.Write(encodedData, true);
+                tempStream.Write(encodedData.ComputeSHAHash(), true);
                 if (!string.IsNullOrEmpty(PrivateSigningKey))
                 {
                     // TODO add signing stuff here

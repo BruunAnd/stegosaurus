@@ -13,14 +13,13 @@ namespace Stegosaurus.Carrier.AudioFormats
         private static readonly byte[] RiffHeader = {82, 73, 70, 70};
         private static readonly byte[] FormatHeader = { 87, 65, 86, 69, 102, 109, 116, 32 };
         private static readonly byte[] DataHeader = { 100, 97, 116, 97 };
-        private static readonly byte[] FactHeader = {66, 61, 63, 74};
+        private static readonly byte[] FactHeader = { 102, 97, 99, 116 };
 
         // Wave-specific properties
         public int ChunkSize { get; private set; }
         public int FormatSubChunkSize { get; private set; }
         public int DataSubChunkSize { get; private set; }
         public short AudioFormat { get; private set; }
-        public byte[] ExtraParameters { get; private set; }
 
         public WaveFile(string _filePath) : base(_filePath)
         {
@@ -47,6 +46,10 @@ namespace Stegosaurus.Carrier.AudioFormats
 
                 // Read sub chunk size
                 FormatSubChunkSize = fileStream.ReadInt();
+                if (FormatSubChunkSize > 16)
+                {
+                    throw new InvalidWaveFileException("Non-PCM files are not supported.", _filePath);
+                }
 
                 // Read audio format
                 AudioFormat = fileStream.ReadShort();
@@ -65,19 +68,6 @@ namespace Stegosaurus.Carrier.AudioFormats
 
                 // Read bits per sample
                 BitsPerSample = fileStream.ReadShort();
-
-                // Read extra parameters if subchunksize exceeds 16
-                Console.WriteLine("Position: {0}", fileStream.Position);
-                if (FormatSubChunkSize > 16)
-                {
-                    // Check if fact header is correct
-                    if (!fileStream.ReadBytes(FactHeader.Length).SequenceEqual(FactHeader))
-                    {
-                        throw new InvalidWaveFileException("Could not read FACT header.", _filePath);
-                    }
-                    Console.WriteLine("Size: {0}", FormatSubChunkSize);
-                    ExtraParameters = fileStream.ReadBytes(fileStream.ReadShort());
-                }
 
                 // Checks if data header is correct
                 if (!fileStream.ReadBytes(DataHeader.Length).SequenceEqual(DataHeader))
@@ -108,11 +98,6 @@ namespace Stegosaurus.Carrier.AudioFormats
                 tempStream.Write(ByteRate);
                 tempStream.Write(BlockAlign);
                 tempStream.Write(BitsPerSample);
-                if (ExtraParameters != null)
-                {
-                    tempStream.Write((short)ExtraParameters.Length);
-                    tempStream.Write(ExtraParameters);
-                }
 
                 // Write data
                 tempStream.Write(DataHeader);

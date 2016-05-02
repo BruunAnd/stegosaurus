@@ -44,14 +44,12 @@ namespace Stegosaurus.Forms
             this.labelTextMesage = new System.Windows.Forms.Label();
             this.buttonActivateSteganography = new System.Windows.Forms.Button();
             this.labelEncryptionKey = new System.Windows.Forms.Label();
-            this.openFileDialogBrowseInput = new System.Windows.Forms.OpenFileDialog();
             this.pictureBoxCarrier = new System.Windows.Forms.PictureBox();
             this.progressBarCapacity = new System.Windows.Forms.ProgressBar();
             this.panel1 = new System.Windows.Forms.Panel();
             this.labelCarrierMedia = new System.Windows.Forms.Label();
             this.labelAlgorithmList = new System.Windows.Forms.Label();
             this.comboBoxAlgorithmSelection = new System.Windows.Forms.ComboBox();
-            this.saveFileDialog = new System.Windows.Forms.SaveFileDialog();
             this.folderBrowserDialog = new System.Windows.Forms.FolderBrowserDialog();
             this.labelStorageRatio = new System.Windows.Forms.Label();
             this.labelCapacityWarning = new System.Windows.Forms.Label();
@@ -122,20 +120,20 @@ namespace Stegosaurus.Forms
             this.saveToolStripMenuItem,
             this.deleteToolStripMenuItem});
             this.contextMenuStripMain.Name = "contextMenuStrip1";
-            this.contextMenuStripMain.Size = new System.Drawing.Size(123, 52);
+            this.contextMenuStripMain.Size = new System.Drawing.Size(129, 56);
             this.contextMenuStripMain.Opening += new System.ComponentModel.CancelEventHandler(this.contextMenuStripMain_Opening);
             // 
             // saveToolStripMenuItem
             // 
             this.saveToolStripMenuItem.Name = "saveToolStripMenuItem";
-            this.saveToolStripMenuItem.Size = new System.Drawing.Size(122, 24);
+            this.saveToolStripMenuItem.Size = new System.Drawing.Size(128, 26);
             this.saveToolStripMenuItem.Text = "Save";
             this.saveToolStripMenuItem.Click += new System.EventHandler(this.saveToolStripMenuItem_Click);
             // 
             // deleteToolStripMenuItem
             // 
             this.deleteToolStripMenuItem.Name = "deleteToolStripMenuItem";
-            this.deleteToolStripMenuItem.Size = new System.Drawing.Size(122, 24);
+            this.deleteToolStripMenuItem.Size = new System.Drawing.Size(128, 26);
             this.deleteToolStripMenuItem.Text = "Delete";
             this.deleteToolStripMenuItem.Click += new System.EventHandler(this.deleteToolStripMenuItem_Click);
             // 
@@ -160,7 +158,7 @@ namespace Stegosaurus.Forms
             // 
             this.labelInputFiles.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.labelInputFiles.AutoSize = true;
-            this.labelInputFiles.Location = new System.Drawing.Point(310, 7);
+            this.labelInputFiles.Location = new System.Drawing.Point(306, 7);
             this.labelInputFiles.Name = "labelInputFiles";
             this.labelInputFiles.Size = new System.Drawing.Size(141, 19);
             this.labelInputFiles.TabIndex = 5;
@@ -170,7 +168,7 @@ namespace Stegosaurus.Forms
             // 
             this.labelTextMesage.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.labelTextMesage.AutoSize = true;
-            this.labelTextMesage.Location = new System.Drawing.Point(310, 215);
+            this.labelTextMesage.Location = new System.Drawing.Point(306, 215);
             this.labelTextMesage.Name = "labelTextMesage";
             this.labelTextMesage.Size = new System.Drawing.Size(90, 19);
             this.labelTextMesage.TabIndex = 8;
@@ -191,15 +189,11 @@ namespace Stegosaurus.Forms
             // 
             this.labelEncryptionKey.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.labelEncryptionKey.AutoSize = true;
-            this.labelEncryptionKey.Location = new System.Drawing.Point(310, 305);
+            this.labelEncryptionKey.Location = new System.Drawing.Point(306, 299);
             this.labelEncryptionKey.Name = "labelEncryptionKey";
             this.labelEncryptionKey.Size = new System.Drawing.Size(31, 19);
             this.labelEncryptionKey.TabIndex = 11;
             this.labelEncryptionKey.Text = "Key";
-            // 
-            // openFileDialogBrowseInput
-            // 
-            this.openFileDialogBrowseInput.Multiselect = true;
             // 
             // pictureBoxCarrier
             // 
@@ -240,7 +234,7 @@ namespace Stegosaurus.Forms
             // 
             this.labelCarrierMedia.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.labelCarrierMedia.AutoSize = true;
-            this.labelCarrierMedia.Location = new System.Drawing.Point(8, 3);
+            this.labelCarrierMedia.Location = new System.Drawing.Point(6, 3);
             this.labelCarrierMedia.Name = "labelCarrierMedia";
             this.labelCarrierMedia.Size = new System.Drawing.Size(92, 19);
             this.labelCarrierMedia.TabIndex = 17;
@@ -261,22 +255,17 @@ namespace Stegosaurus.Forms
             this.comboBoxAlgorithmSelection.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.comboBoxAlgorithmSelection.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.comboBoxAlgorithmSelection.FormattingEnabled = true;
-            this.comboBoxAlgorithmSelection.Location = new System.Drawing.Point(11, 19);
+            this.comboBoxAlgorithmSelection.Location = new System.Drawing.Point(12, 25);
             this.comboBoxAlgorithmSelection.Name = "comboBoxAlgorithmSelection";
             this.comboBoxAlgorithmSelection.Size = new System.Drawing.Size(158, 25);
             this.comboBoxAlgorithmSelection.TabIndex = 19;
             this.comboBoxAlgorithmSelection.SelectedIndexChanged += new System.EventHandler(this.comboBoxAlgorithmSelection_SelectedIndexChanged);
             // 
-            // saveFileDialog
-            // 
-            this.saveFileDialog.InitialDirectory = "Application.StartupPath";
-            this.saveFileDialog.Title = "Save File(s)";
-            // 
             // labelStorageRatio
             // 
             this.labelStorageRatio.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.labelStorageRatio.AutoSize = true;
-            this.labelStorageRatio.Location = new System.Drawing.Point(9, 227);
+            this.labelStorageRatio.Location = new System.Drawing.Point(4, 227);
             this.labelStorageRatio.Name = "labelStorageRatio";
             this.labelStorageRatio.Size = new System.Drawing.Size(91, 19);
             this.labelStorageRatio.TabIndex = 20;
@@ -286,13 +275,13 @@ namespace Stegosaurus.Forms
             // 
             this.labelCapacityWarning.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.labelCapacityWarning.BackColor = System.Drawing.Color.Transparent;
-            this.labelCapacityWarning.Location = new System.Drawing.Point(214, 227);
+            this.labelCapacityWarning.Location = new System.Drawing.Point(117, 227);
             this.labelCapacityWarning.Name = "labelCapacityWarning";
             this.labelCapacityWarning.RightToLeft = System.Windows.Forms.RightToLeft.No;
-            this.labelCapacityWarning.Size = new System.Drawing.Size(78, 19);
+            this.labelCapacityWarning.Size = new System.Drawing.Size(175, 19);
             this.labelCapacityWarning.TabIndex = 23;
-            this.labelCapacityWarning.Text = "##%";
-            this.labelCapacityWarning.TextAlign = System.Drawing.ContentAlignment.TopRight;
+            this.labelCapacityWarning.Text = "N/A";
+            this.labelCapacityWarning.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
             // textBoxTextMessage
             // 
@@ -310,7 +299,7 @@ namespace Stegosaurus.Forms
             // 
             this.labelCryptoProvider.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.labelCryptoProvider.AutoSize = true;
-            this.labelCryptoProvider.Location = new System.Drawing.Point(8, 43);
+            this.labelCryptoProvider.Location = new System.Drawing.Point(8, 53);
             this.labelCryptoProvider.Name = "labelCryptoProvider";
             this.labelCryptoProvider.Size = new System.Drawing.Size(160, 19);
             this.labelCryptoProvider.TabIndex = 25;
@@ -321,7 +310,7 @@ namespace Stegosaurus.Forms
             this.comboBoxCryptoProviderSelection.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.comboBoxCryptoProviderSelection.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.comboBoxCryptoProviderSelection.FormattingEnabled = true;
-            this.comboBoxCryptoProviderSelection.Location = new System.Drawing.Point(11, 59);
+            this.comboBoxCryptoProviderSelection.Location = new System.Drawing.Point(12, 75);
             this.comboBoxCryptoProviderSelection.Name = "comboBoxCryptoProviderSelection";
             this.comboBoxCryptoProviderSelection.Size = new System.Drawing.Size(158, 25);
             this.comboBoxCryptoProviderSelection.TabIndex = 26;
@@ -549,14 +538,12 @@ namespace Stegosaurus.Forms
         private System.Windows.Forms.Label labelTextMesage;
         private System.Windows.Forms.Button buttonActivateSteganography;
         private System.Windows.Forms.Label labelEncryptionKey;
-        private System.Windows.Forms.OpenFileDialog openFileDialogBrowseInput;
         private System.Windows.Forms.PictureBox pictureBoxCarrier;
         private System.Windows.Forms.ProgressBar progressBarCapacity;
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.Label labelCarrierMedia;
         private System.Windows.Forms.Label labelAlgorithmList;
         private System.Windows.Forms.ComboBox comboBoxAlgorithmSelection;
-        private System.Windows.Forms.SaveFileDialog saveFileDialog;
         private System.Windows.Forms.FolderBrowserDialog folderBrowserDialog;
         private System.Windows.Forms.Label labelStorageRatio;
         private System.Windows.Forms.Label labelCapacityWarning;

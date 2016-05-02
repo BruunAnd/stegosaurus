@@ -20,6 +20,8 @@ namespace Stegosaurus.Algorithm
 
         public int Seed => CryptoProvider?.Seed ?? 0;
 
+        private const int SelectedBit = 0x1;
+
         public void Embed(StegoMessage _message)
         {
             // Combine LsbSignature with byteArray and convert to bitArray
@@ -36,11 +38,13 @@ namespace Stegosaurus.Algorithm
                 byte sampleValue = CarrierMedia.ByteArray[byteArrayIndex];
 
                 // Get the least significant bit of current position
-                bool carrierBit = (sampleValue & 0x1) == 0x1;
+                bool carrierBit = (sampleValue & SelectedBit) == SelectedBit;
 
                 // Flip LSB if no match
                 if (carrierBit != messageInBits[index])
-                    CarrierMedia.ByteArray[byteArrayIndex] ^= 0x1;
+                {
+                    CarrierMedia.ByteArray[byteArrayIndex] ^= SelectedBit;
+                }
             }
         }
 
@@ -50,7 +54,9 @@ namespace Stegosaurus.Algorithm
 
             // Read bytes and verify LsbSignature
             if (!ReadBytes(numberList, LsbSignature.Length).SequenceEqual(LsbSignature))
+            {
                 throw new StegoAlgorithmException("LSB Signature is invalid.");
+            }
 
             // Read data size
             int dataSize = BitConverter.ToInt32(ReadBytes(numberList, 4), 0);
@@ -72,7 +78,9 @@ namespace Stegosaurus.Algorithm
 
             // Iterate through the allocated amount of bits
             for (int i = 0; i < tempBitArray.Length; i++)
-                tempBitArray[i] = (CarrierMedia.ByteArray[_numberList.First()] & 0x1) == 0x1;
+            {
+                tempBitArray[i] = (CarrierMedia.ByteArray[_numberList.First()] & SelectedBit) == SelectedBit;
+            }
 
             // Copy bitArray to new byteArray
             byte[] tempByteArray = new byte[_count];

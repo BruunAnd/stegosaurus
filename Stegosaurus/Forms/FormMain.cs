@@ -97,6 +97,11 @@ namespace Stegosaurus.Forms
             MessageBox.Show(message, title, MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
 
+        private void ShowSuccess(string message, string title = "Success")
+        {
+            MessageBox.Show(message, title, MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
         /// <summary>
         /// Opens a dialog where the user can browse for a file to make the carrier media.
         /// </summary>
@@ -104,13 +109,14 @@ namespace Stegosaurus.Forms
         /// <param name="e"></param>
         private void buttonCarrierMediaBrowse_Click(object sender, EventArgs e)
         {
-            openFileDialogBrowseInput.Multiselect = false;
-            DialogResult result = openFileDialogBrowseInput.ShowDialog();
+            OpenFileDialog ofd = new OpenFileDialog();
+            ofd.Multiselect = false;
+            ofd.Filter = "Image files (*.jpg, *.jpeg, *.jpe, *.jfif, *.png, *.gif, *.bmp) | *.jpg; *.jpeg; *.jpe; *.jfif; *.png; *.gif; *.bmp|Audio files (*.wav)|*.wav";
 
-            if (result != DialogResult.OK)
+            if (ofd.ShowDialog() != DialogResult.OK)
                 return;
 
-           HandleInput(new CarrierType(openFileDialogBrowseInput.FileName));
+           HandleInput(new CarrierType(ofd.FileName));
         }
 
         #endregion
@@ -182,13 +188,13 @@ namespace Stegosaurus.Forms
         /// <param name="e"></param>
         private void buttonInputBrowse_Click(object sender, EventArgs e)
         {
-            openFileDialogBrowseInput.Multiselect = true;
-            DialogResult result = openFileDialogBrowseInput.ShowDialog();
+            OpenFileDialog ofd = new OpenFileDialog();
+            ofd.Multiselect = true;
 
-            if (result != DialogResult.OK)
+            if (ofd.ShowDialog() != DialogResult.OK)
                 return;
 
-            foreach (string fileName in openFileDialogBrowseInput.FileNames)
+            foreach (string fileName in ofd.FileNames)
             {
                 HandleInput(new ContentType(fileName));
             }
@@ -222,18 +228,19 @@ namespace Stegosaurus.Forms
             }
             else if (selectedCount == 1)
             {
-                saveFileDialog.FileName = stegoMessage.InputFiles[fileIndices[0]].Name;
+                SaveFileDialog sfd = new SaveFileDialog();
+                sfd.FileName = stegoMessage.InputFiles[fileIndices[0]].Name;
 
-                if (saveFileDialog.ShowDialog() != DialogResult.OK)
+                if (sfd.ShowDialog() != DialogResult.OK)
                     return;
 
-                if (saveFileDialog.FileName == "")
+                if (sfd.FileName == "")
                 {
                     ShowError("The chosen destination cannot be blank.", "Save error");
                 }
                 else
                 {
-                    stegoMessage.InputFiles[fileIndices[0]].SaveTo(saveFileDialog.FileName);
+                    stegoMessage.InputFiles[fileIndices[0]].SaveTo(sfd.FileName);
                 }
             }
             else
@@ -316,8 +323,8 @@ namespace Stegosaurus.Forms
         {
             cryptoProvider = cryptoProviderDictionary[comboBoxCryptoProviderSelection.Text];
             textBoxEncryptionKey.MaxLength = cryptoProvider.KeySize / 8;
-            textBoxEncryptionKey.Text = textBoxEncryptionKey.Text.Remove(cryptoProvider.KeySize / 8);
-            cryptoProvider.CryptoKey = textBoxEncryptionKey.Text;
+            //textBoxEncryptionKey.Text = textBoxEncryptionKey.Text.Remove(cryptoProvider.KeySize / 8);
+            cryptoProvider.SetKey(textBoxEncryptionKey.Text);
             algorithm.CryptoProvider = cryptoProvider;
         }
 
@@ -409,14 +416,15 @@ namespace Stegosaurus.Forms
         private void Extract()
         {
             algorithm.CarrierMedia = carrierMedia;
-            algorithm.CryptoProvider.CryptoKey = textBoxEncryptionKey.Text;
+            algorithm.CryptoProvider.SetKey(textBoxEncryptionKey.Text);
             stegoMessage = algorithm.Extract();
+
             if (stegoMessage.InputFiles.Count != 0)
             {
                 foreach (InputFile file in stegoMessage.InputFiles)
                 {
                     ListViewItem fileItem = new ListViewItem(file.Name);
-                    fileItem.SubItems.Add(FileSizeExtensions.StringFormatBytes(file.Content.LongLength));
+                    fileItem.SubItems.Add(SizeFormatter.StringFormatBytes(file.Content.LongLength));
                     fileItem.ImageKey = file.Name.Substring(file.Name.LastIndexOf('.'));
                     if (!imageListIcons.Images.ContainsKey(fileItem.ImageKey))
                         imageListIcons.Images.Add(fileItem.ImageKey, IconExtractor.ExtractIcon(fileItem.ImageKey));
@@ -435,7 +443,7 @@ namespace Stegosaurus.Forms
         private void Embed()
         {
             algorithm.CarrierMedia = carrierMedia;
-            algorithm.CryptoProvider.CryptoKey = textBoxEncryptionKey.Text;
+            algorithm.CryptoProvider.SetKey(textBoxEncryptionKey.Text);
             algorithm.Embed(stegoMessage);
             algorithm.CarrierMedia.SaveToFile($"Stego-{carrierName}{carrierExtension}");
         }
@@ -453,7 +461,7 @@ namespace Stegosaurus.Forms
             if (_input is ContentType)
             {
                 ListViewItem fileItem = new ListViewItem(inputFile.Name);
-                fileItem.SubItems.Add(FileSizeExtensions.StringFormatBytes(fileInfo.Length));
+                fileItem.SubItems.Add(SizeFormatter.StringFormatBytes(fileInfo.Length));
                 fileItem.ImageKey = fileInfo.Extension;
                 if (!imageListIcons.Images.ContainsKey(fileItem.ImageKey))
                     imageListIcons.Images.Add(fileItem.ImageKey, Icon.ExtractAssociatedIcon(_input.FilePath));
@@ -487,37 +495,41 @@ namespace Stegosaurus.Forms
         /// </summary>
         private void UpdateCapacityBar()
         {
-            decimal ratio, max = progressBarCapacity.Maximum;
             long size = stegoMessage.GetCompressedSize();
-            if (carrierMedia != null)
+            if (carrierMedia == null)
             {
-                algorithm.CarrierMedia = carrierMedia;
-                long capacity = algorithm.ComputeBandwidth();
-                if (capacity >= size)
-                {
-                    ratio = 100 * ((decimal) size / capacity);
-                }
-                else
-                {
-                    ratio = max;
-                }
+                progressBarCapacity.Value = progressBarCapacity.Maximum;
+                labelCapacityWarning.Text = "N/A";
+                labelCapacityWarning.ForeColor = Color.Black;
+                return;
             }
-            else
-            {
-                ratio = max;
-            }
-            if (ratio == max)
-            {
-                labelCapacityWarning.Text = $"< 100%";
-                labelCapacityWarning.ForeColor = Color.Red;
-            }
-            else
-            {
 
-                labelCapacityWarning.Text = $"{ratio :.##}%";
-                labelCapacityWarning.ForeColor = SystemColors.ControlText;
+            // Calculate capacity, size and ratio of those
+            algorithm.CarrierMedia = carrierMedia;
+            long capacity = algorithm.ComputeBandwidth();
+            double ratio = 100 * ((double) size / capacity);
+
+            // Update progressbar
+            progressBarCapacity.Value = size > capacity ? progressBarCapacity.Maximum : (int) ratio;
+
+            // Update label
+            labelCapacityWarning.Text = $"{ratio:#.##}% ({SizeFormatter.StringFormatBytes(size)}/{SizeFormatter.StringFormatBytes(capacity)})";
+            labelCapacityWarning.ForeColor = size > capacity ? Color.Red : Color.Green;
+        }
+
+        private static string StringFormatBytes(long byteCount)
+        {
+            string[] suffixes = { "B", "KiB", "MiB", "GiB", "TiB", "PiB", "EiB", "ZiB" };
+            int logIndex = 0;
+            const int order = 1024;
+            decimal decByteCount = byteCount;
+
+            for (logIndex = 0; decByteCount >= order || decByteCount <= -order; logIndex++)
+            {
+                decByteCount /= order;
             }
-            progressBarCapacity.Value = (int) ratio;
+
+            return $"{decByteCount:0.##} {suffixes[logIndex]}";
         }
 
         private void buttonGenerate_Click(object sender, EventArgs e)
