@@ -24,7 +24,7 @@ namespace StegosaurusTest
             new Random().NextBytes(testFileBuffer);
 
             ICryptoProvider cryptoProvider = new AESProvider();
-            cryptoProvider.CryptoKey = testKey;
+            cryptoProvider.SetKey(testKey);
 
             // Test requires a cover file
             if (File.Exists(coverFile))

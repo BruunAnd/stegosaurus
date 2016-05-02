@@ -3,16 +3,18 @@ using System.Security.Cryptography;
 using Stegosaurus.Utility.Extensions;
 using Stegosaurus.Exceptions;
 using Stegosaurus.Utility;
+using System;
 
 namespace Stegosaurus.Cryptography
 {
     public class AESProvider : ICryptoProvider
     {
-        public string CryptoKey { get; set; }
         public string Name => "AES";
 
-        public int Seed => string.IsNullOrEmpty(CryptoKey) ? 0 : KeyDeriver.DeriveKey(CryptoKey, KeySize).ComputeHash();
+        public int Seed => Key == null ? 0 : Key.ComputeHash();
         public int KeySize => 256;
+
+        public byte[] Key { get; set; }
 
         public byte[] Encrypt(byte[] _data)
         {
@@ -21,7 +23,7 @@ namespace Stegosaurus.Cryptography
                 aesAlgorithm.KeySize = 256;
 
                 // Set key and generate initialization vector
-                aesAlgorithm.Key = KeyDeriver.DeriveKey(CryptoKey, aesAlgorithm.KeySize);
+                aesAlgorithm.Key = Key;
                 aesAlgorithm.GenerateIV();
 
                 // Create encryptor
@@ -49,7 +51,7 @@ namespace Stegosaurus.Cryptography
         {
             using (AesManaged aesManaged = new AesManaged())
             {
-                aesManaged.Key = KeyDeriver.DeriveKey(CryptoKey, aesManaged.KeySize);
+                aesManaged.Key = Key;
 
                 using (MemoryStream inputStream = new MemoryStream(_data))
                 {
@@ -70,6 +72,21 @@ namespace Stegosaurus.Cryptography
                     }
                 }
             }
+        }
+
+        public byte[] GenerateKey()
+        {
+            using (AesManaged aes = new AesManaged())
+            {
+                aes.KeySize = KeySize;
+                aes.GenerateKey();
+                return aes.Key;
+            }
+        }
+
+        public void SetKey(string _keyString)
+        {
+            Key = string.IsNullOrEmpty(_keyString) ? null : KeyDeriver.DeriveKey(_keyString, KeySize);
         }
     }
 }

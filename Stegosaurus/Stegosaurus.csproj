@@ -83,7 +83,6 @@
     <Compile Include="Forms\TestForm.Designer.cs">
       <DependentUpon>TestForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Utility\Extensions\FileSizeExtensions.cs" />
     <Compile Include="Utility\Extensions\ByteArrayExtensions.cs" />
     <Compile Include="Utility\InputTypes\CarrierType.cs" />
     <Compile Include="Utility\InputTypes\ContentType.cs" />
@@ -104,6 +103,7 @@
     <Compile Include="Utility\KeyDeriver.cs" />
     <Compile Include="Utility\RandomNumberList.cs" />
     <Compile Include="StegoMessage.cs" />
+    <Compile Include="Utility\SizeFormatter.cs" />
     <EmbeddedResource Include="Forms\FormMain.resx">
       <DependentUpon>FormMain.cs</DependentUpon>
     </EmbeddedResource>

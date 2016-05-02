@@ -1,29 +1,31 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Security.Cryptography;
 using System.Xml.Serialization;
 using Stegosaurus.Utility.Extensions;
+using System.Text;
 
 namespace Stegosaurus.Cryptography
 {
     public class RSAProvider : ICryptoProvider
     {
-        public string CryptoKey { get; set; }
         public string Name => "RSA";
 
         /// <summary>
         /// The same seed is needed for encryption and decryption.
         /// Since the public and private key share modulus, we use its hash as a seed.
         /// </summary>
-        public int Seed => string.IsNullOrEmpty(CryptoKey) ? 0 : Parameters.Modulus.ComputeHash();
+        public int Seed => Key == null ? 0 : Parameters.Modulus.ComputeHash();
         public int KeySize => 2048;
+
+        public byte[] Key { get; set; }
 
         private RSAParameters Parameters
         {
             get
             {
-                StringReader stringReader = new StringReader(CryptoKey);
                 XmlSerializer xmlSerializer = new XmlSerializer(typeof(RSAParameters));
-                RSAParameters key = (RSAParameters) xmlSerializer.Deserialize(stringReader);
+                RSAParameters key = (RSAParameters) xmlSerializer.Deserialize(new MemoryStream(Key));
 
                 return key;
             }
@@ -38,12 +40,12 @@ namespace Stegosaurus.Cryptography
                 // Decrypt the TripleDES key first, then decrypt main data using TripleDES
                 using (MemoryStream tempStream = new MemoryStream(_data))
                 {
-                    byte[] tripleDesKey = rsaProvider.Decrypt(tempStream.ReadBytes(), true);
+                    byte[] symmetricKey = rsaProvider.Decrypt(tempStream.ReadBytes(), true);
 
-                    TripleDESProvider des = new TripleDESProvider();
-                    des.OverriddenKey = tripleDesKey;
+                    ICryptoProvider cryptoProvider = new TripleDESProvider();
+                    cryptoProvider.Key = symmetricKey;
 
-                    return des.Decrypt(tempStream.ReadBytes((int) tempStream.GetRemainingLength()));
+                    return cryptoProvider.Decrypt(tempStream.ReadBytes((int) tempStream.GetRemainingLength()));
                 }
             }
         }
@@ -56,13 +58,13 @@ namespace Stegosaurus.Cryptography
 
                 using (MemoryStream tempStream = new MemoryStream())
                 {
-                    TripleDESProvider des = new TripleDESProvider();
-                    des.OverriddenKey = des.GenerateKey();
+                    ICryptoProvider cryptoProvider = new TripleDESProvider();
+                    cryptoProvider.Key = cryptoProvider.GenerateKey();
 
                     // Write the encrypted key and its length
-                    tempStream.Write(rsaProvider.Encrypt(des.OverriddenKey, true), true);
+                    tempStream.Write(rsaProvider.Encrypt(cryptoProvider.Key, true), true);
                     // Encrypt and write the main data
-                    tempStream.Write(des.Encrypt(_data));
+                    tempStream.Write(cryptoProvider.Encrypt(_data));
 
                     return tempStream.ToArray();
                 }
@@ -88,6 +90,16 @@ namespace Stegosaurus.Cryptography
             xmlSerializer.Serialize(stringWriter, key);
 
             return stringWriter.ToString();
+        }
+
+        public void SetKey(string _keyString)
+        {
+            Key = string.IsNullOrEmpty(_keyString) ? null : Encoding.Unicode.GetBytes(_keyString);
+        }
+
+        public byte[] GenerateKey()
+        {
+            throw new NotImplementedException("Use the method GenerateKeys to generate RSA keys.");
         }
     }
 }

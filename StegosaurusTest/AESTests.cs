@@ -16,7 +16,7 @@ namespace StegosaurusTest
         [TestMethod]
         public void Encrypt_MatchingArrays_ReturnsFalse()
         {
-            AESCryptation.CryptoKey = "KeyKeyKey";
+            AESCryptation.SetKey("KeyKeyKey");
 
             byte[] encryptedArray = AESCryptation.Encrypt(input);
 
@@ -27,7 +27,7 @@ namespace StegosaurusTest
         [TestMethod]
         public void Decrypt_MatchingArrays_ReturnsTrue()
         {
-            AESCryptation.CryptoKey = "KeyKeyKey";
+            AESCryptation.SetKey("KeyKeyKey");
 
             byte[] decryptedArray = AESCryptation.Decrypt(AESCryptation.Encrypt(input));
 

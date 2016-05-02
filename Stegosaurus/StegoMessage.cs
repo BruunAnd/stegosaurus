@@ -120,7 +120,7 @@ namespace Stegosaurus
             }
 
             // Encrypt if key is specified
-            if (_cryptoProvider != null && !string.IsNullOrEmpty(_cryptoProvider.CryptoKey))
+            if (_cryptoProvider != null && _cryptoProvider.Key != null)
             {
                 encodedData = _cryptoProvider.Encrypt(encodedData);
                 SetFlag(StegoMessageFlags.Encrypted, true);

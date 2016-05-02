@@ -18,11 +18,11 @@ namespace StegosaurusTest
 
             // encrypt
             RSAProvider rsa = new RSAProvider();
-            rsa.CryptoKey = keyPair.PublicKey;
+            rsa.SetKey(keyPair.PublicKey);
             byte[] encryptedBytes = rsa.Encrypt(randomBytes);
 
             // decrypt
-            rsa.CryptoKey = keyPair.PrivateKey;
+            rsa.SetKey(keyPair.PrivateKey);
             byte[] decryptedBytes = rsa.Decrypt(encryptedBytes);
 
             // check if decrypted equals original

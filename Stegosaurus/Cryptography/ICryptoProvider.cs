@@ -5,7 +5,7 @@
         /// <summary>
         /// The key to be used, either in encryption or decryption.
         /// </summary>
-        string CryptoKey { get; set; }
+        byte[] Key { get; set; }
 
         /// <summary>
         /// The name of the algorithm.
@@ -23,7 +23,24 @@
         /// </summary>
         int Seed { get; }
 
+        /// <summary>
+        /// Set the Key from a string
+        /// </summary>
+        void SetKey(string _keyString);
+
+        /// <summary>
+        /// Generates and returns a key which can be used with the algorithm
+        /// </summary>
+        byte[] GenerateKey();
+
+        /// <summary>
+        /// Encrypts and returns encrypted data
+        /// </summary
         byte[] Encrypt(byte[] _data);
+
+        /// <summary>
+        /// Decrypts and returns decrypted data
+        /// </summary>
         byte[] Decrypt(byte[] _data);
     }
 }
