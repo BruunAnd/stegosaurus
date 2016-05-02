@@ -77,6 +77,12 @@
     <Compile Include="Exceptions\StegoAlgorithmException.cs" />
     <Compile Include="Exceptions\StegoMessageException.cs" />
     <Compile Include="Exceptions\StegosaurusException.cs" />
+    <Compile Include="Forms\TestForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\TestForm.Designer.cs">
+      <DependentUpon>TestForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Utility\Extensions\FileSizeExtensions.cs" />
     <Compile Include="Utility\Extensions\ByteArrayExtensions.cs" />
     <Compile Include="Utility\InputTypes\CarrierType.cs" />
@@ -100,6 +106,9 @@
     <Compile Include="StegoMessage.cs" />
     <EmbeddedResource Include="Forms\FormMain.resx">
       <DependentUpon>FormMain.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\TestForm.resx">
+      <DependentUpon>TestForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

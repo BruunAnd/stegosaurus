@@ -549,5 +549,10 @@ namespace Stegosaurus.Forms
 
             textBoxEncryptionKey.Text = File.ReadAllText(ofd.FileName);
         }
+
+        private void buttonTest_Click(object sender, EventArgs e)
+        {
+            Application.Run(new TestForm());
+        }
     }
 }
