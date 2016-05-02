@@ -3,7 +3,7 @@
     public interface ICarrierMedia
     {
         byte[] ByteArray { get; set; }
-        int SamplesPerVertex { get; }
+        int BytesPerSample { get; }
 
         void Encode();
         void Decode();

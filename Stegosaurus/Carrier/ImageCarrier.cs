@@ -11,7 +11,7 @@ namespace Stegosaurus.Carrier
     {
         public byte[] ByteArray { get; set; }
 
-        public int SamplesPerVertex => 3;
+        public int BytesPerSample => 3;
 
         private readonly Bitmap innerImage;
 

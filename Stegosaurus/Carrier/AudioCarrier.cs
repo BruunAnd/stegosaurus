@@ -8,7 +8,7 @@ namespace Stegosaurus.Carrier
     {
         public byte[] ByteArray { get; set; }
 
-        public int SamplesPerVertex => audioFile.BitsPerSample / 8;
+        public int BytesPerSample => audioFile.BitsPerSample / 8;
 
         private AudioFile audioFile;
 
