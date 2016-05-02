@@ -315,12 +315,13 @@ namespace Stegosaurus.Forms
         private void comboBoxCryptoProviderSelection_SelectedIndexChanged(object sender, EventArgs e)
         {
             cryptoProvider = cryptoProviderDictionary[comboBoxCryptoProviderSelection.Text];
-            textBoxEncryptionKey.MaxLength = cryptoProvider.
+            textBoxEncryptionKey.MaxLength = cryptoProvider.KeySize / 8;
+            textBoxEncryptionKey.Text = textBoxEncryptionKey.Text.Remove(cryptoProvider.KeySize / 8);
             cryptoProvider.CryptoKey = textBoxEncryptionKey.Text;
             algorithm.CryptoProvider = cryptoProvider;
         }
 
-        //TODO: Implement Key size limit for textboxEncryptionKey (REMEMBER rsa uses XML keys)
+        //TODO: Implement Key size limit for XML keys(REMEMBER rsa uses XML keys)
         #endregion
 
         #region Steganography Handling
@@ -549,5 +550,6 @@ namespace Stegosaurus.Forms
 
             textBoxEncryptionKey.Text = File.ReadAllText(ofd.FileName);
         }
+        
     }
 }
