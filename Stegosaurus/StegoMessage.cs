@@ -5,6 +5,7 @@ using Stegosaurus.Utility.Extensions;
 using Stegosaurus.Cryptography;
 using System.Linq;
 using Stegosaurus.Exceptions;
+using Stegosaurus.Utility;
 
 namespace Stegosaurus
 {
@@ -60,7 +61,7 @@ namespace Stegosaurus
                 // Decompress the array
                 if (Flags.HasFlag(StegoMessageFlags.Compressed))
                 {
-                    encodedData = Ionic.Zlib.ZlibStream.UncompressBuffer(encodedData);
+                    encodedData = Compression.Decompress(encodedData);
                 }
 
                 // Decode array
@@ -117,7 +118,7 @@ namespace Stegosaurus
             SetFlag(StegoMessageFlags.Encoded, true);
 
             // Compress data
-            byte[] compressedData = Ionic.Zlib.ZlibStream.CompressBuffer(encodedData);
+            byte[] compressedData = Compression.Compress(encodedData);
             if (compressedData.Length < encodedData.Length)
             {
                 encodedData = compressedData;

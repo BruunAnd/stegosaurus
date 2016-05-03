@@ -1,5 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Stegosaurus;
+using System;
 using System.Linq;
 
 namespace StegosaurusTest
@@ -8,33 +9,33 @@ namespace StegosaurusTest
     public class StegoMessageTests
     {
         [TestMethod]
-        public void TestEncodeDecode()
+        public void EncodeDecode_SameMessageOutput()
         {
             const string testString = "Example string.";
 
-            // Instantiate Message
             StegoMessage newMessage = new StegoMessage();
             newMessage.TextMessage = testString;
 
-            // Skip 4 bytes because the constructor does not handle the length
-            byte[] asByteArray = newMessage.ToByteArray().Skip(4).ToArray();
-
-            // Create Message from the ByteArray of newMessage
-            StegoMessage recreatedMessage = new StegoMessage(asByteArray);
+            // recreate message, skip 4 bytes (length)
+            StegoMessage recreatedMessage = new StegoMessage(newMessage.ToByteArray().Skip(4).ToArray());
 
             Assert.AreEqual(newMessage.TextMessage, recreatedMessage.TextMessage);
         }
+
         [TestMethod]
-        public void ToByteArray_MatchingByteArrays_ReturnsTrue()
+        public void EncodeDecode_SameFileOutput()
         {
-            StegoMessage stegoMessage = new StegoMessage();
+            InputFile testInputFile = new InputFile("test.bin", TestUtility.GetRandomBytes(32 * 1024));
 
-            stegoMessage.InputFiles.Add(new InputFile("mat.png", new byte[] { 0, 0, 0, 0, 0, 0, 0, 1 }));
+            StegoMessage newMessage = new StegoMessage();
+            newMessage.InputFiles.Add(testInputFile);
 
-            byte[] expectedOutput = { 32, 0, 0, 0, 1, 1, 0, 0, 0, 7, 0, 0, 0, 109, 97, 116, 46, 112,
-                                      110, 103, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0 };
+            // recreate message, skip 4 bytes (length)
+            StegoMessage recreatedMessage = new StegoMessage(newMessage.ToByteArray().Skip(4).ToArray());
+            InputFile testOutputFile = recreatedMessage.InputFiles[0];
 
-            Assert.IsTrue(stegoMessage.ToByteArray().SequenceEqual(expectedOutput));
+            Assert.AreEqual(testInputFile.Name, testOutputFile.Name);
+            Assert.IsTrue(testInputFile.Content.SequenceEqual(testOutputFile.Content));
         }
     }
 }

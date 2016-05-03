@@ -1,38 +1,40 @@
 ﻿using System.Linq;
 using Stegosaurus.Cryptography;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
+using System.Security.Cryptography;
 
 namespace StegosaurusTest
 {
     [TestClass]
     public class AESTests
     {
-        AESProvider AESCryptation = new AESProvider();
-
-        byte[] input = new byte[] { 39, 0, 0, 0, 31, 139, 8, 0, 0, 0, 0, 0, 4, 0, 99, 100, 96,
-                                        96, 96, 7, 226, 220, 196, 18, 189, 130, 188, 116, 14,
-                                        6, 56, 96, 4, 17, 0, 173, 73, 103, 222, 31, 0, 0, 0 };
-
         [TestMethod]
-        public void Encrypt_MatchingArrays_ReturnsFalse()
+        public void DecryptSameKey_SameOutput()
         {
-            AESCryptation.SetKey("KeyKeyKey");
+            byte[] randomData = TestUtility.GetRandomBytes(32 * 1024);
 
-            byte[] encryptedArray = AESCryptation.Encrypt(input);
+            ICryptoProvider cryptoProvider = new AESProvider();
+            cryptoProvider.Key = cryptoProvider.GenerateKey();
+            byte[] encryptedData = cryptoProvider.Encrypt(randomData);
+            // don't change the key
+            byte[] decryptedData = cryptoProvider.Decrypt(encryptedData);
 
-            // Tests if the encrypted array is not the same as the inout array
-            Assert.IsFalse(encryptedArray.SequenceEqual(input));
+            Assert.IsTrue(decryptedData.SequenceEqual(randomData));
         }
 
         [TestMethod]
-        public void Decrypt_MatchingArrays_ReturnsTrue()
+        [ExpectedException(typeof(CryptographicException))]
+        public void DecryptWrongKey_ThrowsCryptographicException()
         {
-            AESCryptation.SetKey("KeyKeyKey");
+            byte[] randomData = TestUtility.GetRandomBytes(32 * 1024);
 
-            byte[] decryptedArray = AESCryptation.Decrypt(AESCryptation.Encrypt(input));
-
-            //Tests if the decrypted array is the same as input array
-            Assert.IsTrue(decryptedArray.SequenceEqual(input));
+            ICryptoProvider cryptoProvider = new AESProvider();
+            cryptoProvider.Key = cryptoProvider.GenerateKey();
+            byte[] encryptedData = cryptoProvider.Encrypt(randomData);
+            // generate new key
+            cryptoProvider.Key = cryptoProvider.GenerateKey();
+            byte[] decryptedData = cryptoProvider.Decrypt(encryptedData);
         }
     }
 }
