@@ -10,7 +10,7 @@ namespace StegosaurusTest
     public class AESTests
     {
         [TestMethod]
-        public void DecryptSameKey_SameOutput()
+        public void Decrypt_CorrectKey_CorrectOutput()
         {
             byte[] randomData = TestUtility.GetRandomBytes(32 * 1024);
 
@@ -25,7 +25,7 @@ namespace StegosaurusTest
 
         [TestMethod]
         [ExpectedException(typeof(CryptographicException))]
-        public void DecryptWrongKey_ThrowsCryptographicException()
+        public void Decrypt_WrongKey_ThrowsCryptographicException()
         {
             byte[] randomData = TestUtility.GetRandomBytes(32 * 1024);
 

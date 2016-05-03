@@ -10,14 +10,7 @@ namespace StegosaurusTest
     public class RandomNumberListTests
     {
         [TestMethod]
-        public void GenerateNumbers_ThrowsOutOfRangeException()
-        {
-            const int count = 1000;
-            new RandomNumberList(0, count).Take(count + 1);
-        }
-
-        [TestMethod]
-        public void GenerateNumbers_NoDuplicates()
+        public void GenerateNumbers_HasNoDuplicates()
         {
             const int count = 1000;
             int duplicateCount = 0;

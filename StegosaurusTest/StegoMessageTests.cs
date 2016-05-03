@@ -9,7 +9,7 @@ namespace StegosaurusTest
     public class StegoMessageTests
     {
         [TestMethod]
-        public void EncodeDecode_SameMessageOutput()
+        public void Decode_EncodedTextMessage_CorrectOutput()
         {
             const string testString = "Example string.";
 
@@ -23,7 +23,7 @@ namespace StegosaurusTest
         }
 
         [TestMethod]
-        public void EncodeDecode_SameFileOutput()
+        public void Decode_EncodedInputFile_CorrectOutput()
         {
             InputFile testInputFile = new InputFile("test.bin", TestUtility.GetRandomBytes(32 * 1024));
 

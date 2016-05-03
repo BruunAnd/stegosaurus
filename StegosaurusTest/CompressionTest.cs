@@ -10,7 +10,7 @@ namespace StegosaurusTest
     public class CompressionTest
     {
         [TestMethod]
-        public void CompressDecompress_SameOutput()
+        public void Decompress_CompressedData_CorrectOutput()
         {
             byte[] buffer = TestUtility.GetRandomBytes(32 * 1024);
 
@@ -22,7 +22,7 @@ namespace StegosaurusTest
 
         [TestMethod]
         [ExpectedException(typeof(InvalidDataException))]
-        public void CompressDecompress_ThrowsInvalidDataException()
+        public void Decompress_RandomData_ThrowsInvalidDataException()
         {
             Compression.Decompress(TestUtility.GetRandomBytes(32 * 1024));
         }

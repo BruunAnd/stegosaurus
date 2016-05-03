@@ -10,7 +10,7 @@ namespace StegosaurusTest
     {
         [TestMethod]
         [ExpectedException(typeof(InvalidFileException))]
-        public void RandomFile_ThrowsInvalidFileException()
+        public void RandomInputFile_ThrowsInvalidFileException()
         {
             new InputFile(Guid.NewGuid().ToString());
         }
