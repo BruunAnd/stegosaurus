@@ -393,7 +393,11 @@ namespace Stegosaurus.Forms
                 }
                 catch (StegoAlgorithmException ex)
                 {
-                    ShowError(ex.Message);
+                    ShowError(ex.Message, "Embedding error");
+                }
+                catch (StegoMessageException ex)
+                {
+                    ShowError(ex.Message, "Embedding error");
                 }
             }
             else
@@ -405,7 +409,11 @@ namespace Stegosaurus.Forms
                 }
                 catch (StegoAlgorithmException ex)
                 {
-                    ShowError(ex.Message);
+                    ShowError(ex.Message, "Extraction error");
+                }
+                catch (StegoMessageException ex)
+                {
+                    ShowError(ex.Message, "Extraction error");
                 }
             }
         }

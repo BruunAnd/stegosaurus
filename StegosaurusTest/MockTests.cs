@@ -14,7 +14,7 @@ namespace StegosaurusTest
     public class MockTests
     {
         [TestMethod]
-        public void TestMainImplementation()
+        public void MainImplementation_DefaultAlgorithms_ExpectedOutput()
         {
             const string coverFile = "cover.png";
             const string testMessageString = "Example text message.";

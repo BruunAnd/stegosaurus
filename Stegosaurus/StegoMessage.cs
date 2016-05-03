@@ -6,6 +6,7 @@ using Stegosaurus.Cryptography;
 using System.Linq;
 using Stegosaurus.Exceptions;
 using Stegosaurus.Utility;
+using System.Security.Cryptography;
 
 namespace Stegosaurus
 {
@@ -55,7 +56,14 @@ namespace Stegosaurus
                 // Decrypt if a key is specified
                 if (Flags.HasFlag(StegoMessageFlags.Encrypted) && _cryptoProvider != null)
                 {
-                    encodedData = _cryptoProvider.Decrypt(encodedData);
+                    try
+                    {
+                        encodedData = _cryptoProvider.Decrypt(encodedData);
+                    }
+                    catch (CryptographicException ex)
+                    {
+                        throw new StegoMessageException("Could not decrypt data.", ex);
+                    }
                 }
 
                 // Decompress the array
