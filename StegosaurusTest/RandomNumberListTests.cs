@@ -2,11 +2,12 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Stegosaurus.Utility;
 using System.Linq;
+using System.Collections.Generic;
 
 namespace StegosaurusTest
 {
     [TestClass]
-    public class RandomNumberListTest
+    public class RandomNumberListTests
     {
         [TestMethod]
         public void GenerateNumbers_ThrowsOutOfRangeException()
@@ -20,25 +21,21 @@ namespace StegosaurusTest
         {
             const int count = 1000;
             int duplicateCount = 0;
-            int[] randomInts = new RandomNumberList(0, count).Take(1000).ToArray();
+            IEnumerable<int> randomNumbers = new RandomNumberList(0, count);
+            List<int> existingNumbers = new List<int>();
 
             // check for duplicates
             for (int i = 0; i < count; i++)
             {
-                for (int j = 0; j < count; j++)
+                int nextInt = randomNumbers.First();
+                if (existingNumbers.Contains(nextInt))
                 {
-                    if (i == j)
-                    {
-                        continue;
-                    }
-                    else if (randomInts[i] == randomInts[j])
-                    {
-                        duplicateCount++;
-                    }
+                    duplicateCount++;
                 }
+                existingNumbers.Add(nextInt);
             }
 
-            Assert.Equals(duplicateCount, 0);
+            Assert.AreEqual(duplicateCount, 0);
         }
     }
 }
