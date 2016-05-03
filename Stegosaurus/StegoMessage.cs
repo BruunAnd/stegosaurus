@@ -62,7 +62,7 @@ namespace Stegosaurus
                     }
                     catch (CryptographicException ex)
                     {
-                        throw new StegoMessageException("Could not decrypt data.", ex);
+                        throw new StegoCryptoException("Could not decrypt data.", ex);
                     }
                 }
 

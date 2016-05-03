@@ -4,6 +4,7 @@ using System.Security.Cryptography;
 using System.Xml.Serialization;
 using Stegosaurus.Utility.Extensions;
 using System.Text;
+using Stegosaurus.Exceptions;
 
 namespace Stegosaurus.Cryptography
 {
@@ -25,7 +26,15 @@ namespace Stegosaurus.Cryptography
             get
             {
                 XmlSerializer xmlSerializer = new XmlSerializer(typeof(RSAParameters));
-                RSAParameters key = (RSAParameters) xmlSerializer.Deserialize(new MemoryStream(Key));
+                RSAParameters key;
+                try
+                {
+                    key = (RSAParameters) xmlSerializer.Deserialize(new MemoryStream(Key));
+                }
+                catch (InvalidOperationException ex)
+                {
+                    throw new StegoCryptoException("Invalid RSA key.", ex);
+                }
 
                 return key;
             }
