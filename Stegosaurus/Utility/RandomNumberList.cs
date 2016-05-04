@@ -23,7 +23,7 @@ namespace Stegosaurus.Utility
 
             // Check if there are any more integers to generate
             if (generatedIntegers.Count >= maxValue)
-                throw new ArgumentOutOfRangeException("No more integers to generate.");
+                yield break;
 
             // Generate an integer which has not yet been generated
             int requestedCount = generatedIntegers.Count + 1;

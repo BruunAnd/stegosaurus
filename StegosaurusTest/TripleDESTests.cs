@@ -1,38 +1,37 @@
-﻿using System.Linq;
-using Stegosaurus.Cryptography;
+﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
 using System.Security.Cryptography;
+using Stegosaurus.Cryptography;
+using System.Linq;
 
-namespace StegosaurusTest
+namespace StegosaurusTest.CryptographyTests
 {
     [TestClass]
-    public class AESTests
+    public class TripleDESTests
     {
         [TestMethod]
         public void Decrypt_CorrectKey_CorrectOutput()
         {
-            byte[] randomData = TestUtility.GetRandomBytes(32 * 1024);
+            byte[] randomBytes = TestUtility.GetRandomBytes(32 * 1024);
 
-            ICryptoProvider cryptoProvider = new AESProvider();
+            ICryptoProvider cryptoProvider = new TripleDESProvider();
             cryptoProvider.Key = cryptoProvider.GenerateKey();
-            byte[] encryptedData = cryptoProvider.Encrypt(randomData);
-            // don't change the key
+            byte[] encryptedData = cryptoProvider.Encrypt(randomBytes);
             byte[] decryptedData = cryptoProvider.Decrypt(encryptedData);
 
-            Assert.IsTrue(decryptedData.SequenceEqual(randomData));
+            Assert.IsTrue(decryptedData.SequenceEqual(randomBytes));
         }
 
         [TestMethod]
         [ExpectedException(typeof(CryptographicException))]
         public void Decrypt_WrongKey_ThrowsCryptographicException()
         {
-            byte[] randomData = TestUtility.GetRandomBytes(32 * 1024);
+            byte[] randomBytes = TestUtility.GetRandomBytes(32 * 1024);
 
-            ICryptoProvider cryptoProvider = new AESProvider();
+            ICryptoProvider cryptoProvider = new TripleDESProvider();
             cryptoProvider.Key = cryptoProvider.GenerateKey();
-            byte[] encryptedData = cryptoProvider.Encrypt(randomData);
-            // generate new key
+            byte[] encryptedData = cryptoProvider.Encrypt(randomBytes);
+            // change key
             cryptoProvider.Key = cryptoProvider.GenerateKey();
             byte[] decryptedData = cryptoProvider.Decrypt(encryptedData);
         }

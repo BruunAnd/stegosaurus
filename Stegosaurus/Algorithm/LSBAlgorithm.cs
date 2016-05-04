@@ -55,7 +55,7 @@ namespace Stegosaurus.Algorithm
             // Read bytes and verify LsbSignature
             if (!ReadBytes(numberList, LsbSignature.Length).SequenceEqual(LsbSignature))
             {
-                throw new StegoAlgorithmException("LSB Signature is invalid.");
+                throw new StegoAlgorithmException("Signature is invalid, possibly using a wrong key.");
             }
 
             // Read data size

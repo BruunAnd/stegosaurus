@@ -375,9 +375,10 @@ namespace Stegosaurus.Forms
                 return;
             }
 
-            if (CanEmbed)
+            // Embed or extract
+            try
             {
-                try
+                if (CanEmbed)
                 {
                     if (string.IsNullOrEmpty(textBoxEncryptionKey.Text))
                     {
@@ -391,22 +392,23 @@ namespace Stegosaurus.Forms
                     Embed();
                     MessageBox.Show("Message was succesfully embedded.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
-                catch (StegoAlgorithmException ex)
+                else
                 {
-                    ShowError(ex.Message);
+                    MessageBox.Show("Message was succesfully extracted.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    Extract();
                 }
             }
-            else
+            catch (StegoCryptoException ex)
             {
-                try
-                {
-                    Extract();
-                    MessageBox.Show("Message was succesfully extracted.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                }
-                catch (StegoAlgorithmException ex)
-                {
-                    ShowError(ex.Message);
-                }
+                ShowError(ex.Message, "Cryptography error");
+            }
+            catch (StegoMessageException ex)
+            {
+                ShowError(ex.Message, "Message error");
+            }
+            catch (StegoAlgorithmException ex)
+            {
+                ShowError(ex.Message, "Algorithm error");
             }
         }
 
