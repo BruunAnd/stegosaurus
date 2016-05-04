@@ -14,5 +14,15 @@ namespace Stegosaurus.Algorithm.GraphTheory
         {
             Samples = _samples;
         }
+        public override string ToString()
+        {
+            string message = "";
+            foreach (Sample sample in Samples)
+            {
+                message += $"V:{sample.Value}, T:{sample.TargetValue}|";
+            }
+
+            return message;
+        }
     }
 }

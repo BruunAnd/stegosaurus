@@ -9,17 +9,11 @@
         {
             Vertices[0] = _firstVertex;
             Vertices[1] = _secondVertex;
-            weight = GetLowestWeight();
         }
 
-        private int GetLowestWeight()
+        public override string ToString()
         {
-            foreach (var item in Vertices[0].)
-            {
-
-            }
-
-            return 0;
+            return $"{Vertices[0]};{Vertices[1]}";
         }
     }
 }
