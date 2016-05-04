@@ -39,6 +39,7 @@ namespace Stegosaurus.Forms
             // Add algorithms
             AddAlgorithm(typeof(LSBAlgorithm));
             AddAlgorithm(typeof(GraphTheoreticAlgorithm));
+            AddAlgorithm(typeof(CommonSampleAlgorithm));
 
             // Add crypto providers
             AddCryptoProvider(typeof(AESProvider));
@@ -46,7 +47,7 @@ namespace Stegosaurus.Forms
             AddCryptoProvider(typeof(RSAProvider));
 
             // Set default values
-            comboBoxAlgorithmSelection.SelectedIndex = 1;
+            comboBoxAlgorithmSelection.SelectedIndex = 2;
             comboBoxCryptoProviderSelection.SelectedIndex = 0;
         }
         

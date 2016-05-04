@@ -30,6 +30,23 @@ namespace Stegosaurus.Algorithm
             return 100000;
         }
 
+        public List<Vertex> GetAllVertices()
+        {
+            var allVertices = new List<Vertex>(CarrierMedia.ByteArray.Length % CarrierMedia.BytesPerSample);
+            int currentSample = 0, sampleCount = 0;
+            while (currentSample < CarrierMedia.ByteArray.Length)
+            {
+                var sampleStartPosition = currentSample;
+                var samples = new byte[CarrierMedia.BytesPerSample];
+
+                for (int i = 0; i < CarrierMedia.BytesPerSample; i++)
+                    samples[i] = CarrierMedia.ByteArray[currentSample++];
+
+                allVertices.Add(new Vertex(sampleCount++, samples));
+            }
+            return allVertices;
+        }
+
         public void Embed(StegoMessage message)
         {
             var messageBits = new BitArray(message.ToByteArray(CryptoProvider));
@@ -41,62 +58,73 @@ namespace Stegosaurus.Algorithm
                 throw new StegoAlgorithmException("Invalid size.");
             }
 
-            // Generate pixels
+            // Get all vertices in carrierMedia
+            var allVertices = GetAllVertices();
+            Console.WriteLine("{0} vertices", allVertices.Count);
 
-
-            // Generate vertices
-            var vertices = new List<Vertex>();
-
-
-
-
-            var position = 0;
+            // Assign target values to vertices
+            List<Vertex> verticesToChange = new List<Vertex>();
+            var rnl = new RandomNumberList(1000, allVertices.Count);
             for (int i = 0; i < messageBits.Length; i++)
             {
-                Vertex newVertex = new Vertex(position);
-                newVertex.Samples = new byte[] { CarrierMedia.ByteArray[position++], CarrierMedia.ByteArray[position++], CarrierMedia.ByteArray[position++] };
-                newVertex.TargetValue = new bool[] { messageBits[i], messageBits[i++], messageBits[i++] };
+                Vertex nextVertex = allVertices[rnl.First()];
+                nextVertex.TargetValue = new bool[] {messageBits[i], messageBits[i++], messageBits[i++]};
 
-                if (newVertex.HasMatchingBits(newVertex))
-                {
-                    //Console.WriteLine("{0}, {1}, {2} matches with {3}, {4}, {5}", newVertex.Samples[0], newVertex.Samples[1], newVertex.Samples[2], newVertex.TargetValue[0], newVertex.TargetValue[1], newVertex.TargetValue[2]);
-                }
-                else
-                    vertices.Add(newVertex);
+                verticesToChange.Add(nextVertex);
             }
-            //MessageBox.Show($"{vertices.Count} vertices");
 
-            // Generate edges
+            Console.WriteLine("{0} vertices with target values", verticesToChange.Count);
+
             List<Edge> edges = new List<Edge>();
-            for (int i = vertices.Count - 1; i >= 0; i--)
+            // Find edges
+            foreach (Vertex outer in verticesToChange)
             {
-                Vertex outer = vertices[i];
+                if (outer.IsInEdge)
+                    continue;
 
-                for (int j = vertices.Count - 1; j >= 0; j--)
+                foreach (Vertex inner in verticesToChange)
                 {
-                    Vertex inner = vertices[j];
-
-                    if (i == j)
+                    if (inner.IsInEdge || outer == inner)
                         continue;
 
-
-                    if (inner.HasMatchingBits(outer) && outer.HasMatchingBits(inner))
+                    if (outer.HasMatchingBits(inner) && inner.HasMatchingBits(outer))
                     {
                         edges.Add(new Edge(inner, outer));
-                        vertices.RemoveAt(i--);
-                        vertices.RemoveAt(j);
-                        Console.WriteLine("{0} matches {1} ({2} left)", i, j, vertices.Count);
-                        break;
+                        Console.WriteLine("{0} edges", edges.Count);
                     }
                 }
             }
 
-            
+            // Swap edges
+            foreach (Edge edge in edges)
+            {
+                Swap(allVertices, edge.First.Position, edge.Second.Position);
+            }
+
+            verticesToChange.ForEach(v => v.ForceChanges());
+
+            // Write changes
+            int pos = 0;
+            foreach (Vertex current in allVertices)
+            {
+                foreach (byte sample in current.Samples)
+                {
+                    CarrierMedia.ByteArray[pos++] = sample;
+                }
+            }
+        }
+
+        private void Swap<T>(List<T> list, int first, int second)
+        {
+            T temp = list[first];
+            list[first] = list[second];
+            list[second] = temp;
         }
 
         public StegoMessage Extract()
         {
-            throw new NotImplementedException();
+            var allVertices = GetAllVertices();
+            return null;
         }
     }
 

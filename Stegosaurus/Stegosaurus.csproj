@@ -54,6 +54,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Algorithm\CommonSampleAlgorithm.cs" />
     <Compile Include="Algorithm\GraphTheoreticAlgorithm.cs" />
     <Compile Include="Algorithm\GraphTheory\Edge.cs" />
     <Compile Include="Algorithm\GraphTheory\Sample.cs" />
