@@ -6,109 +6,102 @@ using Stegosaurus.Algorithm.GraphTheory;
 using System.Collections;
 using System.Linq;
 using Stegosaurus.Utility;
+using Stegosaurus.Exceptions;
+using System.Windows.Forms;
 
 namespace Stegosaurus.Algorithm
 {
     public class GraphTheoreticAlgorithm : IStegoAlgorithm
     {
-
-        private static readonly byte[] GraphTheorySignature = { 0x12, 0x34, 0x56, 078 };
-        public ICryptoProvider CryptoProvider { get; set; }
-
-        private int samplesPerVertex => 2;
-        private int modFactor => 4;
-
-
-        private byte[][] sampleBytes;
-        private List<Vertex> vertices = new List<Vertex>();
-        private List<Edge> edges = new List<Edge>();
-
         public ICarrierMedia CarrierMedia
         {
             get; set;
         }
 
-        public string Name => "Graph Theoretic Algorithm";
-        public string CryptoKey { get; set; }
+        public ICryptoProvider CryptoProvider
+        {
+            get; set;
+        }
 
-        public int Seed => CryptoProvider?.Seed ?? 0;
+        public string Name => "GTA";
 
         public long ComputeBandwidth()
         {
-            throw new NotImplementedException();
+            return 100000;
         }
 
-        public void Embed(StegoMessage _message)
+        public void Embed(StegoMessage message)
         {
-            // Combine LsbSignature with byteArray and convert to bitArray
-            byte[] messageArray = _message.ToByteArray(CryptoProvider);
-            BitArray messageInBits = new BitArray(GraphTheorySignature.Concat(messageArray).ToArray());
+            var messageBits = new BitArray(message.ToByteArray(CryptoProvider));
+            Console.WriteLine("{0} bits", messageBits.Length);
+
+            // TODO fix
+            if (messageBits.Length % 3 != 0)
+            {
+                throw new StegoAlgorithmException("Invalid size.");
+            }
+
+            // Generate pixels
 
 
-            GetSamples();
-
-            // Generate random sequence of integers
-            IEnumerable<int> numberList = new RandomNumberList(Seed, samples.Count);
-
-            GetVertices(numberList, messageInBits);
+            // Generate vertices
+            var vertices = new List<Vertex>();
 
 
-            GetEdges();
 
 
+            var position = 0;
+            for (int i = 0; i < messageBits.Length; i++)
+            {
+                Vertex newVertex = new Vertex(position);
+                newVertex.Samples = new byte[] { CarrierMedia.ByteArray[position++], CarrierMedia.ByteArray[position++], CarrierMedia.ByteArray[position++] };
+                newVertex.TargetValue = new bool[] { messageBits[i], messageBits[i++], messageBits[i++] };
+
+                if (newVertex.HasMatchingBits(newVertex))
+                {
+                    //Console.WriteLine("{0}, {1}, {2} matches with {3}, {4}, {5}", newVertex.Samples[0], newVertex.Samples[1], newVertex.Samples[2], newVertex.TargetValue[0], newVertex.TargetValue[1], newVertex.TargetValue[2]);
+                }
+                else
+                    vertices.Add(newVertex);
+            }
+            //MessageBox.Show($"{vertices.Count} vertices");
+
+            // Generate edges
+            List<Edge> edges = new List<Edge>();
+            for (int i = vertices.Count - 1; i >= 0; i--)
+            {
+                Vertex outer = vertices[i];
+
+                for (int j = vertices.Count - 1; j >= 0; j--)
+                {
+                    Vertex inner = vertices[j];
+
+                    if (i == j)
+                        continue;
+
+
+                    if (inner.HasMatchingBits(outer) && outer.HasMatchingBits(inner))
+                    {
+                        edges.Add(new Edge(inner, outer));
+                        vertices.RemoveAt(i--);
+                        vertices.RemoveAt(j);
+                        Console.WriteLine("{0} matches {1} ({2} left)", i, j, vertices.Count);
+                        break;
+                    }
+                }
+            }
+
+            
         }
 
         public StegoMessage Extract()
         {
             throw new NotImplementedException();
         }
+    }
 
-        private List<Sample> samples = new List<Sample>();
-        private void GetSamples()
-        {
-            byte[] sample = new byte[CarrierMedia.BytesPerSample];
-            int numSamples = CarrierMedia.ByteArray.Length / CarrierMedia.BytesPerSample;
-            int len = CarrierMedia.ByteArray.Length;
-            for (int i = 0; i < len; i += CarrierMedia.BytesPerSample)
-            {
-                for (int j = 0; j < CarrierMedia.BytesPerSample; j++)
-                {
-                    sample[j] = CarrierMedia.ByteArray[i + j];
-                }
-                samples.Add(new Sample(sample));
-            }
-        }
-
-        private void GetVertices(IEnumerable<int> _numberList, BitArray _messageInBits)
-        {
-            int len = samples.Count / samplesPerVertex;
-            int[] sampleIndices = new int[samplesPerVertex];
-            int sampleLength = sampleIndices.Length;
-            int messageIndex = 0;
-            int TargetVal;
-            List<Sample> sampleList;
-
-            for (int i = 0; i < len; i++)
-            {
-                sampleList = new List<Sample>();
-                for (int index = 0; index < samplesPerVertex; index++)
-                {
-                    sampleList.Add(samples[_numberList.First()]);
-                }
-                
-
-                vertices.Add(new Vertex(sampleList));
-
-            }
-
-            
-        }
-
-        private void GetEdges()
-        {
-            throw new NotImplementedException();
-        }
-
-
+    class Pixel
+    {
+        public byte[] Samples;
     }
 }

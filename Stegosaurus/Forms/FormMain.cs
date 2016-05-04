@@ -46,7 +46,7 @@ namespace Stegosaurus.Forms
             AddCryptoProvider(typeof(RSAProvider));
 
             // Set default values
-            comboBoxAlgorithmSelection.SelectedIndex = 0;
+            comboBoxAlgorithmSelection.SelectedIndex = 1;
             comboBoxCryptoProviderSelection.SelectedIndex = 0;
         }
         
