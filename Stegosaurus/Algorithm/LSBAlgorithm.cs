@@ -16,7 +16,7 @@ namespace Stegosaurus.Algorithm
         public ICryptoProvider CryptoProvider { get; set; }
         public ICarrierMedia CarrierMedia { get; set; }
 
-        public string Name => "LSB Algorithm";
+        public string Name => "LSB";
 
         public int Seed => CryptoProvider?.Seed ?? 0;
 
