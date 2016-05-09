@@ -10,14 +10,17 @@ namespace Stegosaurus.Algorithm.CommonSample
     {
         public byte[] Values;
 
-        public int ModValue { get; }
-
-        public int TargetValue { get; set; }
+        public int ModValue
+        {
+            get
+            {
+                return Values.Sum(b => b) % 2;
+            }
+        }
 
         public Sample(params byte[] _values)
         {
             Values = _values;
-            ModValue = Values.Sum(b => b) % 2;        
         }
 
         public void ForceChanges()

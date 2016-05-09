@@ -16,13 +16,12 @@ namespace StegosaurusTest
         public void TestSpecifiedAlgorithms(ICryptoProvider _cryptoProvider, IStegoAlgorithm _algorithm, int _dataSize)
         {
             const string testMessageString = "Example text message.";
-            const string testKey = "Example Key";
             const string testFileName = "Example.bin";
             byte[] testFileBuffer = new byte[1024 * _dataSize];
             new Random().NextBytes(testFileBuffer);
 
             // Setup cryptoProvider
-            _cryptoProvider.SetKey(testKey);
+            _cryptoProvider.Key = _cryptoProvider.GenerateKey();
 
             // Test requires a cover file
             Image testImage = new Bitmap(500, 500);

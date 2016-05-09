@@ -7,6 +7,8 @@ using Stegosaurus.Cryptography;
 using Stegosaurus.Utility;
 using System.Collections;
 using Stegosaurus.Exceptions;
+using System.IO;
+using Stegosaurus.Utility.Extensions;
 
 namespace Stegosaurus.Algorithm
 {
@@ -36,7 +38,6 @@ namespace Stegosaurus.Algorithm
         public void Embed(StegoMessage message)
         {
             var messageBits = new BitArray(CommonSampleSignature.Concat(message.ToByteArray(CryptoProvider)).ToArray());
-            Console.WriteLine("Write: {0}", ToBitString(messageBits));
 
             // Get all vertices
             List<CommonSample.Sample> samples = GetAllSamples();
@@ -61,34 +62,39 @@ namespace Stegosaurus.Algorithm
             for (int i = 0; i < messageBits.Length; i++)
             {
                 CommonSample.Sample currentSample = samples[randomNumbers.First()];
-                currentSample.TargetValue = messageBits[i] ? 1 : 0;
+                int targetValue = messageBits[i] ? 1 : 0;
 
                 // Check if it already has target value
-                if (currentSample.ModValue == currentSample.TargetValue)
+                if (currentSample.ModValue == targetValue)
                 {
                     continue;
                 }
 
                 // Find best match
                 IEnumerable<CommonSample.Sample> possibleMatches = commonFrequencies
-                    .Where(s => currentSample.TargetValue == s.ModValue) //  && currentSample.DistanceTo(s) <= 1000
-                    .OrderBy(s => currentSample.DistanceTo(s)); // should not be calculated again
+                    .Where(s => targetValue == s.ModValue)
+                    .OrderBy(s => currentSample.DistanceTo(s));
 
                 // Take first element
                 CommonSample.Sample bestMatch = possibleMatches.FirstOrDefault();
+                var oldVal = currentSample.ModValue;
                 if (bestMatch != null)
                 {
                     currentSample.Values = bestMatch.Values;
+                    Console.WriteLine("Replaced: {0}->{1}", oldVal, currentSample.ModValue);
                     numReplaced++;
                 }
                 else
                 {
                     currentSample.ForceChanges();
+                    Console.WriteLine("Forced: {0}->{1}", oldVal, currentSample.ModValue);
                     numForced++;
                 }
+                if (oldVal == targetValue || currentSample.ModValue != targetValue)
+                    throw new Exception("fuck theis");
 
                 // Set progress
-                if (i % 501 != 0)
+                if (i % 1002 != 0)
                     continue;
                 var p = ((float) (i + 1) / messageBits.Length) * 100;
                 Console.WriteLine($"{p}%");
@@ -141,10 +147,9 @@ namespace Stegosaurus.Algorithm
             // Set bits from the values in samples
             for (int i = 0; i < tempBitArray.Length; i++)
             {
-                tempBitArray[i] = samples[_numberList.First()].ModValue == 1;
+                int currentIndex = _numberList.First();
+                tempBitArray[i] = samples[currentIndex].ModValue == 1;
             }
-
-            Console.WriteLine("Read: {0}", ToBitString(tempBitArray));
 
             // Copy bitArray to new byteArray
             byte[] tempByteArray = new byte[_count];
