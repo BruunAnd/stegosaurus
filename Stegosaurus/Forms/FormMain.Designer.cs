@@ -59,27 +59,17 @@ namespace Stegosaurus.Forms
             this.buttonCarrierMediaBrowse = new System.Windows.Forms.Button();
             this.tabControlMain = new System.Windows.Forms.TabControl();
             this.tabPageMain = new System.Windows.Forms.TabPage();
-            this.buttonImportKey = new System.Windows.Forms.Button();
-            this.checkBoxSignMessage = new System.Windows.Forms.CheckBox();
             this.textBoxEncryptionKey = new System.Windows.Forms.RichTextBox();
             this.tabPageAdvanced = new System.Windows.Forms.TabPage();
             this.buttonGenerate = new System.Windows.Forms.Button();
-            this.tabPageSignatures = new System.Windows.Forms.TabPage();
-            this.groupBox2 = new System.Windows.Forms.GroupBox();
-            this.listViewKnownSignatures = new System.Windows.Forms.ListView();
-            this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.buttonGenerateSignature = new System.Windows.Forms.Button();
-            this.buttonExportSignature = new System.Windows.Forms.Button();
-            this.label1 = new System.Windows.Forms.Label();
+            this.imageListSilkIcons = new System.Windows.Forms.ImageList(this.components);
+            this.buttonImportKey = new System.Windows.Forms.Button();
             this.contextMenuStripMain.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxCarrier)).BeginInit();
             this.panel1.SuspendLayout();
             this.tabControlMain.SuspendLayout();
             this.tabPageMain.SuspendLayout();
             this.tabPageAdvanced.SuspendLayout();
-            this.tabPageSignatures.SuspendLayout();
-            this.groupBox2.SuspendLayout();
-            this.groupBox1.SuspendLayout();
             this.SuspendLayout();
             // 
             // listViewMessageContentFiles
@@ -177,6 +167,9 @@ namespace Stegosaurus.Forms
             // buttonActivateSteganography
             // 
             this.buttonActivateSteganography.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.buttonActivateSteganography.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.buttonActivateSteganography.ImageIndex = 1;
+            this.buttonActivateSteganography.ImageList = this.imageListSilkIcons;
             this.buttonActivateSteganography.Location = new System.Drawing.Point(7, 278);
             this.buttonActivateSteganography.Name = "buttonActivateSteganography";
             this.buttonActivateSteganography.Size = new System.Drawing.Size(285, 40);
@@ -332,8 +325,8 @@ namespace Stegosaurus.Forms
             this.tabControlMain.Appearance = System.Windows.Forms.TabAppearance.FlatButtons;
             this.tabControlMain.Controls.Add(this.tabPageMain);
             this.tabControlMain.Controls.Add(this.tabPageAdvanced);
-            this.tabControlMain.Controls.Add(this.tabPageSignatures);
             this.tabControlMain.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tabControlMain.ImageList = this.imageListSilkIcons;
             this.tabControlMain.Location = new System.Drawing.Point(0, 0);
             this.tabControlMain.Name = "tabControlMain";
             this.tabControlMain.SelectedIndex = 0;
@@ -343,7 +336,6 @@ namespace Stegosaurus.Forms
             // tabPageMain
             // 
             this.tabPageMain.Controls.Add(this.buttonImportKey);
-            this.tabPageMain.Controls.Add(this.checkBoxSignMessage);
             this.tabPageMain.Controls.Add(this.textBoxEncryptionKey);
             this.tabPageMain.Controls.Add(this.panel1);
             this.tabPageMain.Controls.Add(this.buttonCarrierMediaBrowse);
@@ -358,6 +350,7 @@ namespace Stegosaurus.Forms
             this.tabPageMain.Controls.Add(this.labelCarrierMedia);
             this.tabPageMain.Controls.Add(this.labelEncryptionKey);
             this.tabPageMain.Controls.Add(this.progressBarCapacity);
+            this.tabPageMain.ImageIndex = 2;
             this.tabPageMain.Location = new System.Drawing.Point(4, 29);
             this.tabPageMain.Name = "tabPageMain";
             this.tabPageMain.Padding = new System.Windows.Forms.Padding(3);
@@ -365,26 +358,6 @@ namespace Stegosaurus.Forms
             this.tabPageMain.TabIndex = 0;
             this.tabPageMain.Text = "Main";
             this.tabPageMain.UseVisualStyleBackColor = true;
-            // 
-            // buttonImportKey
-            // 
-            this.buttonImportKey.Location = new System.Drawing.Point(488, 391);
-            this.buttonImportKey.Name = "buttonImportKey";
-            this.buttonImportKey.Size = new System.Drawing.Size(169, 28);
-            this.buttonImportKey.TabIndex = 30;
-            this.buttonImportKey.Text = "Import (todo: move around)";
-            this.buttonImportKey.UseVisualStyleBackColor = true;
-            this.buttonImportKey.Click += new System.EventHandler(this.buttonImportKey_Click);
-            // 
-            // checkBoxSignMessage
-            // 
-            this.checkBoxSignMessage.AutoSize = true;
-            this.checkBoxSignMessage.Location = new System.Drawing.Point(13, 377);
-            this.checkBoxSignMessage.Name = "checkBoxSignMessage";
-            this.checkBoxSignMessage.Size = new System.Drawing.Size(306, 23);
-            this.checkBoxSignMessage.TabIndex = 29;
-            this.checkBoxSignMessage.Text = "Sign message (TODO: move somewhere else)";
-            this.checkBoxSignMessage.UseVisualStyleBackColor = true;
             // 
             // textBoxEncryptionKey
             // 
@@ -404,6 +377,7 @@ namespace Stegosaurus.Forms
             this.tabPageAdvanced.Controls.Add(this.comboBoxCryptoProviderSelection);
             this.tabPageAdvanced.Controls.Add(this.comboBoxAlgorithmSelection);
             this.tabPageAdvanced.Controls.Add(this.labelCryptoProvider);
+            this.tabPageAdvanced.ImageIndex = 3;
             this.tabPageAdvanced.Location = new System.Drawing.Point(4, 29);
             this.tabPageAdvanced.Name = "tabPageAdvanced";
             this.tabPageAdvanced.Padding = new System.Windows.Forms.Padding(3);
@@ -422,80 +396,24 @@ namespace Stegosaurus.Forms
             this.buttonGenerate.UseVisualStyleBackColor = true;
             this.buttonGenerate.Click += new System.EventHandler(this.buttonGenerate_Click);
             // 
-            // tabPageSignatures
+            // imageListSilkIcons
             // 
-            this.tabPageSignatures.Controls.Add(this.groupBox2);
-            this.tabPageSignatures.Controls.Add(this.groupBox1);
-            this.tabPageSignatures.Location = new System.Drawing.Point(4, 29);
-            this.tabPageSignatures.Name = "tabPageSignatures";
-            this.tabPageSignatures.Size = new System.Drawing.Size(676, 423);
-            this.tabPageSignatures.TabIndex = 2;
-            this.tabPageSignatures.Text = "Signatures";
-            this.tabPageSignatures.UseVisualStyleBackColor = true;
+            this.imageListSilkIcons.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("imageListSilkIcons.ImageStream")));
+            this.imageListSilkIcons.TransparentColor = System.Drawing.Color.Transparent;
+            this.imageListSilkIcons.Images.SetKeyName(0, "lock.png");
+            this.imageListSilkIcons.Images.SetKeyName(1, "lock_open.png");
+            this.imageListSilkIcons.Images.SetKeyName(2, "application_xp.png");
+            this.imageListSilkIcons.Images.SetKeyName(3, "cog.png");
             // 
-            // groupBox2
+            // buttonImportKey
             // 
-            this.groupBox2.Controls.Add(this.listViewKnownSignatures);
-            this.groupBox2.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.groupBox2.Location = new System.Drawing.Point(8, 81);
-            this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(660, 338);
-            this.groupBox2.TabIndex = 1;
-            this.groupBox2.TabStop = false;
-            this.groupBox2.Text = "Known signatures";
-            // 
-            // listViewKnownSignatures
-            // 
-            this.listViewKnownSignatures.Location = new System.Drawing.Point(6, 21);
-            this.listViewKnownSignatures.Name = "listViewKnownSignatures";
-            this.listViewKnownSignatures.Size = new System.Drawing.Size(654, 311);
-            this.listViewKnownSignatures.TabIndex = 0;
-            this.listViewKnownSignatures.UseCompatibleStateImageBehavior = false;
-            // 
-            // groupBox1
-            // 
-            this.groupBox1.Controls.Add(this.buttonGenerateSignature);
-            this.groupBox1.Controls.Add(this.buttonExportSignature);
-            this.groupBox1.Controls.Add(this.label1);
-            this.groupBox1.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.groupBox1.Location = new System.Drawing.Point(8, 3);
-            this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(660, 72);
-            this.groupBox1.TabIndex = 0;
-            this.groupBox1.TabStop = false;
-            this.groupBox1.Text = "My signature";
-            // 
-            // buttonGenerateSignature
-            // 
-            this.buttonGenerateSignature.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.buttonGenerateSignature.Location = new System.Drawing.Point(388, 39);
-            this.buttonGenerateSignature.Name = "buttonGenerateSignature";
-            this.buttonGenerateSignature.Size = new System.Drawing.Size(130, 27);
-            this.buttonGenerateSignature.TabIndex = 2;
-            this.buttonGenerateSignature.Text = "Generate signature";
-            this.buttonGenerateSignature.UseVisualStyleBackColor = true;
-            // 
-            // buttonExportSignature
-            // 
-            this.buttonExportSignature.Enabled = false;
-            this.buttonExportSignature.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.buttonExportSignature.Location = new System.Drawing.Point(524, 39);
-            this.buttonExportSignature.Name = "buttonExportSignature";
-            this.buttonExportSignature.Size = new System.Drawing.Size(130, 27);
-            this.buttonExportSignature.TabIndex = 1;
-            this.buttonExportSignature.Text = "Export signature";
-            this.buttonExportSignature.UseVisualStyleBackColor = true;
-            // 
-            // label1
-            // 
-            this.label1.AutoSize = true;
-            this.label1.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label1.Location = new System.Drawing.Point(6, 18);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(521, 19);
-            this.label1.TabIndex = 0;
-            this.label1.Text = "You have not yet created a signature. Create a signature in order to sign stego-f" +
-    "iles.";
+            this.buttonImportKey.Location = new System.Drawing.Point(488, 391);
+            this.buttonImportKey.Name = "buttonImportKey";
+            this.buttonImportKey.Size = new System.Drawing.Size(169, 28);
+            this.buttonImportKey.TabIndex = 30;
+            this.buttonImportKey.Text = "Import (todo: move around)";
+            this.buttonImportKey.UseVisualStyleBackColor = true;
+            this.buttonImportKey.Click += new System.EventHandler(this.buttonImportKey_Click);
             // 
             // FormMain
             // 
@@ -517,10 +435,6 @@ namespace Stegosaurus.Forms
             this.tabPageMain.PerformLayout();
             this.tabPageAdvanced.ResumeLayout(false);
             this.tabPageAdvanced.PerformLayout();
-            this.tabPageSignatures.ResumeLayout(false);
-            this.groupBox2.ResumeLayout(false);
-            this.groupBox1.ResumeLayout(false);
-            this.groupBox1.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -556,14 +470,7 @@ namespace Stegosaurus.Forms
         private System.Windows.Forms.TabPage tabPageAdvanced;
         private System.Windows.Forms.RichTextBox textBoxEncryptionKey;
         private System.Windows.Forms.Button buttonGenerate;
-        private System.Windows.Forms.TabPage tabPageSignatures;
-        private System.Windows.Forms.GroupBox groupBox1;
-        private System.Windows.Forms.GroupBox groupBox2;
-        private System.Windows.Forms.Button buttonGenerateSignature;
-        private System.Windows.Forms.Button buttonExportSignature;
-        private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.ListView listViewKnownSignatures;
-        private System.Windows.Forms.CheckBox checkBoxSignMessage;
+        private System.Windows.Forms.ImageList imageListSilkIcons;
         private System.Windows.Forms.Button buttonImportKey;
     }
 }

@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using Stegosaurus.Carrier;
 using Stegosaurus.Cryptography;
-using Stegosaurus.Algorithm.GraphTheory;
 using Stegosaurus.Utility;
 using System.Collections;
 using Stegosaurus.Exceptions;
@@ -21,87 +20,87 @@ namespace Stegosaurus.Algorithm
 
         public string Name => "Common Sample";
 
-        public long ComputeBandwidth()
+        public static string ToBitString(BitArray bits)
         {
-            return (CarrierMedia.ByteArray.Length / 8) - CommonSampleSignature.Length;
+            var sb = new StringBuilder();
+
+            for (int i = 0; i < bits.Count; i++)
+            {
+                char c = bits[i] ? '1' : '0';
+                sb.Append(c);
+            }
+
+            return sb.ToString();
         }
 
         public void Embed(StegoMessage message)
         {
-            var messageBits = new BitArray(message.ToByteArray(CryptoProvider));
+            var messageBits = new BitArray(CommonSampleSignature.Concat(message.ToByteArray(CryptoProvider)).ToArray());
+            Console.WriteLine("Write: {0}", ToBitString(messageBits));
 
             // Get all vertices
-            var vertices = GetAllVertices();
-            var minOccurrences = (int)Math.Sqrt(Math.Sqrt(vertices.Count));
-            Console.WriteLine("{0} minimum", minOccurrences);
+            List<CommonSample.Sample> samples = GetAllSamples();
 
             // Find color frequencies
-            var colorFrequencies = vertices
-                .GroupBy(v => v.Samples, new ArrayComparer<byte>())
-                //.OrderByDescending(x => x.Count())
-                .Where(x => x.Count() > minOccurrences)
-                .Select(x => x.Key).ToList();
+            IEnumerable<CommonSample.Sample> colorFrequencies = samples
+                .GroupBy(v => v)
+                .OrderByDescending(v => v.Count())
+                .Select(s => s.Key);
+
+            // Get amount of unique colors
+            int amountOfSamples = colorFrequencies.Count();
+
+            // Find common samples
+            List<CommonSample.Sample> commonFrequencies = colorFrequencies
+                .Take(Math.Min((int) Math.Floor(amountOfSamples * 0.025), 500))
+                .ToList();
 
             // Find vertices to change
-            var randomNumbers = new RandomNumberList(CryptoProvider.Seed, vertices.Count);
-            int replaced = 0, forced = 0;
+            RandomNumberList randomNumbers = new RandomNumberList(CryptoProvider.Seed, samples.Count);
+            int numReplaced = 0, numForced = 0;
             for (int i = 0; i < messageBits.Length; i++)
             {
-                Vertex currentVertex = vertices[randomNumbers.First()];
+                CommonSample.Sample currentSample = samples[randomNumbers.First()];
+                currentSample.TargetValue = messageBits[i] ? 1 : 0;
 
-                // Determine target value
-                var targetValue = new bool[CarrierMedia.BytesPerSample];
-                for (int j = 0; j < targetValue.Length; j++)
-                    targetValue[j] = messageBits[i++];
-                currentVertex.TargetValue = targetValue;
-
-                // Find best match
-                var possibleMatches = colorFrequencies
-                    .Where(c => currentVertex.HasMatchingBits(c))
-                    .OrderBy(c => currentVertex.DistanceTo(c));
-
-                // Take first element
-
-
-                // Find matching vertex
-                bool foundMatch = false;
-                foreach (byte[] colorSamples in colorFrequencies)
+                // Check if it already has target value
+                if (currentSample.ModValue == currentSample.TargetValue)
                 {
-                    // Do bits match?
-                    if (!currentVertex.HasMatchingBits(colorSamples))
-                        continue;
-
-                    // Is distance ok?
-                    int distance = currentVertex.DistanceTo(colorSamples);
-                    if (distance < 10) // TODO determine better max distance?
-                    {
-                        currentVertex.Samples = colorSamples;
-                        foundMatch = true;
-                        replaced++;
-                    }
+                    continue;
                 }
 
-                // Force changes if no match
-                if (!foundMatch)
+                // Find best match
+                IEnumerable<CommonSample.Sample> possibleMatches = commonFrequencies
+                    .Where(s => currentSample.TargetValue == s.ModValue) //  && currentSample.DistanceTo(s) <= 1000
+                    .OrderBy(s => currentSample.DistanceTo(s)); // should not be calculated again
+
+                // Take first element
+                CommonSample.Sample bestMatch = possibleMatches.FirstOrDefault();
+                if (bestMatch != null)
                 {
-                    currentVertex.ForceChanges();
-                    forced++;
+                    currentSample.Values = bestMatch.Values;
+                    numReplaced++;
+                }
+                else
+                {
+                    currentSample.ForceChanges();
+                    numForced++;
                 }
 
                 // Set progress
                 if (i % 501 != 0)
                     continue;
                 var p = ((float) (i + 1) / messageBits.Length) * 100;
-                Console.Title = $"{p}%";
+                Console.WriteLine($"{p}%");
             }
 
-            Console.WriteLine("{0}% forced, {1}% replaced", 100 * ((float)forced / (forced + replaced)), 100 * ((float) replaced / (forced + replaced)));
+            Console.WriteLine("{0}% forced, {1}% replaced", 100 * ((float)numForced / (numForced + numReplaced)), 100 * ((float) numReplaced / (numForced + numReplaced)));
 
             // Write changes
             int pos = 0;
-            foreach (Vertex current in vertices)
+            foreach (CommonSample.Sample current in samples)
             {
-                foreach (byte sample in current.Samples)
+                foreach (byte sample in current.Values)
                 {
                     CarrierMedia.ByteArray[pos++] = sample;
                 }
@@ -110,38 +109,71 @@ namespace Stegosaurus.Algorithm
 
         public StegoMessage Extract()
         {
-            throw new NotImplementedException();
-        }
+            // Get all samples
+            List<CommonSample.Sample> samples = GetAllSamples();
 
-        public List<Vertex> GetAllVertices()
-        {
-            var allVertices = new List<Vertex>(CarrierMedia.ByteArray.Length / CarrierMedia.BytesPerSample);
+            // Generate random numbers
+            RandomNumberList randomNumbers = new RandomNumberList(CryptoProvider.Seed, samples.Count);
 
-            int currentSample = 0, sampleCount = 0;
-            while (currentSample < CarrierMedia.ByteArray.Length)
+            // Read bytes and verify CommonSampleSignature
+            if (!ReadBytes(randomNumbers, samples, CommonSampleSignature.Length).SequenceEqual(CommonSampleSignature))
             {
-                var samples = new byte[CarrierMedia.BytesPerSample];
-
-                for (int i = 0; i < CarrierMedia.BytesPerSample; i++)
-                    samples[i] = CarrierMedia.ByteArray[currentSample++];
-
-                allVertices.Add(new Vertex(sampleCount++, samples));
+                throw new StegoAlgorithmException("Signature is invalid, possibly using a wrong key.");
             }
 
-            return allVertices;
-        }
-    }
+            // Read length
+            int length = BitConverter.ToInt32(ReadBytes(randomNumbers, samples, 4), 0);
 
-    class ArrayComparer<T> : IEqualityComparer<T[]>
-    {
-        public bool Equals(T[] x, T[] y)
-        {
-            return x.SequenceEqual(y);
+            // Read data and return StegoMessage instance
+            return new StegoMessage(ReadBytes(randomNumbers, samples, length), CryptoProvider);
         }
 
-        public int GetHashCode(T[] obj)
+        public long ComputeBandwidth()
         {
-            return obj.Aggregate(string.Empty, (s, i) => s + i.GetHashCode(), s => s.GetHashCode());
+            return ((CarrierMedia.ByteArray.Length / CarrierMedia.BytesPerSample) / 8) - CommonSampleSignature.Length;
+        }
+
+        private byte[] ReadBytes(IEnumerable<int> _numberList, List<CommonSample.Sample> samples, int _count)
+        {
+            // Allocate BitArray with count * 8 bits
+            BitArray tempBitArray = new BitArray(_count * 8);
+
+            // Set bits from the values in samples
+            for (int i = 0; i < tempBitArray.Length; i++)
+            {
+                tempBitArray[i] = samples[_numberList.First()].ModValue == 1;
+            }
+
+            Console.WriteLine("Read: {0}", ToBitString(tempBitArray));
+
+            // Copy bitArray to new byteArray
+            byte[] tempByteArray = new byte[_count];
+            tempBitArray.CopyTo(tempByteArray, 0);
+
+            return tempByteArray;
+        }
+
+        /// <summary>
+        /// Returns a list of all samples in the CarrierMedia
+        /// </summary>
+        public List<CommonSample.Sample> GetAllSamples()
+        {
+            List<CommonSample.Sample> sampleList = new List<CommonSample.Sample>(CarrierMedia.ByteArray.Length / CarrierMedia.BytesPerSample);
+
+            int currentSample = 0;
+            while (currentSample < CarrierMedia.ByteArray.Length)
+            {
+                byte[] sampleValues = new byte[CarrierMedia.BytesPerSample];
+
+                for (int i = 0; i < CarrierMedia.BytesPerSample; i++)
+                {
+                    sampleValues[i] = CarrierMedia.ByteArray[currentSample++];
+                }
+
+                sampleList.Add(new CommonSample.Sample(sampleValues));
+            }
+
+            return sampleList;
         }
     }
 }

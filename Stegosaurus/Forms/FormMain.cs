@@ -395,8 +395,8 @@ namespace Stegosaurus.Forms
                 }
                 else
                 {
-                    MessageBox.Show("Message was succesfully extracted.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     Extract();
+                    MessageBox.Show("Message was succesfully extracted.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
             }
             catch (StegoCryptoException ex)
@@ -518,6 +518,10 @@ namespace Stegosaurus.Forms
             // Update label
             labelCapacityWarning.Text = $"{ratio:#.##}% ({SizeFormatter.StringFormatBytes(size)}/{SizeFormatter.StringFormatBytes(capacity)})";
             labelCapacityWarning.ForeColor = size > capacity ? Color.Red : Color.Green;
+
+            // Update button
+            buttonActivateSteganography.Enabled = size <= capacity;
+            buttonActivateSteganography.ImageIndex = size > capacity ? 1 : 0;
         }
 
         private static string StringFormatBytes(long byteCount)

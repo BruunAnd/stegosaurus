@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Stegosaurus.Algorithm.GraphTheory
 {
@@ -7,6 +8,8 @@ namespace Stegosaurus.Algorithm.GraphTheory
     {
         public byte[] Samples;
         public bool[] TargetValue;
+
+        public int TargetMod;
 
         private const int SelectedBit = 0x1;
 
@@ -22,20 +25,15 @@ namespace Stegosaurus.Algorithm.GraphTheory
 
         public void ForceChanges()
         {
-            for (int i = 0; i < Samples.Length; i++)
-            {
-                if ((Samples[i] & SelectedBit) != SelectedBit)
-                    Samples[i] ^= SelectedBit;
-            }
+            Samples[0] ^= 0x1;
         }
 
         public bool HasMatchingBits(byte[] samples)
         {
-            if (samples.Length != TargetValue.Length)
-                return false;
-
             for (var i = 0; i < samples.Length; i++)
             {
+                if (i + 1 >= TargetValue.Length)
+                    return true;
                 if (((samples[i] & SelectedBit ) == SelectedBit) != TargetValue[i])
                     return false;
             }
