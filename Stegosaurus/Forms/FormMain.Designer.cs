@@ -223,9 +223,8 @@ namespace Stegosaurus.Forms
             // 
             // labelAlgorithmList
             // 
-            this.labelAlgorithmList.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.labelAlgorithmList.AutoSize = true;
-            this.labelAlgorithmList.Location = new System.Drawing.Point(8, 3);
+            this.labelAlgorithmList.Location = new System.Drawing.Point(4, 7);
             this.labelAlgorithmList.Name = "labelAlgorithmList";
             this.labelAlgorithmList.Size = new System.Drawing.Size(168, 19);
             this.labelAlgorithmList.TabIndex = 18;
@@ -233,10 +232,9 @@ namespace Stegosaurus.Forms
             // 
             // comboBoxAlgorithmSelection
             // 
-            this.comboBoxAlgorithmSelection.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.comboBoxAlgorithmSelection.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.comboBoxAlgorithmSelection.FormattingEnabled = true;
-            this.comboBoxAlgorithmSelection.Location = new System.Drawing.Point(12, 25);
+            this.comboBoxAlgorithmSelection.Location = new System.Drawing.Point(8, 29);
             this.comboBoxAlgorithmSelection.Name = "comboBoxAlgorithmSelection";
             this.comboBoxAlgorithmSelection.Size = new System.Drawing.Size(158, 25);
             this.comboBoxAlgorithmSelection.TabIndex = 19;
@@ -261,7 +259,7 @@ namespace Stegosaurus.Forms
             this.labelCapacityWarning.Size = new System.Drawing.Size(123, 19);
             this.labelCapacityWarning.TabIndex = 23;
             this.labelCapacityWarning.Text = "N/A";
-            this.labelCapacityWarning.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.labelCapacityWarning.TextAlign = System.Drawing.ContentAlignment.TopRight;
             // 
             // textBoxTextMessage
             // 
@@ -276,9 +274,8 @@ namespace Stegosaurus.Forms
             // 
             // labelCryptoProvider
             // 
-            this.labelCryptoProvider.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.labelCryptoProvider.AutoSize = true;
-            this.labelCryptoProvider.Location = new System.Drawing.Point(8, 53);
+            this.labelCryptoProvider.Location = new System.Drawing.Point(4, 57);
             this.labelCryptoProvider.Name = "labelCryptoProvider";
             this.labelCryptoProvider.Size = new System.Drawing.Size(160, 19);
             this.labelCryptoProvider.TabIndex = 25;
@@ -286,10 +283,9 @@ namespace Stegosaurus.Forms
             // 
             // comboBoxCryptoProviderSelection
             // 
-            this.comboBoxCryptoProviderSelection.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.comboBoxCryptoProviderSelection.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.comboBoxCryptoProviderSelection.FormattingEnabled = true;
-            this.comboBoxCryptoProviderSelection.Location = new System.Drawing.Point(12, 75);
+            this.comboBoxCryptoProviderSelection.Location = new System.Drawing.Point(8, 79);
             this.comboBoxCryptoProviderSelection.Name = "comboBoxCryptoProviderSelection";
             this.comboBoxCryptoProviderSelection.Size = new System.Drawing.Size(158, 25);
             this.comboBoxCryptoProviderSelection.TabIndex = 26;
@@ -305,7 +301,7 @@ namespace Stegosaurus.Forms
             this.tabControlMain.Location = new System.Drawing.Point(0, 0);
             this.tabControlMain.Name = "tabControlMain";
             this.tabControlMain.SelectedIndex = 0;
-            this.tabControlMain.Size = new System.Drawing.Size(796, 443);
+            this.tabControlMain.Size = new System.Drawing.Size(796, 416);
             this.tabControlMain.TabIndex = 29;
             // 
             // tabPageMain
@@ -329,7 +325,7 @@ namespace Stegosaurus.Forms
             this.tabPageMain.Location = new System.Drawing.Point(4, 29);
             this.tabPageMain.Name = "tabPageMain";
             this.tabPageMain.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPageMain.Size = new System.Drawing.Size(788, 410);
+            this.tabPageMain.Size = new System.Drawing.Size(788, 383);
             this.tabPageMain.TabIndex = 0;
             this.tabPageMain.Text = "Main";
             this.tabPageMain.UseVisualStyleBackColor = true;
@@ -399,18 +395,18 @@ namespace Stegosaurus.Forms
             this.tabPageAdvanced.Location = new System.Drawing.Point(4, 29);
             this.tabPageAdvanced.Name = "tabPageAdvanced";
             this.tabPageAdvanced.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPageAdvanced.Size = new System.Drawing.Size(788, 410);
+            this.tabPageAdvanced.Size = new System.Drawing.Size(788, 383);
             this.tabPageAdvanced.TabIndex = 1;
             this.tabPageAdvanced.Text = "Advanced options";
             this.tabPageAdvanced.UseVisualStyleBackColor = true;
             // 
             // buttonGenerate
             // 
-            this.buttonGenerate.Location = new System.Drawing.Point(45, 152);
+            this.buttonGenerate.Location = new System.Drawing.Point(8, 110);
             this.buttonGenerate.Name = "buttonGenerate";
-            this.buttonGenerate.Size = new System.Drawing.Size(524, 31);
+            this.buttonGenerate.Size = new System.Drawing.Size(158, 31);
             this.buttonGenerate.TabIndex = 27;
-            this.buttonGenerate.Text = "Generate RSA keys (todo: place this button somewhere else)";
+            this.buttonGenerate.Text = "Generate RSA keypair";
             this.buttonGenerate.UseVisualStyleBackColor = true;
             this.buttonGenerate.Click += new System.EventHandler(this.buttonGenerate_Click);
             // 
@@ -418,7 +414,7 @@ namespace Stegosaurus.Forms
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(796, 443);
+            this.ClientSize = new System.Drawing.Size(796, 416);
             this.Controls.Add(this.tabControlMain);
             this.Font = new System.Drawing.Font("Segoe UI", 8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
