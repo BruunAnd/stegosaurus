@@ -72,26 +72,21 @@ namespace Stegosaurus.Algorithm
 
                 // Find best match
                 IEnumerable<CommonSample.Sample> possibleMatches = commonFrequencies
-                    .Where(s => targetValue == s.ModValue)
+                    .Where(s =>  s.ModValue == targetValue && s.DistanceTo(currentSample) <= 1000)
                     .OrderBy(s => currentSample.DistanceTo(s));
 
-                // Take first element
+                // Find best match
                 CommonSample.Sample bestMatch = possibleMatches.FirstOrDefault();
-                var oldVal = currentSample.ModValue;
                 if (bestMatch != null)
                 {
                     currentSample.Values = bestMatch.Values;
-                    Console.WriteLine("Replaced: {0}->{1}", oldVal, currentSample.ModValue);
                     numReplaced++;
                 }
                 else
                 {
                     currentSample.ForceChanges();
-                    Console.WriteLine("Forced: {0}->{1}", oldVal, currentSample.ModValue);
                     numForced++;
                 }
-                if (oldVal == targetValue || currentSample.ModValue != targetValue)
-                    throw new Exception("fuck theis");
 
                 // Set progress
                 if (i % 1002 != 0)

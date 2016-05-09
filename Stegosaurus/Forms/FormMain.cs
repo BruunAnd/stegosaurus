@@ -103,23 +103,6 @@ namespace Stegosaurus.Forms
             MessageBox.Show(message, title, MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
-        /// <summary>
-        /// Opens a dialog where the user can browse for a file to make the carrier media.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void buttonCarrierMediaBrowse_Click(object sender, EventArgs e)
-        {
-            OpenFileDialog ofd = new OpenFileDialog();
-            ofd.Multiselect = false;
-            ofd.Filter = "Image files (*.jpg, *.jpeg, *.jpe, *.jfif, *.png, *.gif, *.bmp) | *.jpg; *.jpeg; *.jpe; *.jfif; *.png; *.gif; *.bmp|Audio files (*.wav)|*.wav";
-
-            if (ofd.ShowDialog() != DialogResult.OK)
-                return;
-
-           HandleInput(new CarrierType(ofd.FileName));
-        }
-
         #endregion
 
         #region StegoMessage Content Handling
@@ -133,7 +116,7 @@ namespace Stegosaurus.Forms
             stegoMessage.TextMessage = textBoxTextMessage.Text;
 
             UpdateCapacityBar();
-            UpdateButtonText();
+            UpdateButton();
         }
 
         /// <summary>
@@ -180,25 +163,6 @@ namespace Stegosaurus.Forms
             }
 
             listViewMessageContentFiles.BackColor = Color.White;
-        }
-
-        /// <summary>
-        /// Opens a dialog where the user can browse for files to add to the message content.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void buttonInputBrowse_Click(object sender, EventArgs e)
-        {
-            OpenFileDialog ofd = new OpenFileDialog();
-            ofd.Multiselect = true;
-
-            if (ofd.ShowDialog() != DialogResult.OK)
-                return;
-
-            foreach (string fileName in ofd.FileNames)
-            {
-                HandleInput(new ContentType(fileName));
-            }
         }
         
         /// <summary>
@@ -289,7 +253,7 @@ namespace Stegosaurus.Forms
             }
 
             UpdateCapacityBar();
-            UpdateButtonText();
+            UpdateButton();
         }
         
         /// <summary>
@@ -323,10 +287,12 @@ namespace Stegosaurus.Forms
         private void comboBoxCryptoProviderSelection_SelectedIndexChanged(object sender, EventArgs e)
         {
             cryptoProvider = cryptoProviderDictionary[comboBoxCryptoProviderSelection.Text];
-            textBoxEncryptionKey.MaxLength = cryptoProvider.KeySize / 8;
+            //textBoxEncryptionKey.MaxLength = cryptoProvider.KeySize / 8;
             //textBoxEncryptionKey.Text = textBoxEncryptionKey.Text.Remove(cryptoProvider.KeySize / 8);
             cryptoProvider.SetKey(textBoxEncryptionKey.Text);
             algorithm.CryptoProvider = cryptoProvider;
+
+            buttonImportKey.Enabled = cryptoProvider is RSAProvider;
         }
 
         //TODO: Implement Key size limit for XML keys(REMEMBER rsa uses XML keys)
@@ -357,9 +323,10 @@ namespace Stegosaurus.Forms
         /// <summary>
         /// Updates the Embed/Extract buttons text to reflect action the button will activate.
         /// </summary>
-        private void UpdateButtonText()
+        private void UpdateButton()
         {
-            buttonActivateSteganography.Text = CanEmbed ? "Embed" : "Extract";
+            buttonActivateSteganography.Text = CanEmbed ? "Embed content" : "Extract content";
+            buttonActivateSteganography.Enabled = carrierMedia != null;
         }
 
         /// <summary>
@@ -370,12 +337,6 @@ namespace Stegosaurus.Forms
         /// <param name="e"></param>
         private void buttonActivateSteganography_Click(object sender, EventArgs e)
         {
-            if (carrierMedia == null)
-            {
-                MessageBox.Show("You must supply a carrier media.");
-                return;
-            }
-
             // Embed or extract
             try
             {
@@ -433,7 +394,7 @@ namespace Stegosaurus.Forms
                         imageListIcons.Images.Add(fileItem.ImageKey, IconExtractor.ExtractIcon(fileItem.ImageKey));
 
                     listViewMessageContentFiles.Items.Add(fileItem);
-                    UpdateButtonText();
+                    UpdateButton();
                     UpdateCapacityBar();
                 }
             }
@@ -490,7 +451,7 @@ namespace Stegosaurus.Forms
             }
 
             UpdateCapacityBar();
-            UpdateButtonText();
+            UpdateButton();
         }
         
         /// <summary>
@@ -521,7 +482,7 @@ namespace Stegosaurus.Forms
 
             // Update button
             buttonActivateSteganography.Enabled = size <= capacity;
-            buttonActivateSteganography.ImageIndex = size > capacity ? 1 : 0;
+            buttonActivateSteganography.ImageIndex = CanEmbed ? 0 : 1;
         }
 
         private static string StringFormatBytes(long byteCount)
@@ -569,6 +530,33 @@ namespace Stegosaurus.Forms
 
             textBoxEncryptionKey.Text = File.ReadAllText(ofd.FileName);
         }
-        
+
+        private void pictureBoxCarrier_MouseHover(object sender, EventArgs e)
+        {
+        }
+
+        private void pictureBoxCarrier_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void tabPageMain_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void listViewMessageContentFiles_MouseHover(object sender, EventArgs e)
+        {
+            ShowToolTip(this.listViewMessageContentFiles, "Right click to delete and save files.");
+        }
+
+        private void ShowToolTip(Control _control, string _message)
+        {
+            new ToolTip().SetToolTip(_control, _message);
+        }
+
+        private void buttonImportKey_MouseHover(object sender, EventArgs e)
+        {
+        }
     }
 }
