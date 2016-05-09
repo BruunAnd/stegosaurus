@@ -7,9 +7,9 @@ namespace Stegosaurus.Utility
     public class RandomNumberList : IEnumerable<int>
     {
         // Private variables
-        private Random random;
-        private HashSet<int> generatedIntegers = new HashSet<int>();
-        private int maxValue;
+        private readonly Random random;
+        private readonly HashSet<int> generatedIntegers = new HashSet<int>();
+        private readonly int maxValue;
 
         public RandomNumberList(int _seed, int _maxValue)
         {

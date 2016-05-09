@@ -317,6 +317,7 @@ namespace Stegosaurus.Forms
             algorithm = algorithmDictionary[comboBoxAlgorithmSelection.Text];
             algorithm.CarrierMedia = carrierMedia;
             algorithm.CryptoProvider = cryptoProvider;
+            propertyGridAlgorithmOptions.SelectedObject = algorithm;
             UpdateCapacityBar();
         }
 

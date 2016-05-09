@@ -1,20 +1,18 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using Stegosaurus.Utility.Extensions;
 
 namespace Stegosaurus.Algorithm.CommonSample
 {
     public class Sample : IEquatable<Sample>
     {
-        public byte[] Values;
+        public byte[] Values { get; set; }
 
         public int ModValue
         {
             get
             {
-                return Values.Sum(b => b) % 2;
+                return Values.Aggregate(0, (current, value) => current + value) % 2;
             }
         }
 
@@ -47,10 +45,7 @@ namespace Stegosaurus.Algorithm.CommonSample
 
         public override string ToString()
         {
-            string retString = string.Empty;
-            foreach (byte val in Values)
-                retString += " " + val;
-            return retString;
+            return Values.Aggregate(string.Empty, (current, val) => current + (" " + val));
         }
 
         public bool Equals(Sample other)

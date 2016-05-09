@@ -5,6 +5,7 @@ using System.Linq;
 using Stegosaurus.Exceptions;
 using Stegosaurus.Utility;
 using System.Collections.Generic;
+using System.ComponentModel;
 using Stegosaurus.Cryptography;
 
 namespace Stegosaurus.Algorithm
@@ -13,14 +14,20 @@ namespace Stegosaurus.Algorithm
     {
         private static readonly byte[] LsbSignature = { 0x6C, 0x73, 0x62, 0x51 };
 
+        [Browsable(false)]
         public ICryptoProvider CryptoProvider { get; set; }
+
+        [Browsable(false)]
         public ICarrierMedia CarrierMedia { get; set; }
 
-        public string Name => "LSB";
+        [Browsable(false)]
+        public string Name => "Least Significant Bit";
 
+        [Browsable(false)]
         public int Seed => CryptoProvider?.Seed ?? 0;
 
-        private const int SelectedBit = 0x1;
+        [Category("Algorithm"), Description("The bit to modify and read from.")]
+        public byte WorkingBit { get; set; } = 0x1;
 
         public void Embed(StegoMessage _message)
         {
@@ -38,12 +45,12 @@ namespace Stegosaurus.Algorithm
                 byte sampleValue = CarrierMedia.ByteArray[byteArrayIndex];
 
                 // Get the least significant bit of current position
-                bool carrierBit = (sampleValue & SelectedBit) == SelectedBit;
+                bool carrierBit = (sampleValue & WorkingBit) == WorkingBit;
 
                 // Flip LSB if no match
                 if (carrierBit != messageInBits[index])
                 {
-                    CarrierMedia.ByteArray[byteArrayIndex] ^= SelectedBit;
+                    CarrierMedia.ByteArray[byteArrayIndex] ^= WorkingBit;
                 }
             }
         }
@@ -79,7 +86,7 @@ namespace Stegosaurus.Algorithm
             // Iterate through the allocated amount of bits
             for (int i = 0; i < tempBitArray.Length; i++)
             {
-                tempBitArray[i] = (CarrierMedia.ByteArray[_numberList.First()] & SelectedBit) == SelectedBit;
+                tempBitArray[i] = (CarrierMedia.ByteArray[_numberList.First()] & WorkingBit) == WorkingBit;
             }
 
             // Copy bitArray to new byteArray
