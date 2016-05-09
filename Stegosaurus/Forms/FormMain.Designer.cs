@@ -63,8 +63,9 @@ namespace Stegosaurus.Forms
             this.buttonImportKey = new System.Windows.Forms.Button();
             this.textBoxEncryptionKey = new System.Windows.Forms.RichTextBox();
             this.tabPageAdvanced = new System.Windows.Forms.TabPage();
-            this.buttonGenerate = new System.Windows.Forms.Button();
+            this.labelAdvancedAlgorithm = new System.Windows.Forms.Label();
             this.propertyGridAlgorithmOptions = new System.Windows.Forms.PropertyGrid();
+            this.buttonGenerate = new System.Windows.Forms.Button();
             this.contextMenuStripMain.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxCarrier)).BeginInit();
             this.panel1.SuspendLayout();
@@ -225,9 +226,10 @@ namespace Stegosaurus.Forms
             // labelAlgorithmList
             // 
             this.labelAlgorithmList.AutoSize = true;
+            this.labelAlgorithmList.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.labelAlgorithmList.Location = new System.Drawing.Point(4, 7);
             this.labelAlgorithmList.Name = "labelAlgorithmList";
-            this.labelAlgorithmList.Size = new System.Drawing.Size(142, 13);
+            this.labelAlgorithmList.Size = new System.Drawing.Size(144, 13);
             this.labelAlgorithmList.TabIndex = 18;
             this.labelAlgorithmList.Text = "Steganography algorithm:";
             // 
@@ -245,7 +247,7 @@ namespace Stegosaurus.Forms
             // 
             this.labelStorageRatio.AutoSize = true;
             this.labelStorageRatio.Font = new System.Drawing.Font("Segoe UI", 7.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.labelStorageRatio.Location = new System.Drawing.Point(406, 320);
+            this.labelStorageRatio.Location = new System.Drawing.Point(407, 321);
             this.labelStorageRatio.Name = "labelStorageRatio";
             this.labelStorageRatio.Size = new System.Drawing.Size(181, 13);
             this.labelStorageRatio.TabIndex = 20;
@@ -254,10 +256,10 @@ namespace Stegosaurus.Forms
             // labelCapacityWarning
             // 
             this.labelCapacityWarning.BackColor = System.Drawing.Color.Transparent;
-            this.labelCapacityWarning.Location = new System.Drawing.Point(649, 320);
+            this.labelCapacityWarning.Location = new System.Drawing.Point(594, 320);
             this.labelCapacityWarning.Name = "labelCapacityWarning";
             this.labelCapacityWarning.RightToLeft = System.Windows.Forms.RightToLeft.No;
-            this.labelCapacityWarning.Size = new System.Drawing.Size(123, 19);
+            this.labelCapacityWarning.Size = new System.Drawing.Size(178, 19);
             this.labelCapacityWarning.TabIndex = 23;
             this.labelCapacityWarning.Text = "N/A";
             this.labelCapacityWarning.TextAlign = System.Drawing.ContentAlignment.TopRight;
@@ -276,9 +278,10 @@ namespace Stegosaurus.Forms
             // labelCryptoProvider
             // 
             this.labelCryptoProvider.AutoSize = true;
-            this.labelCryptoProvider.Location = new System.Drawing.Point(4, 57);
+            this.labelCryptoProvider.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.labelCryptoProvider.Location = new System.Drawing.Point(5, 53);
             this.labelCryptoProvider.Name = "labelCryptoProvider";
-            this.labelCryptoProvider.Size = new System.Drawing.Size(133, 13);
+            this.labelCryptoProvider.Size = new System.Drawing.Size(136, 13);
             this.labelCryptoProvider.TabIndex = 25;
             this.labelCryptoProvider.Text = "Cryptography algorithm:";
             // 
@@ -286,7 +289,7 @@ namespace Stegosaurus.Forms
             // 
             this.comboBoxCryptoProviderSelection.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.comboBoxCryptoProviderSelection.FormattingEnabled = true;
-            this.comboBoxCryptoProviderSelection.Location = new System.Drawing.Point(8, 79);
+            this.comboBoxCryptoProviderSelection.Location = new System.Drawing.Point(8, 75);
             this.comboBoxCryptoProviderSelection.Name = "comboBoxCryptoProviderSelection";
             this.comboBoxCryptoProviderSelection.Size = new System.Drawing.Size(158, 21);
             this.comboBoxCryptoProviderSelection.TabIndex = 26;
@@ -387,6 +390,7 @@ namespace Stegosaurus.Forms
             // 
             // tabPageAdvanced
             // 
+            this.tabPageAdvanced.Controls.Add(this.labelAdvancedAlgorithm);
             this.tabPageAdvanced.Controls.Add(this.propertyGridAlgorithmOptions);
             this.tabPageAdvanced.Controls.Add(this.buttonGenerate);
             this.tabPageAdvanced.Controls.Add(this.labelAlgorithmList);
@@ -402,23 +406,33 @@ namespace Stegosaurus.Forms
             this.tabPageAdvanced.Text = "Advanced options";
             this.tabPageAdvanced.UseVisualStyleBackColor = true;
             // 
-            // buttonGenerate
+            // labelAdvancedAlgorithm
             // 
-            this.buttonGenerate.Location = new System.Drawing.Point(8, 110);
-            this.buttonGenerate.Name = "buttonGenerate";
-            this.buttonGenerate.Size = new System.Drawing.Size(158, 31);
-            this.buttonGenerate.TabIndex = 27;
-            this.buttonGenerate.Text = "Generate RSA keypair";
-            this.buttonGenerate.UseVisualStyleBackColor = true;
-            this.buttonGenerate.Click += new System.EventHandler(this.buttonGenerate_Click);
+            this.labelAdvancedAlgorithm.AutoSize = true;
+            this.labelAdvancedAlgorithm.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.labelAdvancedAlgorithm.Location = new System.Drawing.Point(174, 7);
+            this.labelAdvancedAlgorithm.Name = "labelAdvancedAlgorithm";
+            this.labelAdvancedAlgorithm.Size = new System.Drawing.Size(188, 13);
+            this.labelAdvancedAlgorithm.TabIndex = 30;
+            this.labelAdvancedAlgorithm.Text = "Steganography algorithm settings:";
             // 
             // propertyGridAlgorithmOptions
             // 
             this.propertyGridAlgorithmOptions.CategoryForeColor = System.Drawing.SystemColors.InactiveCaptionText;
-            this.propertyGridAlgorithmOptions.Location = new System.Drawing.Point(172, 7);
+            this.propertyGridAlgorithmOptions.Location = new System.Drawing.Point(177, 29);
             this.propertyGridAlgorithmOptions.Name = "propertyGridAlgorithmOptions";
-            this.propertyGridAlgorithmOptions.Size = new System.Drawing.Size(254, 371);
+            this.propertyGridAlgorithmOptions.Size = new System.Drawing.Size(299, 349);
             this.propertyGridAlgorithmOptions.TabIndex = 29;
+            // 
+            // buttonGenerate
+            // 
+            this.buttonGenerate.Location = new System.Drawing.Point(8, 102);
+            this.buttonGenerate.Name = "buttonGenerate";
+            this.buttonGenerate.Size = new System.Drawing.Size(158, 34);
+            this.buttonGenerate.TabIndex = 27;
+            this.buttonGenerate.Text = "Generate RSA keypair";
+            this.buttonGenerate.UseVisualStyleBackColor = true;
+            this.buttonGenerate.Click += new System.EventHandler(this.buttonGenerate_Click);
             // 
             // FormMain
             // 
@@ -479,6 +493,7 @@ namespace Stegosaurus.Forms
         private System.Windows.Forms.Label labelContent;
         private System.Windows.Forms.Label labelContentDescription;
         private System.Windows.Forms.PropertyGrid propertyGridAlgorithmOptions;
+        private System.Windows.Forms.Label labelAdvancedAlgorithm;
     }
 }
 

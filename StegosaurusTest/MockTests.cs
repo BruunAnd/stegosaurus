@@ -13,7 +13,7 @@ namespace StegosaurusTest
     [TestClass]
     public class MockTests
     {
-        public void TestSpecifiedAlgorithms(ICryptoProvider _cryptoProvider, IStegoAlgorithm _algorithm, int _dataSize)
+        public void TestSpecifiedAlgorithms(ICryptoProvider _cryptoProvider, StegoAlgorithmBase _algorithm, int _dataSize)
         {
             const string testMessageString = "Example text message.";
             const string testFileName = "Example.bin";

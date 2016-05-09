@@ -62,6 +62,7 @@
     <Compile Include="Algorithm\GraphTheory\Vertex.cs" />
     <Compile Include="Algorithm\IStegoAlgorithm.cs" />
     <Compile Include="Algorithm\LSBAlgorithm.cs" />
+    <Compile Include="Algorithm\StegoAlgorithmBase.cs" />
     <Compile Include="Carrier\AudioCarrier.cs" />
     <Compile Include="Carrier\AudioFormats\AudioFile.cs" />
     <Compile Include="Carrier\AudioFormats\WaveFile.cs" />

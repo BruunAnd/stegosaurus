@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using Stegosaurus.Carrier;
-using Stegosaurus.Cryptography;
 using Stegosaurus.Utility;
 using System.Collections;
 using System.ComponentModel;
@@ -12,26 +9,19 @@ using Stegosaurus.Algorithm.CommonSample;
 
 namespace Stegosaurus.Algorithm
 {
-    public class CommonSampleAlgorithm : IStegoAlgorithm
+    public class CommonSampleAlgorithm : StegoAlgorithmBase
     {
         private static readonly byte[] CommonSampleSignature = { 0x0C, 0xB3, 0x11, 0x84 };
 
-        [Browsable(false)]
-        public ICarrierMedia CarrierMedia { get;set; }
-
-        [Browsable(false)]
-        public ICryptoProvider CryptoProvider { get; set; }
-
-        [Browsable(false)]
-        public string Name => "Common Sample";
+        public override string Name => "Common Sample";
 
         [Category("Algorithm"), Description("The maximum allowed distance between two samples. Higher values may distort the carrier media.")]
         public int MaxDistance { get; set; } = 250;
 
-        [Category("Algorithm"), Description("The amount of samples to use as the most frequent. Higher values will take more time to compute.")]
-        public int ColorsToUse { get; set; } = 750;
+        [Category("Algorithm"), Description("The maximum amount of samples to use. Higher values will take more time to compute.")]
+        public int MaxSampleCount { get; set; } = 750;
 
-        public void Embed(StegoMessage message)
+        public override void Embed(StegoMessage message)
         {
             var messageBits = new BitArray(CommonSampleSignature.Concat(message.ToByteArray(CryptoProvider)).ToArray());
 
@@ -45,23 +35,20 @@ namespace Stegosaurus.Algorithm
                 .Select(s => s.Key)
                 .ToList();
 
-            // Get amount of unique colors
-            int amountOfSamples = colorFrequencies.Count;
-
             // Find common samples
             List<Sample> commonFrequencies = colorFrequencies
-                .Take(750)
+                .Take(MaxSampleCount)
                 .ToList();
 
             // Find vertices to change
-            RandomNumberList randomNumbers = new RandomNumberList(CryptoProvider.Seed, samples.Count);
+            RandomNumberList randomNumbers = new RandomNumberList(Seed, samples.Count);
             int numReplaced = 0, numForced = 0;
             for (int i = 0; i < messageBits.Length; i++)
             {
                 Sample currentSample = samples[randomNumbers.First()];
                 int targetValue = messageBits[i] ? 1 : 0;
 
-                // Check if it already has target value
+                // Check if sample already has target value
                 if (currentSample.ModValue == targetValue)
                 {
                     continue;
@@ -69,13 +56,14 @@ namespace Stegosaurus.Algorithm
 
                 // Find best match
                 Sample bestMatch = commonFrequencies
-                    .Where(s => s.ModValue == targetValue && s.DistanceTo(currentSample) <= 250)
+                    .Where(s => s.ModValue == targetValue && s.DistanceTo(currentSample) <= MaxDistance)
                     .OrderBy(s => currentSample.DistanceTo(s))
-                    .FirstOrDefault();// ?? colorFrequencies.FirstOrDefault(s => s.ModValue == targetValue && s.DistanceTo(currentSample) <= 750);
+                    .FirstOrDefault() ?? colorFrequencies.FirstOrDefault(s => s.ModValue == targetValue && s.DistanceTo(currentSample) <= MaxDistance);
 
                 // If match was found, replace current sample
                 if (bestMatch != null)
                 {
+                    // Use a clone of the values, as the reference may be changed later
                     currentSample.Values = (byte[]) bestMatch.Values.Clone();
                     numReplaced++;
                 }
@@ -102,13 +90,13 @@ namespace Stegosaurus.Algorithm
             }
         }
 
-        public StegoMessage Extract()
+        public override StegoMessage Extract()
         {
             // Get all samples
             List<Sample> samples = GetAllSamples();
 
             // Generate random numbers
-            RandomNumberList randomNumbers = new RandomNumberList(CryptoProvider.Seed, samples.Count);
+            RandomNumberList randomNumbers = new RandomNumberList(Seed, samples.Count);
 
             // Read bytes and verify CommonSampleSignature
             if (!ReadBytes(randomNumbers, samples, CommonSampleSignature.Length).SequenceEqual(CommonSampleSignature))
@@ -123,7 +111,7 @@ namespace Stegosaurus.Algorithm
             return new StegoMessage(ReadBytes(randomNumbers, samples, length), CryptoProvider);
         }
 
-        public long ComputeBandwidth()
+        public override long ComputeBandwidth()
         {
             return ((CarrierMedia.ByteArray.Length / CarrierMedia.BytesPerSample) / 8) - CommonSampleSignature.Length;
         }

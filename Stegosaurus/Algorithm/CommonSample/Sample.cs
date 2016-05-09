@@ -12,7 +12,7 @@ namespace Stegosaurus.Algorithm.CommonSample
         {
             get
             {
-                return Values.Aggregate(0, (current, value) => current + value) % 2;
+                return Values.Sum(val => val) % 2;
             }
         }
 
@@ -23,7 +23,7 @@ namespace Stegosaurus.Algorithm.CommonSample
 
         public void ForceChanges()
         {
-            Values[0] ^= 0x1;
+            Values[Values.Length - 1] ^= 0x1;
         }
 
         public int DistanceTo(Sample otherSample)

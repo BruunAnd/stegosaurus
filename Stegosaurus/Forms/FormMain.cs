@@ -17,12 +17,12 @@ namespace Stegosaurus.Forms
 {
     public partial class FormMain : Form
     {
-        private readonly Dictionary<string, IStegoAlgorithm> algorithmDictionary = new Dictionary<string, IStegoAlgorithm>();
+        private readonly Dictionary<string, StegoAlgorithmBase> algorithmDictionary = new Dictionary<string, StegoAlgorithmBase>();
         private readonly Dictionary<string, ICryptoProvider> cryptoProviderDictionary = new Dictionary<string, ICryptoProvider>();
 
         private StegoMessage stegoMessage = new StegoMessage();
         private ICarrierMedia carrierMedia;
-        private IStegoAlgorithm algorithm;
+        private StegoAlgorithmBase algorithm;
         private ICryptoProvider cryptoProvider;
 
         private string carrierName;
@@ -38,7 +38,7 @@ namespace Stegosaurus.Forms
 
             // Add algorithms
             AddAlgorithm(typeof(LSBAlgorithm));
-            AddAlgorithm(typeof(GraphTheoreticAlgorithm));
+            // AddAlgorithm(typeof(GraphTheoreticAlgorithm));
             AddAlgorithm(typeof(CommonSampleAlgorithm));
 
             // Add crypto providers
@@ -47,7 +47,7 @@ namespace Stegosaurus.Forms
             AddCryptoProvider(typeof(RSAProvider));
 
             // Set default values
-            comboBoxAlgorithmSelection.SelectedIndex = 2;
+            comboBoxAlgorithmSelection.SelectedIndex = 1;
             comboBoxCryptoProviderSelection.SelectedIndex = 0;
         }
         
@@ -304,7 +304,7 @@ namespace Stegosaurus.Forms
         /// </summary>
         private void AddAlgorithm(Type algorithmType)
         {
-            IStegoAlgorithm stegoAlgorithm = (IStegoAlgorithm) Activator.CreateInstance(algorithmType);
+            StegoAlgorithmBase stegoAlgorithm = (StegoAlgorithmBase) Activator.CreateInstance(algorithmType);
             algorithmDictionary.Add(stegoAlgorithm.Name, stegoAlgorithm);
             comboBoxAlgorithmSelection.Items.Add(stegoAlgorithm.Name);
         }
