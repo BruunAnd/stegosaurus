@@ -31,7 +31,6 @@ namespace Stegosaurus.Carrier
             // Clone image or convert to PNG
             if (_innerImage.RawFormat.Equals(ImageFormat.Png) && _innerImage.PixelFormat == PixelFormat.Format24bppRgb)
             {
-                Console.WriteLine("clone thx");
                 innerImage = (Bitmap) _innerImage.Clone();
             }
             else
