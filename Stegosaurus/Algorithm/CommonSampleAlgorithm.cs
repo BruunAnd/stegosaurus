@@ -29,14 +29,15 @@ namespace Stegosaurus.Algorithm
             List<Sample> samples = GetAllSamples();
 
             // Find color frequencies
-            List<Sample> colorFrequencies = samples
+            List<Sample> sampleFrequencies = samples
                 .GroupBy(v => v)
                 .OrderByDescending(v => v.Count())
                 .Select(s => s.Key)
+                .Take(MaxSampleCount)
                 .ToList();
 
             // Find common samples
-            List<Sample> commonFrequencies = colorFrequencies
+            List<Sample> commonFrequencies = sampleFrequencies
                 .Take(MaxSampleCount)
                 .ToList();
 
@@ -58,7 +59,7 @@ namespace Stegosaurus.Algorithm
                 Sample bestMatch = commonFrequencies
                     .Where(s => s.ModValue == targetValue && s.DistanceTo(currentSample) <= MaxDistance)
                     .OrderBy(s => currentSample.DistanceTo(s))
-                    .FirstOrDefault() ?? colorFrequencies.FirstOrDefault(s => s.ModValue == targetValue && s.DistanceTo(currentSample) <= MaxDistance);
+                    .FirstOrDefault() ?? sampleFrequencies.FirstOrDefault(s => s.ModValue == targetValue && s.DistanceTo(currentSample) <= MaxDistance);
 
                 // If match was found, replace current sample
                 if (bestMatch != null)
