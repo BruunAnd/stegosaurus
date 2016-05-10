@@ -5,19 +5,21 @@ using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Linq;
+using System.Media;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Stegosaurus.Carrier;
 
 namespace Stegosaurus.Forms
 {
     public partial class FormEmbeddingProgress : Form
     {
-        private StegoMessage message;
-        private StegoAlgorithmBase algorithm;
+        private readonly CancellationTokenSource cts = new CancellationTokenSource();
 
-        private CancellationTokenSource cts = new CancellationTokenSource();
+        private string saveToDefault;
+        private ICarrierMedia carrierMedia;
 
         public FormEmbeddingProgress()
         {
@@ -42,7 +44,8 @@ namespace Stegosaurus.Forms
                 try
                 {
                     _algorithm.Embed(_message, progress, cts.Token);
-                    _algorithm.CarrierMedia.SaveToFile(_saveTo);
+                    saveToDefault = _saveTo;
+                    carrierMedia = _algorithm.CarrierMedia;
                 }
                 catch (OperationCanceledException)
                 {
@@ -52,18 +55,36 @@ namespace Stegosaurus.Forms
                 return true;
             });
 
-            // Show result
             if (result)
             {
-                MessageBox.Show("Message was successfully embedded.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                SystemSounds.Hand.Play();
+                labelStatus.Text = "Embedding complete!";
+                buttonCancel.Enabled = false;
+                buttonSaveAs.Enabled = true;
             }
-
-            Close();
         }
 
         private void FormEmbeddingProgress_FormClosing(object sender, FormClosingEventArgs e)
         {
             cts.Cancel();
+        }
+
+        private void buttonCancel_Click(object sender, EventArgs e)
+        {
+            Close();
+        }
+
+        private void buttonSaveAs_Click(object sender, EventArgs e)
+        {
+            SaveFileDialog sfd = new SaveFileDialog();
+            sfd.FileName = saveToDefault;
+
+            if (sfd.ShowDialog() != DialogResult.OK)
+            {
+                return;
+            }
+
+            carrierMedia.SaveToFile(sfd.FileName);
         }
     }
 }

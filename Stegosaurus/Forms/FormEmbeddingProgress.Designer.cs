@@ -28,36 +28,69 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormEmbeddingProgress));
             this.progressBarMain = new System.Windows.Forms.ProgressBar();
-            this.label1 = new System.Windows.Forms.Label();
+            this.labelStatus = new System.Windows.Forms.Label();
+            this.buttonCancel = new System.Windows.Forms.Button();
+            this.buttonSaveAs = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // progressBarMain
             // 
-            this.progressBarMain.Location = new System.Drawing.Point(12, 41);
+            this.progressBarMain.Location = new System.Drawing.Point(12, 33);
             this.progressBarMain.Name = "progressBarMain";
-            this.progressBarMain.Size = new System.Drawing.Size(386, 45);
+            this.progressBarMain.Size = new System.Drawing.Size(386, 25);
             this.progressBarMain.Style = System.Windows.Forms.ProgressBarStyle.Continuous;
             this.progressBarMain.TabIndex = 0;
             // 
-            // label1
+            // labelStatus
             // 
-            this.label1.Location = new System.Drawing.Point(8, 9);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(390, 29);
-            this.label1.TabIndex = 1;
-            this.label1.Text = "Embedding message, please wait...";
-            this.label1.TextAlign = System.Drawing.ContentAlignment.TopCenter;
+            this.labelStatus.Location = new System.Drawing.Point(8, 9);
+            this.labelStatus.Name = "labelStatus";
+            this.labelStatus.Size = new System.Drawing.Size(390, 21);
+            this.labelStatus.TabIndex = 1;
+            this.labelStatus.Text = "Embedding message, please wait...";
+            this.labelStatus.TextAlign = System.Drawing.ContentAlignment.TopCenter;
+            // 
+            // buttonCancel
+            // 
+            this.buttonCancel.Image = ((System.Drawing.Image)(resources.GetObject("buttonCancel.Image")));
+            this.buttonCancel.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.buttonCancel.Location = new System.Drawing.Point(12, 64);
+            this.buttonCancel.Name = "buttonCancel";
+            this.buttonCancel.Size = new System.Drawing.Size(77, 28);
+            this.buttonCancel.TabIndex = 2;
+            this.buttonCancel.Text = "Cancel";
+            this.buttonCancel.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.buttonCancel.UseVisualStyleBackColor = true;
+            this.buttonCancel.Click += new System.EventHandler(this.buttonCancel_Click);
+            // 
+            // buttonSaveAs
+            // 
+            this.buttonSaveAs.Enabled = false;
+            this.buttonSaveAs.Image = ((System.Drawing.Image)(resources.GetObject("buttonSaveAs.Image")));
+            this.buttonSaveAs.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.buttonSaveAs.Location = new System.Drawing.Point(95, 64);
+            this.buttonSaveAs.Name = "buttonSaveAs";
+            this.buttonSaveAs.Size = new System.Drawing.Size(86, 28);
+            this.buttonSaveAs.TabIndex = 3;
+            this.buttonSaveAs.Text = "Save as...";
+            this.buttonSaveAs.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.buttonSaveAs.UseVisualStyleBackColor = true;
+            this.buttonSaveAs.Click += new System.EventHandler(this.buttonSaveAs_Click);
             // 
             // FormEmbeddingProgress
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(409, 100);
-            this.Controls.Add(this.label1);
+            this.ClientSize = new System.Drawing.Size(409, 103);
+            this.Controls.Add(this.buttonSaveAs);
+            this.Controls.Add(this.buttonCancel);
+            this.Controls.Add(this.labelStatus);
             this.Controls.Add(this.progressBarMain);
             this.Font = new System.Drawing.Font("Segoe UI", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "FormEmbeddingProgress";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "0%";
@@ -69,6 +102,8 @@
         #endregion
 
         private System.Windows.Forms.ProgressBar progressBarMain;
-        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Label labelStatus;
+        private System.Windows.Forms.Button buttonCancel;
+        private System.Windows.Forms.Button buttonSaveAs;
     }
 }
