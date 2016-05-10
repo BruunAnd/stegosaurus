@@ -1,28 +1,61 @@
 ﻿using System;
 using System.Collections.Generic;
-
-
+using System.Linq;
 
 namespace Stegosaurus.Algorithm.GraphTheory
 {
     public class Vertex
     {
-        public List<Sample> Samples { get; set; }
-        public int Value { get; set; }
+        public byte[] Samples;
+        public bool[] TargetValue;
 
-        public Vertex(List<Sample> _samples)
+        public int TargetMod;
+
+        private const int SelectedBit = 0x1;
+
+        public bool IsInEdge;
+
+        public int Position;
+
+        public Vertex(int _positionInCarrier, byte[] _samples)
         {
+            Position = _positionInCarrier;
             Samples = _samples;
         }
-        public override string ToString()
+
+        public void ForceChanges()
         {
-            string message = "";
-            foreach (Sample sample in Samples)
+            Samples[0] ^= 0x1;
+        }
+
+        public bool HasMatchingBits(byte[] samples)
+        {
+            for (var i = 0; i < samples.Length; i++)
             {
-                message += $"V:{sample.Value}, T:{sample.TargetValue}|";
+                if (i + 1 >= TargetValue.Length)
+                    return true;
+                if (((samples[i] & SelectedBit ) == SelectedBit) != TargetValue[i])
+                    return false;
             }
 
-            return message;
+            return true;
+        }
+
+        public int DistanceTo(byte[] samples)
+        {
+            int distance = 0;
+
+            for (int i = 0; i < Samples.Length; i++)
+            {
+                distance += (int) Math.Pow(Samples[i] - samples[i], 2);
+            }
+
+            return distance;
+        }
+
+        public bool HasMatchingBits(Vertex other)
+        {
+            return HasMatchingBits(other.Samples);
         }
     }
 }

@@ -5,202 +5,131 @@ using Stegosaurus.Cryptography;
 using Stegosaurus.Algorithm.GraphTheory;
 using System.Collections;
 using System.Linq;
-using System.Text;
 using Stegosaurus.Utility;
+using Stegosaurus.Exceptions;
+using System.Windows.Forms;
 
 namespace Stegosaurus.Algorithm
 {
     public class GraphTheoreticAlgorithm : IStegoAlgorithm
     {
-
-        private static readonly byte[] GraphTheorySignature = { 0x12, 0x34, 0x56, 078 };
-        public ICryptoProvider CryptoProvider { get; set; }
-
-        private int samplesPerVertex => 2;
-        private int messageBitsPerVertex => 2;
-        
-        private List<Vertex> vertices = new List<Vertex>();
-        private List<Vertex> reserveVertices = new List<Vertex>();
-        private List<Edge> edges = new List<Edge>();
-
         public ICarrierMedia CarrierMedia
         {
             get; set;
         }
 
-        public string Name => "Graph Theoretic Algorithm";
-        public string CryptoKey { get; set; }
+        public ICryptoProvider CryptoProvider
+        {
+            get; set;
+        }
 
-        public int Seed => CryptoProvider?.Seed ?? 0;
+        public string Name => "GTA";
 
         public long ComputeBandwidth()
         {
-            return ((((CarrierMedia.ByteArray.Length / CarrierMedia.BytesPerSample) / samplesPerVertex) * messageBitsPerVertex ) / 8) - GraphTheorySignature.Length;
+            return 100000;
         }
 
-        private List<byte> messageHunks;
-
-        public void Embed(StegoMessage _message)
+        public List<Vertex> GetAllVertices()
         {
-            byte[] messageArray = _message.ToByteArray(CryptoProvider);
-            BitArray messageInBits = new BitArray(GraphTheorySignature.Concat(messageArray).ToArray());
-            messageHunks = new List<byte>();
-            int len = messageInBits.Length / messageBitsPerVertex;
-            int index = 0, a = 0;
-            byte messageHunk = 0;
-            while (index < len)
+            var allVertices = new List<Vertex>(CarrierMedia.ByteArray.Length % CarrierMedia.BytesPerSample);
+            int currentSample = 0, sampleCount = 0;
+            while (currentSample < CarrierMedia.ByteArray.Length)
             {
-                messageHunk = new byte();
-                a = index++ * messageBitsPerVertex;
-                for (int i = 0; i < messageBitsPerVertex; i++)
+                var sampleStartPosition = currentSample;
+                var samples = new byte[CarrierMedia.BytesPerSample];
+
+                for (int i = 0; i < CarrierMedia.BytesPerSample; i++)
+                    samples[i] = CarrierMedia.ByteArray[currentSample++];
+
+                allVertices.Add(new Vertex(sampleCount++, samples));
+            }
+            return allVertices;
+        }
+
+        public void Embed(StegoMessage message)
+        {
+            var messageBits = new BitArray(message.ToByteArray(CryptoProvider));
+            Console.WriteLine("{0} bits", messageBits.Length);
+
+            // TODO fix
+            if (messageBits.Length % 3 != 0)
+            {
+                throw new StegoAlgorithmException("Invalid size.");
+            }
+
+            // Get all vertices in carrierMedia
+            var allVertices = GetAllVertices();
+            Console.WriteLine("{0} vertices", allVertices.Count);
+
+            // Assign target values to vertices
+            List<Vertex> verticesToChange = new List<Vertex>();
+            var rnl = new RandomNumberList(1000, allVertices.Count);
+            for (int i = 0; i < messageBits.Length; i++)
+            {
+                Vertex nextVertex = allVertices[rnl.First()];
+                nextVertex.TargetValue = new bool[] {messageBits[i], messageBits[i++], messageBits[i++]};
+
+                verticesToChange.Add(nextVertex);
+            }
+
+            Console.WriteLine("{0} vertices with target values", verticesToChange.Count);
+
+            List<Edge> edges = new List<Edge>();
+            // Find edges
+            foreach (Vertex outer in verticesToChange)
+            {
+                if (outer.IsInEdge)
+                    continue;
+
+                foreach (Vertex inner in verticesToChange)
                 {
-                    messageHunk += messageInBits[a + i] ? (byte)Math.Pow(2, i) : (byte)0;
+                    if (inner.IsInEdge || outer == inner)
+                        continue;
+
+                    if (outer.HasMatchingBits(inner) && inner.HasMatchingBits(outer))
+                    {
+                        edges.Add(new Edge(inner, outer));
+                        Console.WriteLine("{0} edges", edges.Count);
+                    }
                 }
-                messageHunks.Add(messageHunk);
             }
 
-            GetSamples();
-
-            // Generate random sequence of integers
-            IEnumerable<int> numberList = new RandomNumberList(Seed, samples.Count);
-
-            GetVertices(numberList, messageInBits);
-            GetEdges();
-
-            foreach (Edge item in edges)
+            // Swap edges
+            foreach (Edge edge in edges)
             {
-                Console.WriteLine($"{item.ToString()}");
+                Swap(allVertices, edge.First.Position, edge.Second.Position);
             }
 
+            verticesToChange.ForEach(v => v.ForceChanges());
+
+            // Write changes
+            int pos = 0;
+            foreach (Vertex current in allVertices)
+            {
+                foreach (byte sample in current.Samples)
+                {
+                    CarrierMedia.ByteArray[pos++] = sample;
+                }
+            }
+        }
+
+        private void Swap<T>(List<T> list, int first, int second)
+        {
+            T temp = list[first];
+            list[first] = list[second];
+            list[second] = temp;
         }
 
         public StegoMessage Extract()
         {
-            throw new NotImplementedException();
+            var allVertices = GetAllVertices();
+            return null;
         }
+    }
 
-        private List<Sample> samples = new List<Sample>();
-        private void GetSamples()
-        {
-            byte[] sample = new byte[CarrierMedia.BytesPerSample];
-            long numSamples = CarrierMedia.ByteArray.Length / CarrierMedia.BytesPerSample;
-            long len = CarrierMedia.ByteArray.Length;
-            int modFactor = (int)Math.Pow(2, messageBitsPerVertex);
-            Sample tempSample;
-            for (long i = 0; i < len; i += CarrierMedia.BytesPerSample)
-            {
-                for (int j = 0; j < CarrierMedia.BytesPerSample; j++)
-                {
-                    sample[j] = CarrierMedia.ByteArray[i + j];
-                }
-                tempSample = new Sample(sample);
-                int value = 0;
-                foreach (byte item in sample)
-                {
-                    value += (int)item;
-                }
-                tempSample.Value = value % modFactor;
-                samples.Add(tempSample);
-            }
-        }
-
-        private void GetVertices(IEnumerable<int> _numberList, BitArray _messageInBits)
-        {
-
-            int len = samples.Count / samplesPerVertex;
-            Vertex temp;
-            List<Sample> sampleList;
-            int modFactor = (int)Math.Pow(2, messageBitsPerVertex);
-            int value = 0;
-            for (int i = 0; i < len; i++)
-            {
-                sampleList = new List<Sample>();
-                value = 0;
-                for (int index = 0; index < samplesPerVertex; index++)
-                {
-                    sampleList.Add(samples[_numberList.First()]);
-                    value += sampleList[index].Value;
-                }
-                value %= modFactor;
-
-                temp = new Vertex(sampleList);
-                temp.Value = value;
-
-                int dif;
-                int mlen = messageHunks.Count;
-                if (i >= mlen)
-                {
-                    foreach (Sample item in temp.Samples)
-                    {
-                        item.TargetValue = -1;
-                    }
-                    reserveVertices.Add(temp);
-                }
-                else if (temp.Value != messageHunks[i])
-                {
-                    dif = messageHunks[i] - value;
-                    foreach (Sample item in temp.Samples)
-                    {
-                        item.TargetValue = (item.Value + (dif + modFactor)) % modFactor;
-                    }
-                    vertices.Add(temp);
-                }
-            }
-
-            
-        }
-
-        private void GetEdges()
-        {
-            int numVertices = vertices.Count;
-            Vertex vertexA, vertexB;
-            bool isEdge = false;
-
-            for (int i = 0; i < (numVertices - 1); i++)
-            {
-                vertexA = vertices[i];
-                for (int j = i + 1 ; j < numVertices; j++)
-                {
-                    vertexB = vertices[j];
-                    isEdge = false;
-
-                    if (GetDistance(vertexA, vertexB) <= 80)
-                    {
-                        edges.Add(new Edge(vertexA, vertexB));
-                    }
-
-                }
-            }
-        }
-        private long GetDistance(Vertex _vertexA, Vertex _vertexB)
-        {
-            int bps = CarrierMedia.BytesPerSample;
-            long distance = 0;
-            long minDistance = 100;
-            int temp;
-            for (int k = 0; k < samplesPerVertex; k++)
-            {
-                for (int l = 0; l < samplesPerVertex; l++)
-                {
-                    if (_vertexA.Samples[k].TargetValue == _vertexB.Samples[l].Value && _vertexA.Samples[k].Value == _vertexB.Samples[l].TargetValue)
-                    {
-                        distance = 0;
-                        for (int i = 0; i < bps; i++)
-                        {
-                            temp = (_vertexA.Samples[k].Bytes[i] - _vertexB.Samples[l].Bytes[i]);
-                            distance += temp * temp;
-                        }
-                        if (distance < minDistance)
-                        {
-                            minDistance = distance;
-                        }
-                    }
-                    
-
-                }
-            }
-            return distance;
-        }
-
+    class Pixel
+    {
+        public byte[] Samples;
     }
 }

@@ -2,18 +2,16 @@
 {
     public class Edge
     {
-        public Vertex[] Vertices = new Vertex[2];
-        int weight;
+        public Vertex First, Second;
 
         public Edge(Vertex _firstVertex, Vertex _secondVertex)
         {
-            Vertices[0] = _firstVertex;
-            Vertices[1] = _secondVertex;
+            First = _firstVertex;
+            Second = _secondVertex;
+
+            First.IsInEdge = true;
+            Second.IsInEdge = true;
         }
 
-        public override string ToString()
-        {
-            return $"{Vertices[0]};{Vertices[1]}";
-        }
     }
 }

@@ -50,7 +50,7 @@ namespace Stegosaurus
                 // Verify hash of encoded data
                 if (!encodedData.ComputeSHAHash().SequenceEqual(hash))
                 {
-                    throw new StegoMessageException("Hash does not match.");
+                    throw new StegoMessageException("Hash does not match, data is corrupt.");
                 }
 
                 // Decrypt if a key is specified

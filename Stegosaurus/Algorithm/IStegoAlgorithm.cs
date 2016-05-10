@@ -1,4 +1,5 @@
-﻿using Stegosaurus.Carrier;
+﻿using System.ComponentModel;
+using Stegosaurus.Carrier;
 using Stegosaurus.Cryptography;
 
 namespace Stegosaurus.Algorithm
