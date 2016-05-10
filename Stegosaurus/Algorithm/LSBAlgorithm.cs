@@ -7,6 +7,7 @@ using Stegosaurus.Utility;
 using System.Collections.Generic;
 using System.ComponentModel;
 using Stegosaurus.Cryptography;
+using System.Threading;
 
 namespace Stegosaurus.Algorithm
 {
@@ -31,7 +32,7 @@ namespace Stegosaurus.Algorithm
         [Category("Algorithm"), Description("The bit to modify and read from.")]
         public BitValues WorkingBit { get; set; }= BitValues.First;
 
-        public override void Embed(StegoMessage _message)
+        public override void Embed(StegoMessage _message, IProgress<int> _progress, CancellationToken _ct)
         {
             // Combine LsbSignature with byteArray and convert to bitArray
             byte[] messageArray = _message.ToByteArray(CryptoProvider);
@@ -43,6 +44,8 @@ namespace Stegosaurus.Algorithm
             // Iterate through all bits
             for (int index = 0; index < messageInBits.Length; index++)
             {
+                _ct.ThrowIfCancellationRequested();
+
                 int byteArrayIndex = numberList.First();
                 byte sampleValue = CarrierMedia.ByteArray[byteArrayIndex];
 
@@ -54,7 +57,17 @@ namespace Stegosaurus.Algorithm
                 {
                     CarrierMedia.ByteArray[byteArrayIndex] ^= (byte) WorkingBit;
                 }
+
+                // Report progress
+                if (index % 500 == 0)
+                {
+                    float percentage = ( ( index + 1 ) / (float) messageInBits.Length ) * 100;
+                    _progress?.Report((int) percentage);
+                }
             }
+
+            // Report that we are finished
+            _progress?.Report(100);
         }
 
         public override StegoMessage Extract()

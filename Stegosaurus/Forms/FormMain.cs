@@ -339,39 +339,40 @@ namespace Stegosaurus.Forms
         private void buttonActivateSteganography_Click(object sender, EventArgs e)
         {
             // Embed or extract
-            try
+            if (CanEmbed)
             {
-                if (CanEmbed)
+                if (string.IsNullOrEmpty(textBoxEncryptionKey.Text))
                 {
-                    if (string.IsNullOrEmpty(textBoxEncryptionKey.Text))
+                    if (MessageBox.Show("You are about to embed without using an encryption key. Do you want to continue?", "Warning", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Warning) != DialogResult.Yes)
                     {
-                        if (MessageBox.Show("You are about to embed without using an encryption key. Do you want to continue?", "Warning", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Warning) != DialogResult.Yes)
-                        {
-                            textBoxEncryptionKey.Focus();
-                            return;
-                        }
+                        textBoxEncryptionKey.Focus();
+                        return;
                     }
-
-                    Embed();
-                    MessageBox.Show("Message was succesfully embedded.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
-                else
+
+                // Embedding happens in another thread
+                Embed();
+            }
+            else
+            {
+                // Extraction happens in the UI thread
+                try
                 {
                     Extract();
                     MessageBox.Show("Message was succesfully extracted.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
-            }
-            catch (StegoCryptoException ex)
-            {
-                ShowError(ex.Message, "Cryptography error");
-            }
-            catch (StegoMessageException ex)
-            {
-                ShowError(ex.Message, "Message error");
-            }
-            catch (StegoAlgorithmException ex)
-            {
-                ShowError(ex.Message, "Algorithm error");
+                catch (StegoCryptoException ex)
+                {
+                    ShowError(ex.Message, "Cryptography error");
+                }
+                catch (StegoMessageException ex)
+                {
+                    ShowError(ex.Message, "Message error");
+                }
+                catch (StegoAlgorithmException ex)
+                {
+                    ShowError(ex.Message, "Algorithm error");
+                }
             }
         }
 
@@ -409,8 +410,11 @@ namespace Stegosaurus.Forms
         {
             algorithm.CarrierMedia = carrierMedia;
             algorithm.CryptoProvider.SetKey(textBoxEncryptionKey.Text);
-            algorithm.Embed(stegoMessage);
-            algorithm.CarrierMedia.SaveToFile($"Stego-{carrierName}{carrierExtension}");
+
+            FormEmbeddingProgress progressForm = new FormEmbeddingProgress(stegoMessage, algorithm);
+            progressForm.Show();
+            progressForm.Run();
+            //algorithm.CarrierMedia.SaveToFile($"Stego-{carrierName}{carrierExtension}");
         }
         #endregion
         

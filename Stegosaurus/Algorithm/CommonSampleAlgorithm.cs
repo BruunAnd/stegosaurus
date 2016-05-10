@@ -6,6 +6,7 @@ using System.Collections;
 using System.ComponentModel;
 using Stegosaurus.Exceptions;
 using Stegosaurus.Algorithm.CommonSample;
+using System.Threading;
 
 namespace Stegosaurus.Algorithm
 {
@@ -21,7 +22,7 @@ namespace Stegosaurus.Algorithm
         [Category("Algorithm"), Description("The maximum amount of samples to use. Higher values will take more time to compute.")]
         public int MaxSampleCount { get; set; } = 750;
 
-        public override void Embed(StegoMessage message)
+        public override void Embed(StegoMessage message, IProgress<int> _progress, CancellationToken _ct)
         {
             var messageBits = new BitArray(CommonSampleSignature.Concat(message.ToByteArray(CryptoProvider)).ToArray());
 
@@ -46,6 +47,8 @@ namespace Stegosaurus.Algorithm
             int numReplaced = 0, numForced = 0;
             for (int i = 0; i < messageBits.Length; i++)
             {
+                _ct.ThrowIfCancellationRequested();
+                   
                 Sample currentSample = samples[randomNumbers.First()];
                 int targetValue = messageBits[i] ? 1 : 0;
 
@@ -74,14 +77,17 @@ namespace Stegosaurus.Algorithm
                     numForced++;
                 }
 
-                // Set progress
-                if (i % 1002 != 0)
-                    continue;
-                var p = ((float) (i + 1) / messageBits.Length) * 100;
-                Console.WriteLine($"{p}%");
+                // Report progress
+                if (i % 500 == 0)
+                {
+                    float percentage = (( i + 1) / (float) messageBits.Length) * 100;
+                    _progress?.Report((int) percentage);
+                }
             }
 
-            Console.WriteLine("{0}% forced, {1}% replaced", 100 * ((float)numForced / (numForced + numReplaced)), 100 * ((float) numReplaced / (numForced + numReplaced)));
+            // Report that we are finished
+            _progress?.Report(100);
+            // Console.WriteLine("{0}% forced, {1}% replaced", 100 * ((float)numForced / (numForced + numReplaced)), 100 * ((float) numReplaced / (numForced + numReplaced)));
 
             // Write changes
             int pos = 0;

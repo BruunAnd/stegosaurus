@@ -7,6 +7,7 @@ using Stegosaurus.Carrier;
 using System.Drawing;
 using Stegosaurus.Cryptography;
 using System.Linq;
+using System.Threading;
 
 namespace StegosaurusTest
 {
@@ -35,7 +36,7 @@ namespace StegosaurusTest
             StegoMessage inMessage = new StegoMessage();
             inMessage.TextMessage = testMessageString;
             inMessage.InputFiles.Add(new InputFile(testFileName, testFileBuffer));
-            _algorithm.Embed(inMessage);
+            _algorithm.Embed(inMessage, null, CancellationToken.None);
 
             // Save to an output file
             _algorithm.CarrierMedia.SaveToFile("output.png");

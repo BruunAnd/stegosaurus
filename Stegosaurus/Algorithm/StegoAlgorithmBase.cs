@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using Stegosaurus.Carrier;
 using Stegosaurus.Cryptography;
+using System.Threading;
 
 namespace Stegosaurus.Algorithm
 {
@@ -42,7 +43,7 @@ namespace Stegosaurus.Algorithm
         /// <summary>
         /// Embeds a StegoMessage in the public ByteArray of the CarrierMedia
         /// </summary>
-        public abstract void Embed(StegoMessage message);
+        public abstract void Embed(StegoMessage _message, IProgress<int> _progress, CancellationToken _ct);
 
         /// <summary>
         /// Returns a StegoMessage by extracting from the public ByteArray of the CarrierMedia
