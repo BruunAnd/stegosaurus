@@ -411,10 +411,9 @@ namespace Stegosaurus.Forms
             algorithm.CarrierMedia = carrierMedia;
             algorithm.CryptoProvider.SetKey(textBoxEncryptionKey.Text);
 
-            FormEmbeddingProgress progressForm = new FormEmbeddingProgress(stegoMessage, algorithm);
+            FormEmbeddingProgress progressForm = new FormEmbeddingProgress();
             progressForm.Show();
-            progressForm.Run();
-            //algorithm.CarrierMedia.SaveToFile($"Stego-{carrierName}{carrierExtension}");
+            progressForm.Run(stegoMessage, algorithm, $"stego-{carrierName}{carrierExtension}");
         }
         #endregion
         

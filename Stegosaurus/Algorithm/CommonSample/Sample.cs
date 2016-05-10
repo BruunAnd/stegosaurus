@@ -6,7 +6,10 @@ namespace Stegosaurus.Algorithm.CommonSample
 {
     public class Sample : IEquatable<Sample>
     {
-        public byte[] Values { get; set; }
+        public byte[] Values
+        {
+            get; set;
+        }
 
         public int ModValue
         {
@@ -45,7 +48,7 @@ namespace Stegosaurus.Algorithm.CommonSample
 
         public override string ToString()
         {
-            return Values.Aggregate(string.Empty, (current, val) => current + (" " + val));
+            return Values.Aggregate(string.Empty, (current, val) => current + ( " " + val ));
         }
 
         public bool Equals(Sample other)

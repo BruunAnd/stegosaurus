@@ -19,16 +19,13 @@ namespace Stegosaurus.Forms
 
         private CancellationTokenSource cts = new CancellationTokenSource();
 
-        public FormEmbeddingProgress(StegoMessage _message, StegoAlgorithmBase _algorithm)
+        public FormEmbeddingProgress()
         {
             InitializeComponent();
             TopMost = true;
-
-            message = _message;
-            algorithm = _algorithm;
         }
 
-        public async void Run()
+        public async void Run(StegoMessage _message, StegoAlgorithmBase _algorithm, string _saveTo)
         {
             Progress<int> progress = new Progress<int>(p =>
             {
@@ -44,7 +41,8 @@ namespace Stegosaurus.Forms
             {
                 try
                 {
-                    algorithm.Embed(message, progress, cts.Token);
+                    _algorithm.Embed(_message, progress, cts.Token);
+                    _algorithm.CarrierMedia.SaveToFile(_saveTo);
                 }
                 catch (OperationCanceledException)
                 {
