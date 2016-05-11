@@ -33,7 +33,7 @@ namespace Stegosaurus.Algorithm
         /// Get Seed used in pseudo-random pattern
         /// </summary>
         [Browsable(false)]
-        public virtual int Seed => CryptoProvider?.Seed ?? 0;
+        protected virtual int Seed => CryptoProvider?.Seed ?? 0;
 
         /// <summary>
         /// Returns the data capacity of the carrier media with the given StegoAlgorithm
