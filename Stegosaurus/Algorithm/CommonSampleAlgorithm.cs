@@ -17,10 +17,10 @@ namespace Stegosaurus.Algorithm
         public override string Name => "Common Sample";
 
         [Category("Algorithm"), Description("The maximum allowed distance between two samples. Higher values may distort the carrier media.")]
-        public int MaxDistance { get; set; } = 250;
+        public int MaxDistance { get; set; } = 400;
 
         [Category("Algorithm"), Description("The maximum amount of samples to use. Higher values will take more time to compute.")]
-        public int MaxSampleCount { get; set; } = 750;
+        public int MaxSampleCount { get; set; } = 1000;
 
         public override void Embed(StegoMessage message, IProgress<int> _progress, CancellationToken _ct)
         {
@@ -30,16 +30,11 @@ namespace Stegosaurus.Algorithm
             List<Sample> samples = GetAllSamples();
 
             // Find color frequencies
-            List<Sample> sampleFrequencies = samples
+            List<Sample> commonFrequencies = samples
                 .GroupBy(v => v)
                 .OrderByDescending(v => v.Count())
-                .Select(s => s.Key)
                 .Take(MaxSampleCount)
-                .ToList();
-
-            // Find common samples
-            List<Sample> commonFrequencies = sampleFrequencies
-                .Take(MaxSampleCount)
+                .Select(s => (Sample)s.Key.Clone())
                 .ToList();
 
             // Find vertices to change
@@ -62,7 +57,7 @@ namespace Stegosaurus.Algorithm
                 Sample bestMatch = commonFrequencies
                     .Where(s => s.ModValue == targetValue && s.DistanceTo(currentSample) <= MaxDistance)
                     .OrderBy(s => currentSample.DistanceTo(s))
-                    .FirstOrDefault() ?? sampleFrequencies.FirstOrDefault(s => s.ModValue == targetValue && s.DistanceTo(currentSample) <= MaxDistance);
+                    .FirstOrDefault(); 
 
                 // If match was found, replace current sample
                 if (bestMatch != null)
@@ -87,7 +82,7 @@ namespace Stegosaurus.Algorithm
 
             // Report that we are finished
             _progress?.Report(100);
-            // Console.WriteLine("{0}% forced, {1}% replaced", 100 * ((float)numForced / (numForced + numReplaced)), 100 * ((float) numReplaced / (numForced + numReplaced)));
+            Console.WriteLine("{0}% forced, {1}% replaced", 100 * ((float)numForced / (numForced + numReplaced)), 100 * ((float) numReplaced / (numForced + numReplaced)));
 
             // Write changes
             int pos = 0;

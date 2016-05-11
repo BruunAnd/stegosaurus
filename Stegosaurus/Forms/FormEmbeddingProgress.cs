@@ -18,7 +18,7 @@ namespace Stegosaurus.Forms
     {
         private readonly CancellationTokenSource cts = new CancellationTokenSource();
 
-        private string saveToDefault;
+        private string name, extension;
         private ICarrierMedia carrierMedia;
 
         public FormEmbeddingProgress()
@@ -27,7 +27,7 @@ namespace Stegosaurus.Forms
             TopMost = true;
         }
 
-        public async void Run(StegoMessage _message, StegoAlgorithmBase _algorithm, string _saveTo)
+        public async void Run(StegoMessage _message, StegoAlgorithmBase _algorithm, string _name, string _extension)
         {
             Progress<int> progress = new Progress<int>(p =>
             {
@@ -44,7 +44,8 @@ namespace Stegosaurus.Forms
                 try
                 {
                     _algorithm.Embed(_message, progress, cts.Token);
-                    saveToDefault = _saveTo;
+                    name = _name;
+                    extension = _extension;
                     carrierMedia = _algorithm.CarrierMedia;
                 }
                 catch (OperationCanceledException)
@@ -77,7 +78,8 @@ namespace Stegosaurus.Forms
         private void buttonSaveAs_Click(object sender, EventArgs e)
         {
             SaveFileDialog sfd = new SaveFileDialog();
-            sfd.FileName = saveToDefault;
+            sfd.FileName = $"stego-{name}";
+            sfd.Filter = $"Original extension (*{extension})|*{extension}|All files (*.*)|*.*";
 
             if (sfd.ShowDialog() != DialogResult.OK)
             {
@@ -85,6 +87,12 @@ namespace Stegosaurus.Forms
             }
 
             carrierMedia.SaveToFile(sfd.FileName);
+        }
+
+        private void FormEmbeddingProgress_Load(object sender, EventArgs e)
+        {
+            // Remove focus from cancel button
+            Focus();
         }
     }
 }

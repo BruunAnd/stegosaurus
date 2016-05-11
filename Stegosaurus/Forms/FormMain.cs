@@ -413,7 +413,7 @@ namespace Stegosaurus.Forms
 
             FormEmbeddingProgress progressForm = new FormEmbeddingProgress();
             progressForm.Show();
-            progressForm.Run(stegoMessage, algorithm, $"stego-{carrierName}{carrierExtension}");
+            progressForm.Run(stegoMessage, algorithm, carrierName, carrierExtension);
         }
         #endregion
         

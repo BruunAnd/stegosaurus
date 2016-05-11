@@ -81,7 +81,7 @@
             // 
             // FormEmbeddingProgress
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(409, 103);
             this.Controls.Add(this.buttonSaveAs);
@@ -95,6 +95,7 @@
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "0%";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.FormEmbeddingProgress_FormClosing);
+            this.Load += new System.EventHandler(this.FormEmbeddingProgress_Load);
             this.ResumeLayout(false);
 
         }

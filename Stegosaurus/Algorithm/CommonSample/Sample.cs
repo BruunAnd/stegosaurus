@@ -4,19 +4,26 @@ using Stegosaurus.Utility.Extensions;
 
 namespace Stegosaurus.Algorithm.CommonSample
 {
-    public class Sample : IEquatable<Sample>
+    public class Sample : IEquatable<Sample>, ICloneable
     {
+        private byte[] backingValuesField;
+
         public byte[] Values
         {
-            get; set;
+            get
+            {
+                return backingValuesField;
+            }
+            set
+            {
+                backingValuesField = value;
+                UpdateModValue();
+            }
         }
 
         public int ModValue
         {
-            get
-            {
-                return Values.Sum(val => val) % 2;
-            }
+            get; set;
         }
 
         public Sample(params byte[] _values)
@@ -27,6 +34,12 @@ namespace Stegosaurus.Algorithm.CommonSample
         public void ForceChanges()
         {
             Values[Values.Length - 1] ^= 0x1;
+            UpdateModValue();
+        }
+
+        public void UpdateModValue()
+        {
+            ModValue = Values.Sum(val => val) % 2;
         }
 
         public int DistanceTo(Sample otherSample)
@@ -54,6 +67,11 @@ namespace Stegosaurus.Algorithm.CommonSample
         public bool Equals(Sample other)
         {
             return Values.SequenceEqual(other.Values);
+        }
+
+        public object Clone()
+        {
+            return new Sample((byte[]) Values.Clone());
         }
     }
 }
