@@ -95,7 +95,6 @@
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "0%";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.FormEmbeddingProgress_FormClosing);
-            this.Load += new System.EventHandler(this.FormEmbeddingProgress_Load);
             this.ResumeLayout(false);
 
         }

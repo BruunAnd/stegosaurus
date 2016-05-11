@@ -87,11 +87,5 @@ namespace Stegosaurus.Forms
 
             carrierMedia.SaveToFile(sfd.FileName);
         }
-
-        private void FormEmbeddingProgress_Load(object sender, EventArgs e)
-        {
-            // Remove focus from cancel button
-            Focus();
-        }
     }
 }
