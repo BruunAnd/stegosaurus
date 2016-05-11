@@ -14,7 +14,7 @@ namespace Stegosaurus.Utility
         public RandomNumberList(int _seed, int _maxValue)
         {
             random = new Random(_seed);
-            maxValue = _maxValue;
+            maxValue = _maxValue + 1;
         }
 
         public IEnumerator<int> GetEnumerator()
@@ -22,18 +22,14 @@ namespace Stegosaurus.Utility
             int generatedInt;
 
             // Check if there are any more integers to generate
-            if (generatedIntegers.Count >= maxValue)
+            if (generatedIntegers.Count >= maxValue + 1)
                 yield break;
 
             // Generate an integer which has not yet been generated
-            int requestedCount = generatedIntegers.Count + 1;
             do
             {
                 generatedInt = random.Next(maxValue);
-                generatedIntegers.Add(generatedInt);
-            } while (generatedIntegers.Count < requestedCount);
-
-            generatedIntegers.Add(generatedInt);
+            } while (!generatedIntegers.Add(generatedInt));
 
             yield return generatedInt;
         }

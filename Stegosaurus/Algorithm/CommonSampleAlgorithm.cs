@@ -17,7 +17,7 @@ namespace Stegosaurus.Algorithm
         public override string Name => "Common Sample";
 
         [Category("Algorithm"), Description("The maximum allowed distance between two samples. Higher values may distort the carrier media.")]
-        public int MaxDistance { get; set; } = 400;
+        public int MaxDistance { get; set; } = 200;
 
         [Category("Algorithm"), Description("The maximum amount of samples to use. Higher values will take more time to compute.")]
         public int MaxSampleCount { get; set; } = 1000;

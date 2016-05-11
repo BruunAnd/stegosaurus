@@ -412,6 +412,7 @@ namespace Stegosaurus.Forms
             algorithm.CryptoProvider.SetKey(textBoxEncryptionKey.Text);
 
             FormEmbeddingProgress progressForm = new FormEmbeddingProgress();
+            progressForm.Owner = this;
             progressForm.Show();
             progressForm.Run(stegoMessage, algorithm, carrierName, carrierExtension);
         }

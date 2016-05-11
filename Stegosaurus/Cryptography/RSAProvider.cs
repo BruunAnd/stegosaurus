@@ -92,11 +92,11 @@ namespace Stegosaurus.Cryptography
             }
         }
 
-        private static string SerializeKey(RSAParameters key)
+        private static string SerializeKey(RSAParameters _key)
         {
             var stringWriter = new StringWriter();
             var xmlSerializer = new XmlSerializer(typeof(RSAParameters));
-            xmlSerializer.Serialize(stringWriter, key);
+            xmlSerializer.Serialize(stringWriter, _key);
 
             return stringWriter.ToString();
         }

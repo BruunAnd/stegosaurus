@@ -116,11 +116,10 @@ namespace Stegosaurus.Carrier
         /// <summary>
         /// Encodes and saves file to destination.
         /// </summary>
-        /// <param name="destination"></param>
-        public void SaveToFile(string destination)
+        public void SaveToFile(string _destination)
         {
             Encode();
-            innerImage.Save(destination, ImageFormat.Png);
+            innerImage.Save(_destination, ImageFormat.Png);
         }
     }
 }
