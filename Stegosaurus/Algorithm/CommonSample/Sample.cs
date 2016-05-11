@@ -21,10 +21,9 @@ namespace Stegosaurus.Algorithm.CommonSample
             }
         }
 
-        public int ModValue
-        {
-            get; set;
-        }
+        public int LastDistance { get; set; }
+
+        public int ModValue { get; set; }
 
         public Sample(params byte[] _values)
         {
@@ -51,17 +50,14 @@ namespace Stegosaurus.Algorithm.CommonSample
                 distance += (int) Math.Pow(Values[i] - otherSample.Values[i], 2);
             }
 
+            LastDistance = distance;
+
             return distance;
         }
 
         public override int GetHashCode()
         {
             return Values.ComputeHash();
-        }
-
-        public override string ToString()
-        {
-            return Values.Aggregate(string.Empty, (current, val) => current + ( " " + val ));
         }
 
         public bool Equals(Sample other)

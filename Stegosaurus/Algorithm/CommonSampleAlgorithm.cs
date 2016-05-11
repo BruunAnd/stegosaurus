@@ -56,7 +56,7 @@ namespace Stegosaurus.Algorithm
                 // Find best match
                 Sample bestMatch = commonFrequencies
                     .Where(s => s.ModValue == targetValue && s.DistanceTo(currentSample) <= MaxDistance)
-                    .OrderBy(s => currentSample.DistanceTo(s))
+                    .OrderBy(s => s.LastDistance)
                     .FirstOrDefault(); 
 
                 // If match was found, replace current sample
@@ -73,11 +73,10 @@ namespace Stegosaurus.Algorithm
                 }
 
                 // Report progress
-                if (i % 500 == 0)
-                {
-                    float percentage = (( i + 1) / (float) messageBits.Length) * 100;
-                    _progress?.Report((int) percentage);
-                }
+                if (i % 500 != 0)
+                    continue;
+                float percentage = (( i + 1) / (float) messageBits.Length) * 100;
+                _progress?.Report((int) percentage);
             }
 
             // Report that we are finished

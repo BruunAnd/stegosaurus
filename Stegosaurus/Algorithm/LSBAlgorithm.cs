@@ -59,11 +59,10 @@ namespace Stegosaurus.Algorithm
                 }
 
                 // Report progress
-                if (index % 500 == 0)
-                {
-                    float percentage = ( ( index + 1 ) / (float) messageInBits.Length ) * 100;
-                    _progress?.Report((int) percentage);
-                }
+                if (index % 500 != 0)
+                    continue;
+                float percentage = ( ( index + 1 ) / (float) messageInBits.Length ) * 100;
+                _progress?.Report((int) percentage);
             }
 
             // Report that we are finished
