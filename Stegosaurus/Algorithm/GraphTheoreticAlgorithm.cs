@@ -52,7 +52,16 @@ namespace Stegosaurus.Algorithm
         private List<Edge> edges = new List<Edge>();
         
         public override string Name => "Graph Theoretic Algorithm";
-        
+
+        // todo: implement
+        protected override byte[] MagicHeader
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+        }
+
         public override long ComputeBandwidth()
         {
             return ((((CarrierMedia.ByteArray.Length / CarrierMedia.BytesPerSample) / samplesPerVertex) * messageBitsPerVertex ) / 8) - GraphTheorySignature.Length;

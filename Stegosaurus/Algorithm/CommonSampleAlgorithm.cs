@@ -12,25 +12,31 @@ namespace Stegosaurus.Algorithm
 {
     public class CommonSampleAlgorithm : StegoAlgorithmBase
     {
-        private static readonly byte[] CommonSampleSignature = { 0x0C, 0xB3, 0x11, 0x84 };
-
         public override string Name => "Common Sample";
 
+        protected override byte[] MagicHeader => new byte[] { 0x0C, 0xB3, 0x11, 0x84 };
+
+        /// <summary>
+        /// Get or set the maximum distance.
+        /// </summary>
         [Category("Algorithm"), Description("The maximum allowed distance between two samples. Higher values may distort the carrier media.")]
         public int MaxDistance { get; set; } = 250;
 
+        /// <summary>
+        /// Get or set the maximum sample count.
+        /// </summary>
         [Category("Algorithm"), Description("The maximum amount of samples to use. Higher values will take more time to compute.")]
         public int MaxSampleCount { get; set; } = 1000;
 
         public override void Embed(StegoMessage message, IProgress<int> _progress, CancellationToken _ct)
         {
-            var messageBits = new BitArray(CommonSampleSignature.Concat(message.ToByteArray(CryptoProvider)).ToArray());
+            var messageBits = new BitArray(MagicHeader.Concat(message.ToByteArray(CryptoProvider)).ToArray());
 
-            // Get all samples
+            // Get all samples.
             List<Sample> samples = GetAllSamples();
 
-            // Find color frequencies
-            // The Samples are clones so their values are not changed by mistake
+            // Find color frequencies.
+            // The Samples are clones so their values are not changed by mistake.
             List<Sample> commonFrequencies = samples
                 .GroupBy(v => v)
                 .OrderByDescending(v => v.Count())
@@ -38,7 +44,7 @@ namespace Stegosaurus.Algorithm
                 .Select(s => (Sample)s.Key.Clone())
                 .ToList();
 
-            // Find vertices to change
+            // Find vertices to change.
             RandomNumberList randomNumbers = new RandomNumberList(Seed, samples.Count);
             int numReplaced = 0, numForced = 0;
             for (int i = 0; i < messageBits.Length; i++)
@@ -48,19 +54,19 @@ namespace Stegosaurus.Algorithm
                 Sample currentSample = samples[randomNumbers.Next];
                 int targetValue = messageBits[i] ? 1 : 0;
 
-                // Check if sample already has target value
+                // Check if sample already has target value.
                 if (currentSample.ModValue == targetValue)
                 {
                     continue;
                 }
 
-                // Find best match
+                // Find best match.
                 Sample bestMatch = commonFrequencies
                     .Where(s => s.ModValue == targetValue && s.DistanceTo(currentSample) <= MaxDistance)
                     .OrderBy(s => s.LastDistance)
                     .FirstOrDefault(); 
 
-                // If match was found, replace current sample
+                // If match was found, replace current sample.
                 if (bestMatch != null)
                 {
                     currentSample.Values = bestMatch.Values;
@@ -72,18 +78,18 @@ namespace Stegosaurus.Algorithm
                     numForced++;
                 }
 
-                // Report progress
+                // Report progress.
                 if (i % 500 != 0)
                     continue;
                 float percentage = (( i + 1) / (float) messageBits.Length) * 100;
                 _progress?.Report((int) percentage);
             }
 
-            // Report that we are finished
+            // Report that we are finished.
             _progress?.Report(100);
             Console.WriteLine("{0}% forced, {1}% replaced", 100 * ((float)numForced / (numForced + numReplaced)), 100 * ((float) numReplaced / (numForced + numReplaced)));
 
-            // Write changes
+            // Write changes.
             int pos = 0;
             foreach (byte sample in samples.SelectMany(current => current.Values))
             {
@@ -93,30 +99,33 @@ namespace Stegosaurus.Algorithm
 
         public override StegoMessage Extract()
         {
-            // Get all samples
+            // Get all samples.
             List<Sample> samples = GetAllSamples();
 
-            // Generate random numbers
+            // Generate random numbers.
             RandomNumberList randomNumbers = new RandomNumberList(Seed, samples.Count);
 
-            // Read bytes and verify CommonSampleSignature
-            if (!ReadBytes(randomNumbers, samples, CommonSampleSignature.Length).SequenceEqual(CommonSampleSignature))
+            // Read bytes and verify magic header.
+            if (!ReadBytes(randomNumbers, samples, MagicHeader.Length).SequenceEqual(MagicHeader))
             {
-                throw new StegoAlgorithmException("Signature is invalid, possibly using a wrong key.");
+                throw new StegoAlgorithmException("Magic header is invalid, possibly using a wrong key.");
             }
 
-            // Read length
+            // Read length.
             int length = BitConverter.ToInt32(ReadBytes(randomNumbers, samples, 4), 0);
 
-            // Read data and return StegoMessage instance
+            // Read data and return StegoMessage instance.
             return new StegoMessage(ReadBytes(randomNumbers, samples, length), CryptoProvider);
         }
 
         public override long ComputeBandwidth()
         {
-            return ((CarrierMedia.ByteArray.Length / CarrierMedia.BytesPerSample) / 8) - CommonSampleSignature.Length;
+            return ((CarrierMedia.ByteArray.Length / CarrierMedia.BytesPerSample) / 8) - MagicHeader.Length;
         }
 
+        /// <summary>
+        /// Reads the specified amount of bytes from the CarrierMedia.
+        /// </summary>
         private byte[] ReadBytes(RandomNumberList _numberList, List<Sample> samples, int _count)
         {
             // Allocate BitArray with count * 8 bits
@@ -136,7 +145,7 @@ namespace Stegosaurus.Algorithm
         }
 
         /// <summary>
-        /// Returns a list of all samples in the CarrierMedia
+        /// Returns a list of all samples in the CarrierMedia.
         /// </summary>
         public List<Sample> GetAllSamples()
         {
