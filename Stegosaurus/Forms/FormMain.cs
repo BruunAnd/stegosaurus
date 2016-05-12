@@ -82,7 +82,7 @@ namespace Stegosaurus.Forms
                 {
                     ShowError(ex.Message, "Unknown error");
                 }
-                catch (InvalidFileException ex)
+                catch (InvalidCarrierFileException ex)
                 {
                     ShowError(ex.Message, "Invalid file");
                 }

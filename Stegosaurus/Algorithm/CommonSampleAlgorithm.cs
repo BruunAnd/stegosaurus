@@ -17,7 +17,7 @@ namespace Stegosaurus.Algorithm
         public override string Name => "Common Sample";
 
         [Category("Algorithm"), Description("The maximum allowed distance between two samples. Higher values may distort the carrier media.")]
-        public int MaxDistance { get; set; } = 200;
+        public int MaxDistance { get; set; } = 250;
 
         [Category("Algorithm"), Description("The maximum amount of samples to use. Higher values will take more time to compute.")]
         public int MaxSampleCount { get; set; } = 1000;
@@ -26,10 +26,11 @@ namespace Stegosaurus.Algorithm
         {
             var messageBits = new BitArray(CommonSampleSignature.Concat(message.ToByteArray(CryptoProvider)).ToArray());
 
-            // Get all vertices
+            // Get all samples
             List<Sample> samples = GetAllSamples();
 
             // Find color frequencies
+            // The Samples are clones so their values are not changed by mistake
             List<Sample> commonFrequencies = samples
                 .GroupBy(v => v)
                 .OrderByDescending(v => v.Count())
@@ -62,8 +63,7 @@ namespace Stegosaurus.Algorithm
                 // If match was found, replace current sample
                 if (bestMatch != null)
                 {
-                    // Use a clone of the values, as the reference may be changed later
-                    currentSample.Values = (byte[]) bestMatch.Values.Clone();
+                    currentSample.Values = bestMatch.Values;
                     numReplaced++;
                 }
                 else
