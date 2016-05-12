@@ -7,7 +7,7 @@ namespace Stegosaurus.Utility.Extensions
     public static class StreamExtensions
     {
         /// <summary>
-        /// Read and return bytes from stream
+        /// Read and return bytes from stream.
         /// </summary>
         public static byte[] ReadBytes(this Stream _stream, int _count)
         {
@@ -17,7 +17,7 @@ namespace Stegosaurus.Utility.Extensions
         }
 
         /// <summary>
-        /// Reads bytes with unknown length
+        /// Reads bytes with unknown length.
         /// </summary>
         public static byte[] ReadBytes(this Stream _stream)
         {
@@ -25,7 +25,7 @@ namespace Stegosaurus.Utility.Extensions
         }
 
         /// <summary>
-        /// Read and return int from stream
+        /// Read and return int from stream.
         /// </summary>
         public static int ReadInt(this Stream _stream)
         {
@@ -33,7 +33,7 @@ namespace Stegosaurus.Utility.Extensions
         }
 
         /// <summary>
-        /// Read and return short from stream
+        /// Read and return short from stream.
         /// </summary>
         public static short ReadShort(this Stream _stream)
         {
@@ -41,7 +41,7 @@ namespace Stegosaurus.Utility.Extensions
         }
 
         /// <summary>
-        /// Read and return string from stream
+        /// Read and return string from stream.
         /// </summary>
         public static string ReadString(this Stream _stream)
         {
@@ -53,7 +53,7 @@ namespace Stegosaurus.Utility.Extensions
         }
 
         /// <summary>
-        /// Read and return InputFile from stream
+        /// Read and return InputFile from stream.
         /// </summary>
         public static InputFile ReadInputFile(this Stream _stream)
         {
@@ -61,7 +61,7 @@ namespace Stegosaurus.Utility.Extensions
         }
 
         /// <summary>
-        /// Write buffer to stream
+        /// Write buffer to stream.
         /// </summary>
         public static void Write(this Stream _stream, byte[] _buffer, bool writeLength = false)
         {
@@ -73,7 +73,7 @@ namespace Stegosaurus.Utility.Extensions
         }
 
         /// <summary>
-        /// Write int to stream
+        /// Write int to stream.
         /// </summary>
         public static void Write(this Stream _stream, int _value)
         {
@@ -81,7 +81,7 @@ namespace Stegosaurus.Utility.Extensions
         }
 
         /// <summary>
-        /// Write short to stream
+        /// Write short to stream.
         /// </summary>
         public static void Write(this Stream _stream, short _value)
         {
@@ -89,7 +89,7 @@ namespace Stegosaurus.Utility.Extensions
         }
 
         /// <summary>
-        /// Write string to stream
+        /// Write string to stream.
         /// </summary>
         public static void Write(this Stream _stream, string _value)
         {
@@ -106,20 +106,20 @@ namespace Stegosaurus.Utility.Extensions
         }
 
         /// <summary>
-        /// Write InputFile to stream
+        /// Write InputFile to stream.
         /// </summary>
         public static void Write(this Stream _stream, InputFile _value)
         {
-            // Write name
+            // Write name.
             _stream.Write(_value.Name);
 
-            // Write content with length
+            // Write content with length.
             _stream.Write(_value.Content.Length);
             _stream.Write(_value.Content);
         }
 
         /// <summary>
-        /// Returns the remaining length of the stream
+        /// Returns the remaining length of the stream.
         /// </summary>
         public static long GetRemainingLength(this Stream _stream)
         {

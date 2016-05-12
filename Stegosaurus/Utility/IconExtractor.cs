@@ -29,18 +29,21 @@ namespace Stegosaurus.Utility
         public const int SHGFI_USEFILEATTRIBUTES = 0x000000010;
         public const int SHGFI_SMALLICON = 0x000000001;
   
+        /// <summary>
+        /// Returns an instance of Icon using a file extension.
+        /// </summary>
         public static Icon ExtractIcon(string _extension)
         {
             SHFILEINFO fileInfo = new SHFILEINFO();
 
-            // Set flags
+            // Set flags.
             uint uFlags = SHGFI_ICON | SHGFI_USEFILEATTRIBUTES;
             uFlags += SHGFI_SMALLICON;
 
-            // Call native GetFileInfo method
+            // Call native GetFileInfo method.
             SHGetFileInfo(_extension, FILE_ATTRIBUTE_NORMAL, ref fileInfo, (uint) Marshal.SizeOf(fileInfo), uFlags);
 
-            // Get icon from handle and clone, destroy handle afterwards
+            // Get icon from handle and clone, destroy handle afterwards.
             Icon extractedIcon = (Icon) Icon.FromHandle(fileInfo.hIcon).Clone();
             DestroyIcon(fileInfo.hIcon);
 

@@ -7,6 +7,9 @@ namespace Stegosaurus.Utility
 {
     public static class SizeFormatter
     {
+        /// <summary>
+        /// Returns a formatted string from a byte count.
+        /// </summary>
         public static string StringFormatBytes(long byteCount)
         {
             string[] suffixes = { "B", "KiB", "MiB", "GiB", "TiB", "PiB", "EiB", "ZiB" };
