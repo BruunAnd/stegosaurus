@@ -14,13 +14,13 @@ namespace StegosaurusTest
         {
             const int count = 1000;
             int duplicateCount = 0;
-            IEnumerable<int> randomNumbers = new RandomNumberList(0, count);
+            RandomNumberList randomNumbers = new RandomNumberList(0, count);
             List<int> existingNumbers = new List<int>();
 
             // check for duplicates
             for (int i = 0; i < count; i++)
             {
-                int nextInt = randomNumbers.First();
+                int nextInt = randomNumbers.Next;
                 if (existingNumbers.Contains(nextInt))
                 {
                     duplicateCount++;
