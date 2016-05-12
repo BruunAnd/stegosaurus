@@ -13,6 +13,9 @@ namespace Stegosaurus.Algorithm
 {
     public class LSBAlgorithm : StegoAlgorithmBase
     {
+        /// <summary>
+        /// 
+        /// </summary>
         public enum BitValues : byte
         {
             First = 0x1,
@@ -25,7 +28,10 @@ namespace Stegosaurus.Algorithm
             Eighth = 0x80,
         }
 
-        private static readonly byte[] LsbSignature = { 0x6C, 0x73, 0x62, 0x51 };
+        /// <summary>
+        /// The LSBSignature is meant to act as a ID for each individual algorithm.
+        /// </summary>
+        public override byte[] Signature { get; set; } = { 0x6C, 0x73, 0x62, 0x51 };
 
         public override string Name => "Least Significant Bit";
 
@@ -36,7 +42,7 @@ namespace Stegosaurus.Algorithm
         {
             // Combine LsbSignature with byteArray and convert to bitArray
             byte[] messageArray = _message.ToByteArray(CryptoProvider);
-            BitArray messageInBits = new BitArray(LsbSignature.Concat(messageArray).ToArray());
+            BitArray messageInBits = new BitArray(Signature.Concat(messageArray).ToArray());
 
             // Generate random sequence of integers
             RandomNumberList numberList = new RandomNumberList(Seed, CarrierMedia.ByteArray.Length);
@@ -74,7 +80,7 @@ namespace Stegosaurus.Algorithm
             RandomNumberList numberList = new RandomNumberList(Seed, CarrierMedia.ByteArray.Length);
 
             // Read bytes and verify LsbSignature
-            if (!ReadBytes(numberList, LsbSignature.Length).SequenceEqual(LsbSignature))
+            if (!ReadBytes(numberList, Signature.Length).SequenceEqual(Signature))
             {
                 throw new StegoAlgorithmException("Signature is invalid, possibly using a wrong key.");
             }
@@ -89,7 +95,7 @@ namespace Stegosaurus.Algorithm
 
         public override long ComputeBandwidth()
         {
-            return (CarrierMedia.ByteArray.Length / 8 ) - LsbSignature.Length;
+            return (CarrierMedia.ByteArray.Length / 8 ) - Signature.Length;
         }
 
         private byte[] ReadBytes(RandomNumberList _numberList, int _count)

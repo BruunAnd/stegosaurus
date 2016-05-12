@@ -8,6 +8,8 @@ namespace Stegosaurus.Algorithm
 {
     public abstract class StegoAlgorithmBase
     {
+        public virtual byte[] Signature { get; set; }
+
         /// <summary>
         /// Get the name of the algorithm
         /// </summary>
