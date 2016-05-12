@@ -17,7 +17,7 @@ namespace Stegosaurus.Algorithm
         public override string Name => "Common Sample";
 
         [Category("Algorithm"), Description("The maximum allowed distance between two samples. Higher values may distort the carrier media.")]
-        public int MaxDistance { get; set; } = 200;
+        public int MaxDistance { get; set; } = 250;
 
         [Category("Algorithm"), Description("The maximum amount of samples to use. Higher values will take more time to compute.")]
         public int MaxSampleCount { get; set; } = 1000;
@@ -26,10 +26,11 @@ namespace Stegosaurus.Algorithm
         {
             var messageBits = new BitArray(CommonSampleSignature.Concat(message.ToByteArray(CryptoProvider)).ToArray());
 
-            // Get all vertices
+            // Get all samples
             List<Sample> samples = GetAllSamples();
 
             // Find color frequencies
+            // The Samples are clones so their values are not changed by mistake
             List<Sample> commonFrequencies = samples
                 .GroupBy(v => v)
                 .OrderByDescending(v => v.Count())
@@ -44,7 +45,7 @@ namespace Stegosaurus.Algorithm
             {
                 _ct.ThrowIfCancellationRequested();
                    
-                Sample currentSample = samples[randomNumbers.First()];
+                Sample currentSample = samples[randomNumbers.Next];
                 int targetValue = messageBits[i] ? 1 : 0;
 
                 // Check if sample already has target value
@@ -62,8 +63,7 @@ namespace Stegosaurus.Algorithm
                 // If match was found, replace current sample
                 if (bestMatch != null)
                 {
-                    // Use a clone of the values, as the reference may be changed later
-                    currentSample.Values = (byte[]) bestMatch.Values.Clone();
+                    currentSample.Values = bestMatch.Values;
                     numReplaced++;
                 }
                 else
@@ -117,7 +117,7 @@ namespace Stegosaurus.Algorithm
             return ((CarrierMedia.ByteArray.Length / CarrierMedia.BytesPerSample) / 8) - CommonSampleSignature.Length;
         }
 
-        private byte[] ReadBytes(IEnumerable<int> _numberList, List<Sample> samples, int _count)
+        private byte[] ReadBytes(RandomNumberList _numberList, List<Sample> samples, int _count)
         {
             // Allocate BitArray with count * 8 bits
             BitArray tempBitArray = new BitArray(_count * 8);
@@ -125,7 +125,7 @@ namespace Stegosaurus.Algorithm
             // Set bits from the values in samples
             for (int i = 0; i < tempBitArray.Length; i++)
             {
-                tempBitArray[i] = samples[_numberList.First()].ModValue == 1;
+                tempBitArray[i] = samples[_numberList.Next].ModValue == 1;
             }
 
             // Copy bitArray to new byteArray

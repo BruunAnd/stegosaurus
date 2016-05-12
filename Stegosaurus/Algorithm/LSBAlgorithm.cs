@@ -39,14 +39,14 @@ namespace Stegosaurus.Algorithm
             BitArray messageInBits = new BitArray(LsbSignature.Concat(messageArray).ToArray());
 
             // Generate random sequence of integers
-            IEnumerable<int> numberList = new RandomNumberList(Seed, CarrierMedia.ByteArray.Length);
+            RandomNumberList numberList = new RandomNumberList(Seed, CarrierMedia.ByteArray.Length);
 
             // Iterate through all bits
             for (int index = 0; index < messageInBits.Length; index++)
             {
                 _ct.ThrowIfCancellationRequested();
 
-                int byteArrayIndex = numberList.First();
+                int byteArrayIndex = numberList.Next;
                 byte sampleValue = CarrierMedia.ByteArray[byteArrayIndex];
 
                 // Get the least significant bit of current position
@@ -71,7 +71,7 @@ namespace Stegosaurus.Algorithm
 
         public override StegoMessage Extract()
         {
-            IEnumerable<int> numberList = new RandomNumberList(Seed, CarrierMedia.ByteArray.Length);
+            RandomNumberList numberList = new RandomNumberList(Seed, CarrierMedia.ByteArray.Length);
 
             // Read bytes and verify LsbSignature
             if (!ReadBytes(numberList, LsbSignature.Length).SequenceEqual(LsbSignature))
@@ -92,7 +92,7 @@ namespace Stegosaurus.Algorithm
             return (CarrierMedia.ByteArray.Length / 8 ) - LsbSignature.Length;
         }
 
-        private byte[] ReadBytes(IEnumerable<int> _numberList, int _count)
+        private byte[] ReadBytes(RandomNumberList _numberList, int _count)
         {
             // Allocate BitArray with count * 8 bits
             BitArray tempBitArray = new BitArray(_count * 8);
@@ -100,7 +100,7 @@ namespace Stegosaurus.Algorithm
             // Iterate through the allocated amount of bits
             for (int i = 0; i < tempBitArray.Length; i++)
             {
-                tempBitArray[i] = (CarrierMedia.ByteArray[_numberList.First()] & (byte) WorkingBit) == (byte) WorkingBit;
+                tempBitArray[i] = (CarrierMedia.ByteArray[_numberList.Next] & (byte) WorkingBit) == (byte) WorkingBit;
             }
 
             // Copy bitArray to new byteArray

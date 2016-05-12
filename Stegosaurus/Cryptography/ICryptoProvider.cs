@@ -35,7 +35,7 @@
 
         /// <summary>
         /// Encrypts and returns encrypted data
-        /// </summary
+        /// </summary>
         byte[] Encrypt(byte[] _data);
 
         /// <summary>
