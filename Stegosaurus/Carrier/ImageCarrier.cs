@@ -10,7 +10,7 @@ namespace Stegosaurus.Carrier
 {
     public class ImageCarrier : ICarrierMedia
     {
-        private readonly Bitmap innerImage;
+        private readonly Bitmap image;
 
         public byte[] ByteArray { get; set; }
 
@@ -19,32 +19,32 @@ namespace Stegosaurus.Carrier
         /// <summary>
         /// Returns the inner instance of Image.
         /// </summary>
-        public Image InnerImage => innerImage;
+        public Image Image => image;
 
         /// <summary>
         /// Construct ImageCarrier from an instance of Image.
         /// </summary>
-        public ImageCarrier(Image _innerImage)
+        public ImageCarrier(Image _image)
         {
-            if (_innerImage == null)
+            if (_image == null)
             {
                 throw new ArgumentNullException("Invalid input image in ImageCarrier.\n");
             }
 
             // Clone image or convert to PNG
-            if (_innerImage.RawFormat.Equals(ImageFormat.Png) && _innerImage.PixelFormat == PixelFormat.Format24bppRgb)
+            if (_image.RawFormat.Equals(ImageFormat.Png) && _image.PixelFormat == PixelFormat.Format24bppRgb)
             {
-                innerImage = (Bitmap) _innerImage.Clone();
+                image = (Bitmap) _image.Clone();
             }
             else
             {
-                innerImage = new Bitmap( _innerImage.Width, _innerImage.Height, PixelFormat.Format24bppRgb);
-                using (Graphics graphics = Graphics.FromImage(innerImage))
+                image = new Bitmap( _image.Width, _image.Height, PixelFormat.Format24bppRgb);
+                using (Graphics graphics = Graphics.FromImage(image))
                 {
-                    graphics.DrawImage(_innerImage, new Rectangle(0, 0, _innerImage.Width, _innerImage.Height));
+                    graphics.DrawImage(_image, new Rectangle(0, 0, _image.Width, _image.Height));
                 }
             }
-            _innerImage.Dispose();
+            _image.Dispose();
 
             Decode();
         }
@@ -62,8 +62,8 @@ namespace Stegosaurus.Carrier
         /// </summary>
         private BitmapData LockBitmap()
         {
-            Rectangle imageRectangle = new Rectangle(new Point(0, 0), innerImage.Size);
-            return innerImage.LockBits(imageRectangle, ImageLockMode.ReadWrite, innerImage.PixelFormat);
+            Rectangle imageRectangle = new Rectangle(new Point(0, 0), image.Size);
+            return image.LockBits(imageRectangle, ImageLockMode.ReadWrite, image.PixelFormat);
         }
 
         /// <summary>
@@ -95,7 +95,7 @@ namespace Stegosaurus.Carrier
             Marshal.Copy(imageData.Scan0, ByteArray, 0, imageDataLength);
 
             // Unlock bits
-            innerImage.UnlockBits(imageData);
+            image.UnlockBits(imageData);
         }
 
         /// <summary>
@@ -110,7 +110,7 @@ namespace Stegosaurus.Carrier
             Marshal.Copy(ByteArray, 0, imageData.Scan0, ByteArray.Length);
 
             // Unlock bits
-            innerImage.UnlockBits(imageData);
+            image.UnlockBits(imageData);
         }
 
         /// <summary>
@@ -119,7 +119,7 @@ namespace Stegosaurus.Carrier
         public void SaveToFile(string _destination)
         {
             Encode();
-            innerImage.Save(_destination, ImageFormat.Png);
+            image.Save(_destination, ImageFormat.Png);
         }
     }
 }
