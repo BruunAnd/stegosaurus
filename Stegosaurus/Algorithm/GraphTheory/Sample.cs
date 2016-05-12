@@ -7,13 +7,13 @@ namespace Stegosaurus.Algorithm.GraphTheory
 {
     public class Sample
     {
-        public byte[] Bytes { get; private set; }
-        public int Value { get; set; }
-        public int TargetValue { get; set; }
+        public byte[] Bytes;
+        public short Value;
+        public short TargetValue;
         
         public Sample(byte[] _bytes)
         {
-            Bytes = _bytes;
+            Bytes = (byte[])_bytes.Clone();
         }
     }
 }
