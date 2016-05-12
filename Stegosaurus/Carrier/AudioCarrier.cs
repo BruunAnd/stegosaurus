@@ -10,7 +10,7 @@ namespace Stegosaurus.Carrier
 
         public int BytesPerSample => audioFile.BitsPerSample / 8;
 
-        private AudioFile audioFile;
+        private readonly AudioFile audioFile;
 
         public AudioCarrier(string _filePath)
         {
@@ -33,10 +33,10 @@ namespace Stegosaurus.Carrier
             audioFile.SetInnerData(ByteArray);
         }
 
-        public void SaveToFile(string destination)
+        public void SaveToFile(string _destination)
         {
             Encode();
-            File.WriteAllBytes(destination, audioFile.ToArray());
+            File.WriteAllBytes(_destination, audioFile.ToArray());
         }
     }
 }

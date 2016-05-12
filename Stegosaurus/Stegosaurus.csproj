@@ -9,8 +9,9 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Stegosaurus</RootNamespace>
     <AssemblyName>Stegosaurus</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -23,6 +24,7 @@
     <WarningLevel>4</WarningLevel>
     <DocumentationFile>
     </DocumentationFile>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -32,6 +34,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationIcon>stegosaurus.ico</ApplicationIcon>
@@ -54,6 +57,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Algorithm\CommonSampleAlgorithm.cs" />
+    <Compile Include="Algorithm\CommonSample\Sample.cs" />
     <Compile Include="Algorithm\GraphTheoreticAlgorithm.cs" />
     <Compile Include="Algorithm\GraphTheory\CountedVerticeList.cs" />
     <Compile Include="Algorithm\GraphTheory\Edge.cs" />
@@ -61,6 +66,7 @@
     <Compile Include="Algorithm\GraphTheory\Vertex.cs" />
     <Compile Include="Algorithm\IStegoAlgorithm.cs" />
     <Compile Include="Algorithm\LSBAlgorithm.cs" />
+    <Compile Include="Algorithm\StegoAlgorithmBase.cs" />
     <Compile Include="Carrier\AudioCarrier.cs" />
     <Compile Include="Carrier\AudioFormats\AudioFile.cs" />
     <Compile Include="Carrier\AudioFormats\WaveFile.cs" />
@@ -77,11 +83,11 @@
     <Compile Include="Exceptions\StegoCryptoException.cs" />
     <Compile Include="Exceptions\StegoMessageException.cs" />
     <Compile Include="Exceptions\StegosaurusException.cs" />
-    <Compile Include="Forms\TestForm.cs">
+    <Compile Include="Forms\FormEmbeddingProgress.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Forms\TestForm.Designer.cs">
-      <DependentUpon>TestForm.cs</DependentUpon>
+    <Compile Include="Forms\FormEmbeddingProgress.Designer.cs">
+      <DependentUpon>FormEmbeddingProgress.cs</DependentUpon>
     </Compile>
     <Compile Include="Utility\Extensions\ByteArrayExtensions.cs" />
     <Compile Include="Utility\InputTypes\CarrierType.cs" />
@@ -104,11 +110,11 @@
     <Compile Include="Utility\RandomNumberList.cs" />
     <Compile Include="StegoMessage.cs" />
     <Compile Include="Utility\SizeFormatter.cs" />
+    <EmbeddedResource Include="Forms\FormEmbeddingProgress.resx">
+      <DependentUpon>FormEmbeddingProgress.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Forms\FormMain.resx">
       <DependentUpon>FormMain.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Forms\TestForm.resx">
-      <DependentUpon>TestForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
@@ -118,7 +124,9 @@
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
     </Compile>
+    <None Include="app.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>

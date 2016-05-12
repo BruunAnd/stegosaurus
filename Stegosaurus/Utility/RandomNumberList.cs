@@ -7,9 +7,9 @@ namespace Stegosaurus.Utility
     public class RandomNumberList : IEnumerable<int>
     {
         // Private variables
-        private Random random;
-        private HashSet<int> generatedIntegers = new HashSet<int>();
-        private int maxValue;
+        private readonly Random random;
+        private readonly HashSet<int> generatedIntegers = new HashSet<int>();
+        private readonly int maxValue;
 
         public RandomNumberList(int _seed, int _maxValue)
         {
@@ -26,14 +26,10 @@ namespace Stegosaurus.Utility
                 yield break;
 
             // Generate an integer which has not yet been generated
-            int requestedCount = generatedIntegers.Count + 1;
             do
             {
                 generatedInt = random.Next(maxValue);
-                generatedIntegers.Add(generatedInt);
-            } while (generatedIntegers.Count < requestedCount);
-
-            generatedIntegers.Add(generatedInt);
+            } while (!generatedIntegers.Add(generatedInt));
 
             yield return generatedInt;
         }

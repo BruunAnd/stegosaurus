@@ -7,6 +7,6 @@
 
         void Encode();
         void Decode();
-        void SaveToFile(string destination);
+        void SaveToFile(string _destination);
     }
 }
