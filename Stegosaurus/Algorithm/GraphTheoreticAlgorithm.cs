@@ -8,46 +8,60 @@ using System.Linq;
 using System.Text;
 using Stegosaurus.Utility;
 using Stegosaurus.Forms;
+using System.ComponentModel;
+using System.Threading;
 
 namespace Stegosaurus.Algorithm
 {
-    public class GraphTheoreticAlgorithm : IStegoAlgorithm
+    public class GraphTheoreticAlgorithm : StegoAlgorithmBase
     {
 
-        private static readonly byte[] GraphTheorySignature = { 0x12, 0x34, 0x56, 078 };
-        public ICryptoProvider CryptoProvider { get; set; }
+        private static readonly byte[] GraphTheorySignature = { 0x12, 0x34, 0x56, 0x78 };
+        private byte samplesPerVertex = 2;
+        private byte messageBitsPerVertex = 2;
+        private ushort discriminationFactor = 1024;
+
+        [Category("Algorithm"), Description("The number of samples collected in each vertex. Higher numbers means less bandwidth but more imperceptibility.(Default = 2, Max = 4.)")]
+        public byte SamplesPerVertex
+        {
+            get { return samplesPerVertex; }
+            set { samplesPerVertex = (value <= 4)? value:(byte)4;  }
+        }
         
-        private int samplesPerVertex = 2;
-        private int messageBitsPerVertex = 2;
+        [Category("Algorithm"), Description("The number of bits hidden in each vertex. Higher numbers means more bandwidth but less imperceptibility.(Default = 2, Max = 4.)")]
+        public byte MessageBitsPerVertex
+        {
+            get { return messageBitsPerVertex; }
+            set { messageBitsPerVertex = (value <= 4) ? value : (byte)4; }
+        }
+
+        [Category("Algorithm"), Description("The maximum distance^2 between sample values for an edge to be valid. Higher numbers means less visual imperceptibility but more statistical imperceptibility. (Default = 1024, Max = 8192.)")]
+        public ushort DiscriminationFactor
+        {
+            get { return discriminationFactor; }
+            set { discriminationFactor = (value <= 8192) ? value : (ushort)8192; }
+        }
+
         private short modFactor;
         private short bitwiseModFactor;
-        private short discriminationFactor;
 
+        private List<byte> messageHunks;
+        private List<Sample> samples = new List<Sample>();
         private List<Vertex> vertices = new List<Vertex>();
         private List<Vertex> reserveVertices = new List<Vertex>();
         private List<Edge> edges = new List<Edge>();
-        public ICarrierMedia CarrierMedia
-        {
-            get; set;
-        }
-
-        public string Name => "Graph Theoretic Algorithm";
-        public string CryptoKey { get; set; }
-
-        public int Seed => CryptoProvider?.Seed ?? 0;
-
-        public long ComputeBandwidth()
+        
+        public override string Name => "Graph Theoretic Algorithm";
+        
+        public override long ComputeBandwidth()
         {
             return ((((CarrierMedia.ByteArray.Length / CarrierMedia.BytesPerSample) / samplesPerVertex) * messageBitsPerVertex ) / 8) - GraphTheorySignature.Length;
         }
-        private List<byte> messageHunks;
 
-        public void Embed(StegoMessage _message)
+        public override void Embed(StegoMessage _message, IProgress<int> _progress, CancellationToken _ct)
         {
             modFactor = (short)(1 << messageBitsPerVertex);
             bitwiseModFactor = (byte)(modFactor - 1);
-            discriminationFactor = 1024;
-            
 
             byte[] messageArray = _message.ToByteArray(CryptoProvider);
             BitArray messageInBits = new BitArray(GraphTheorySignature.Concat(messageArray).ToArray());
@@ -55,6 +69,8 @@ namespace Stegosaurus.Algorithm
             int len = messageInBits.Length / messageBitsPerVertex;
             int index = 0, a = 0;
             byte messageHunk = 0;
+            GetMessageHunks(_message);
+            _progress.Report(5);
             while (index < len)
             {
                 messageHunk = new byte();
@@ -65,38 +81,64 @@ namespace Stegosaurus.Algorithm
                 }
                 messageHunks.Add(messageHunk);
             }
+            _progress.Report(10);
 
             GetSamples();
+            _progress.Report(20);
 
             // Generate random sequence of integers
             //IEnumerable<int> numberList = new RandomNumberList(Seed, samples.Count);
+
             int dimSize = byte.MaxValue + 1;
             
             // TODO: make dynamic. Currently only compatible with 3 bytes per sample.
             CountedVerticeList[,,,,] verticeArray = new CountedVerticeList[dimSize, dimSize, dimSize, modFactor, bitwiseModFactor];
-
+            _progress.Report(25);
 
             GetVertices(messageInBits, verticeArray);
+            _progress.Report(45);
+
             GetEdges(verticeArray);
+            _progress.Report(75);
 
             Swap();
+            _progress.Report(95);
+
             vertices.Clear();
             reserveVertices.Clear();
             edges.Clear();
-
-            
+            _progress.Report(100);
         }
 
-        public StegoMessage Extract()
+        public override StegoMessage Extract()
         {
             throw new NotImplementedException();
         }
 
-        private List<Sample> samples = new List<Sample>();
+        // Gets the encrypted message and seperates the bit pattern into chunks of size messageBitsPerVertex which are added to the messageHunk list.
+        private void GetMessageHunks(StegoMessage _message)
+        {
+            messageHunks = new List<byte>();
+            byte[] messageArray = _message.ToByteArray(CryptoProvider);
+            BitArray messageInBits = new BitArray(GraphTheorySignature.Concat(messageArray).ToArray());
+            int len = messageInBits.Length / messageBitsPerVertex;
+            int index = 0, indexOffset = 0;
+            byte messageHunk = 0;
+            while (index < len)
+            {
+                messageHunk = new byte();
+                indexOffset = index++ * messageBitsPerVertex;
+                for (int i = 0; i < messageBitsPerVertex; i++)
+                {
+                    messageHunk += messageInBits[indexOffset + i] ? (byte)Math.Pow(2, i) : (byte)0;
+                }
+                messageHunks.Add(messageHunk);
+            }
+        }
 
         private void GetSamples()
         {
-            byte[] sample = new byte[CarrierMedia.BytesPerSample];
+            byte[] tempSampleBytes = new byte[CarrierMedia.BytesPerSample];
             long numSamples = CarrierMedia.ByteArray.Length / CarrierMedia.BytesPerSample;
             long len = CarrierMedia.ByteArray.Length;
 
@@ -105,11 +147,11 @@ namespace Stegosaurus.Algorithm
             {
                 for (int j = 0; j < CarrierMedia.BytesPerSample; j++)
                 {
-                    sample[j] = CarrierMedia.ByteArray[i + j];
+                    tempSampleBytes[j] = CarrierMedia.ByteArray[i + j];
                 }
-                tempSample = new Sample(sample);
+                tempSample = new Sample(tempSampleBytes);
                 short value = 0;
-                foreach (byte item in sample)
+                foreach (byte item in tempSampleBytes)
                 {
                     value += (short)item;
                 }
