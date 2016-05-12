@@ -15,12 +15,29 @@ namespace Stegosaurus.Carrier.AudioFormats
         private static readonly byte[] DataHeader = { 100, 97, 116, 97 };
         private static readonly byte[] FactHeader = { 102, 97, 99, 116 };
 
-        // Wave-specific properties
+        /// <summary>
+        /// Get or set the chunk size.
+        /// </summary>
         public int ChunkSize { get; private set; }
+
+        /// <summary>
+        /// Get or set the size of the format subchunk.
+        /// </summary>
         public int FormatSubChunkSize { get; private set; }
+
+        /// <summary>
+        /// Get or set the size of the data subchunk.
+        /// </summary>
         public int DataSubChunkSize { get; private set; }
+
+        /// <summary>
+        /// Get or set the audio format.
+        /// </summary>
         public short AudioFormat { get; private set; }
 
+        /// <summary>
+        /// Construct a WaveFile from a file path.
+        /// </summary>
         public WaveFile(string _filePath) : base(_filePath)
         {
         }
@@ -107,8 +124,5 @@ namespace Stegosaurus.Carrier.AudioFormats
                 return tempStream.ToArray();
             }
         }
-
-        
-
     }
 }

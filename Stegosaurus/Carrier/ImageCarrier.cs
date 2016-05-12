@@ -10,16 +10,19 @@ namespace Stegosaurus.Carrier
 {
     public class ImageCarrier : ICarrierMedia
     {
+        private readonly Bitmap innerImage;
+
         public byte[] ByteArray { get; set; }
 
         public int BytesPerSample => 3;
 
-        private readonly Bitmap innerImage;
-
+        /// <summary>
+        /// Returns the inner instance of Image.
+        /// </summary>
         public Image InnerImage => innerImage;
 
         /// <summary>
-        /// Main constructer. Gets image, checks if null pointer and sets private variable to cloned image if not null.
+        /// Construct ImageCarrier from an instance of Image.
         /// </summary>
         public ImageCarrier(Image _innerImage)
         {
@@ -47,7 +50,7 @@ namespace Stegosaurus.Carrier
         }
 
         /// <summary>
-        /// Gets file path to image file and sends image to constructer.
+        /// Gets file path to image file and passes instace of Image to constructor.
         /// </summary>
         /// <param name="_filePath"></param>
         public ImageCarrier(string _filePath) : this(LoadImageFromFile(_filePath))
@@ -55,9 +58,8 @@ namespace Stegosaurus.Carrier
         }
 
         /// <summary>
-        /// Locks innerImage in system memory and returns instance of BitmapData
+        /// Locks innerImage in system memory and returns instance of BitmapData.
         /// </summary>
-        /// <returns></returns>
         private BitmapData LockBitmap()
         {
             Rectangle imageRectangle = new Rectangle(new Point(0, 0), innerImage.Size);
@@ -65,7 +67,8 @@ namespace Stegosaurus.Carrier
         }
 
         /// <summary>
-        /// Custom Image.FromFile method, since that method does not release the file handle
+        /// Load Image from a specified file.
+        /// Alternative to Image.FromFile, which does not always release file handle.
         /// </summary>
         private static Image LoadImageFromFile(string _filePath)
         {
@@ -79,9 +82,6 @@ namespace Stegosaurus.Carrier
             }
         }
 
-        /// <summary>
-        /// Moves data from innerImage into ByteArray
-        /// </summary>
         public void Decode()
         {
             // Lock bits
