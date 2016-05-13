@@ -80,6 +80,11 @@ namespace Stegosaurus.Forms
             cts.Cancel();
         }
 
+        private void FormEmbeddingProgress_Load(object sender, EventArgs e)
+        {
+            CenterToParent();
+        }
+
         private void buttonCancel_Click(object sender, EventArgs e)
         {
             Close();

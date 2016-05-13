@@ -412,8 +412,7 @@ namespace Stegosaurus.Forms
             algorithm.CryptoProvider.SetKey(textBoxEncryptionKey.Text);
 
             FormEmbeddingProgress progressForm = new FormEmbeddingProgress();
-            progressForm.Owner = this;
-            progressForm.Show();
+            progressForm.Show(this);
             progressForm.Run(stegoMessage, algorithm, carrierName, carrierExtension);
         }
         #endregion
@@ -558,10 +557,6 @@ namespace Stegosaurus.Forms
         private void ShowToolTip(Control _control, string _message)
         {
             new ToolTip().SetToolTip(_control, _message);
-        }
-
-        private void buttonImportKey_MouseHover(object sender, EventArgs e)
-        {
         }
     }
 }
