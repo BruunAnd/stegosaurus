@@ -30,7 +30,7 @@ namespace Stegosaurus.Algorithm
 
         public override string Name => "Least Significant Bit";
 
-        protected override byte[] MagicHeader => new byte[] { 0x6C, 0x73, 0x62, 0x51 };
+        protected override byte[] Signature => new byte[] { 0x6C, 0x73, 0x62, 0x51 };
 
         /// <summary>
         /// Get or set the bit that will be modified or read from.
@@ -42,7 +42,7 @@ namespace Stegosaurus.Algorithm
         {
             // Combine LsbSignature with byteArray and convert to bitArray.
             byte[] messageArray = _message.ToByteArray(CryptoProvider);
-            BitArray messageInBits = new BitArray(MagicHeader.Concat(messageArray).ToArray());
+            BitArray messageInBits = new BitArray(Signature.Concat(messageArray).ToArray());
 
             // Generate random sequence of integers.
             RandomNumberList numberList = new RandomNumberList(Seed, CarrierMedia.ByteArray.Length);
@@ -80,7 +80,7 @@ namespace Stegosaurus.Algorithm
             RandomNumberList numberList = new RandomNumberList(Seed, CarrierMedia.ByteArray.Length);
 
             // Read bytes and verify magic header.
-            if (!ReadBytes(numberList, MagicHeader.Length).SequenceEqual(MagicHeader))
+            if (!ReadBytes(numberList, Signature.Length).SequenceEqual(Signature))
             {
                 throw new StegoAlgorithmException("Magic header is invalid, possibly using a wrong key.");
             }
@@ -95,7 +95,7 @@ namespace Stegosaurus.Algorithm
 
         public override long ComputeBandwidth()
         {
-            return (CarrierMedia.ByteArray.Length / 8 ) - MagicHeader.Length;
+            return (CarrierMedia.ByteArray.Length / 8 ) - Signature.Length;
         }
 
         /// <summary>

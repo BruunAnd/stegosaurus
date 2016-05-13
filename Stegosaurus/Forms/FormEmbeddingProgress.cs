@@ -86,6 +86,7 @@ namespace Stegosaurus.Forms
             }
 
             carrierMedia.SaveToFile(sfd.FileName);
+            Close();
         }
     }
 }

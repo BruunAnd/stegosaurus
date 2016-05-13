@@ -38,7 +38,7 @@ namespace Stegosaurus.Carrier
             }
             else
             {
-                image = new Bitmap( _image.Width, _image.Height, PixelFormat.Format24bppRgb);
+                image = new Bitmap(_image.Width, _image.Height, PixelFormat.Format24bppRgb);
                 using (Graphics graphics = Graphics.FromImage(image))
                 {
                     graphics.DrawImage(_image, new Rectangle(0, 0, _image.Width, _image.Height));

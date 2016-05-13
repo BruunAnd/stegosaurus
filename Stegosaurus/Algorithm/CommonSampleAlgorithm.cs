@@ -14,7 +14,7 @@ namespace Stegosaurus.Algorithm
     {
         public override string Name => "Common Sample";
 
-        protected override byte[] MagicHeader => new byte[] { 0x0C, 0xB3, 0x11, 0x84 };
+        protected override byte[] Signature => new byte[] { 0x0C, 0xB3, 0x11, 0x84 };
 
         /// <summary>
         /// Get or set the maximum distance.
@@ -30,7 +30,7 @@ namespace Stegosaurus.Algorithm
 
         public override void Embed(StegoMessage message, IProgress<int> _progress, CancellationToken _ct)
         {
-            var messageBits = new BitArray(MagicHeader.Concat(message.ToByteArray(CryptoProvider)).ToArray());
+            var messageBits = new BitArray(Signature.Concat(message.ToByteArray(CryptoProvider)).ToArray());
 
             // Get all samples.
             List<Sample> samples = GetAllSamples();
@@ -106,7 +106,7 @@ namespace Stegosaurus.Algorithm
             RandomNumberList randomNumbers = new RandomNumberList(Seed, samples.Count);
 
             // Read bytes and verify magic header.
-            if (!ReadBytes(randomNumbers, samples, MagicHeader.Length).SequenceEqual(MagicHeader))
+            if (!ReadBytes(randomNumbers, samples, Signature.Length).SequenceEqual(Signature))
             {
                 throw new StegoAlgorithmException("Magic header is invalid, possibly using a wrong key.");
             }
@@ -120,7 +120,7 @@ namespace Stegosaurus.Algorithm
 
         public override long ComputeBandwidth()
         {
-            return ((CarrierMedia.ByteArray.Length / CarrierMedia.BytesPerSample) / 8) - MagicHeader.Length;
+            return ((CarrierMedia.ByteArray.Length / CarrierMedia.BytesPerSample) / 8) - Signature.Length;
         }
 
         /// <summary>

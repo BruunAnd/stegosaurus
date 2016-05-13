@@ -54,7 +54,7 @@ namespace Stegosaurus.Algorithm
         public override string Name => "Graph Theoretic Algorithm";
 
         // todo: implement
-        protected override byte[] MagicHeader
+        protected override byte[] Signature
         {
             get
             {

@@ -33,9 +33,9 @@ namespace Stegosaurus.Algorithm
         protected virtual int Seed => CryptoProvider?.Seed ?? 0;
 
         /// <summary>
-        /// Get magic header.
+        /// Get signature.
         /// </summary>
-        protected abstract byte[] MagicHeader { get; }
+        protected abstract byte[] Signature { get; }
 
         /// <summary>
         /// Returns the data capacity of the carrier media with the given algorithm.
