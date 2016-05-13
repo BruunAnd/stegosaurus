@@ -12,6 +12,7 @@ using System.IO;
 using System.Text;
 using System.Windows.Forms;
 using Stegosaurus.Cryptography;
+using System.Threading.Tasks;
 
 namespace Stegosaurus.Forms
 {
@@ -80,11 +81,11 @@ namespace Stegosaurus.Forms
                 }
                 catch (ArgumentNullException ex)
                 {
-                    ShowError(ex.Message, "Unknown error");
+                    ShowError(ex.Message, "Unknown error.");
                 }
                 catch (InvalidCarrierFileException ex)
                 {
-                    ShowError(ex.Message, "Invalid file");
+                    ShowError(ex.Message, "Invalid file.");
                 }
             }
             else
@@ -115,8 +116,7 @@ namespace Stegosaurus.Forms
         {
             stegoMessage.TextMessage = textBoxTextMessage.Text;
 
-            UpdateCapacityBar();
-            UpdateButton();
+            UpdateInterface();
         }
 
         /// <summary>
@@ -172,7 +172,9 @@ namespace Stegosaurus.Forms
         /// <param name="e"></param>
         private void contextMenuStripMain_Opening(object sender, CancelEventArgs e)
         {
-            e.Cancel = listViewMessageContentFiles.SelectedItems.Count == 0;
+            bool enableIndividualButtons = listViewMessageContentFiles.SelectedItems.Count > 0;
+            deleteToolStripMenuItem.Enabled = enableIndividualButtons;
+            saveToolStripMenuItem.Enabled = enableIndividualButtons;
         }
 
         /// <summary>
@@ -252,8 +254,7 @@ namespace Stegosaurus.Forms
                 listViewMessageContentFiles.Items.RemoveAt(fileIndices[index]);
             }
 
-            UpdateCapacityBar();
-            UpdateButton();
+            UpdateInterface();
         }
         
         /// <summary>
@@ -295,6 +296,12 @@ namespace Stegosaurus.Forms
             buttonImportKey.Enabled = cryptoProvider is RSAProvider;
         }
 
+        private void SetWaitingState(bool _isWaiting)
+        {
+            UseWaitCursor = _isWaiting;
+            tabControlMain.Enabled = !_isWaiting; 
+        }
+
         //TODO: Implement Key size limit for XML keys(REMEMBER rsa uses XML keys)
         #endregion
 
@@ -318,16 +325,7 @@ namespace Stegosaurus.Forms
             algorithm.CarrierMedia = carrierMedia;
             algorithm.CryptoProvider = cryptoProvider;
             propertyGridAlgorithmOptions.SelectedObject = algorithm;
-            UpdateCapacityBar();
-        }
-
-        /// <summary>
-        /// Updates the Embed/Extract buttons text to reflect action the button will activate.
-        /// </summary>
-        private void UpdateButton()
-        {
-            buttonActivateSteganography.Text = CanEmbed ? "Embed content" : "Extract content";
-            buttonActivateSteganography.Enabled = carrierMedia != null;
+            UpdateInterface();
         }
 
         /// <summary>
@@ -336,30 +334,47 @@ namespace Stegosaurus.Forms
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void buttonActivateSteganography_Click(object sender, EventArgs e)
+        private async void buttonActivateSteganography_Click(object sender, EventArgs e)
         {
+            if (CanEmbed && string.IsNullOrEmpty(textBoxEncryptionKey.Text))
+            {
+                if (MessageBox.Show("You are about to embed without using an encryption key. Do you want to continue?", "Warning", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Warning) != DialogResult.Yes)
+                {
+                    textBoxEncryptionKey.Focus();
+                    return;
+                }
+            }
+
+            SetWaitingState(true);
             // Embed or extract
             if (CanEmbed)
             {
-                if (string.IsNullOrEmpty(textBoxEncryptionKey.Text))
-                {
-                    if (MessageBox.Show("You are about to embed without using an encryption key. Do you want to continue?", "Warning", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Warning) != DialogResult.Yes)
-                    {
-                        textBoxEncryptionKey.Focus();
-                        return;
-                    }
-                }
 
                 // Embedding happens in another thread
-                Embed();
+                await Embed();
             }
             else
             {
-                // Extraction happens in the UI thread
+                // Extraction happens in another thread
+                await Extract();
+            }
+            SetWaitingState(false);
+        }
+
+        /// <summary>
+        /// Extract hidden content from CarrierMedia.
+        /// </summary>
+        private async Task Extract()
+        {
+            algorithm.CarrierMedia = carrierMedia;
+            algorithm.CryptoProvider.SetKey(textBoxEncryptionKey.Text);
+
+            // Wait for StegoMessage
+            stegoMessage = await Task.Run(() =>
+            {
                 try
                 {
-                    Extract();
-                    MessageBox.Show("Message was succesfully extracted.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    return algorithm.Extract();
                 }
                 catch (StegoCryptoException ex)
                 {
@@ -373,47 +388,41 @@ namespace Stegosaurus.Forms
                 {
                     ShowError(ex.Message, "Algorithm error");
                 }
-            }
-        }
+                return null;
+            });
 
-        /// <summary>
-        /// Extract hidden content from CarrierMedia.
-        /// </summary>
-        private void Extract()
-        {
-            algorithm.CarrierMedia = carrierMedia;
-            algorithm.CryptoProvider.SetKey(textBoxEncryptionKey.Text);
-            stegoMessage = algorithm.Extract();
-
-            if (stegoMessage.InputFiles.Count != 0)
+            if (stegoMessage == null)
             {
-                foreach (InputFile file in stegoMessage.InputFiles)
-                {
-                    ListViewItem fileItem = new ListViewItem(file.Name);
-                    fileItem.SubItems.Add(SizeFormatter.StringFormatBytes(file.Content.LongLength));
-                    fileItem.ImageKey = file.Name.Substring(file.Name.LastIndexOf('.'));
-                    if (!imageListIcons.Images.ContainsKey(fileItem.ImageKey))
-                        imageListIcons.Images.Add(fileItem.ImageKey, IconExtractor.ExtractIcon(fileItem.ImageKey));
-
-                    listViewMessageContentFiles.Items.Add(fileItem);
-                    UpdateButton();
-                    UpdateCapacityBar();
-                }
+                return;
             }
+
+            // Add files
+            foreach (InputFile file in stegoMessage.InputFiles)
+            {
+                ListViewItem fileItem = new ListViewItem(file.Name);
+                fileItem.SubItems.Add(SizeFormatter.StringFormatBytes(file.Content.LongLength));
+                fileItem.ImageKey = file.Name.Substring(file.Name.LastIndexOf('.'));
+                if (!imageListIcons.Images.ContainsKey(fileItem.ImageKey))
+                    imageListIcons.Images.Add(fileItem.ImageKey, IconExtractor.ExtractIcon(fileItem.ImageKey));
+
+                listViewMessageContentFiles.Items.Add(fileItem);
+                UpdateInterface();
+            }
+
             textBoxTextMessage.Text = stegoMessage.TextMessage;
         }
 
         /// <summary>
         /// Embed hidden content into CarrierMedia.
         /// </summary>
-        private void Embed()
+        private async Task Embed()
         {
             algorithm.CarrierMedia = carrierMedia;
             algorithm.CryptoProvider.SetKey(textBoxEncryptionKey.Text);
 
             FormEmbeddingProgress progressForm = new FormEmbeddingProgress();
             progressForm.Show(this);
-            progressForm.Run(stegoMessage, algorithm, carrierName, carrierExtension);
+            await progressForm.Run(stegoMessage, algorithm, carrierName, carrierExtension);
         }
         #endregion
         
@@ -454,14 +463,13 @@ namespace Stegosaurus.Forms
                 carrierName = fileInfo.Name.Remove(fileInfo.Name.LastIndexOf('.'));
             }
 
-            UpdateCapacityBar();
-            UpdateButton();
+            UpdateInterface();
         }
         
         /// <summary>
         /// Checks the size of the message content and the capacity of the carrierMedia and updates the progressBarCapacity and labelCapacityWarning controls accordingly.
         /// </summary>
-        private void UpdateCapacityBar()
+        private void UpdateInterface()
         {
             long size = stegoMessage.GetCompressedSize();
             if (carrierMedia == null)
@@ -478,15 +486,16 @@ namespace Stegosaurus.Forms
             double ratio = 100 * ((double) size / capacity);
 
             // Update progressbar
-            progressBarCapacity.Value = size > capacity ? progressBarCapacity.Maximum : (int) ratio;
+            progressBarCapacity.Value = size >= capacity ? progressBarCapacity.Maximum : (int) ratio;
 
             // Update label
             labelCapacityWarning.Text = $"{ratio:#.##}% ({SizeFormatter.StringFormatBytes(size)}/{SizeFormatter.StringFormatBytes(capacity)})";
             labelCapacityWarning.ForeColor = size > capacity ? Color.Red : Color.Green;
 
             // Update button
-            buttonActivateSteganography.Enabled = size <= capacity;
             buttonActivateSteganography.ImageIndex = CanEmbed ? 0 : 1;
+            buttonActivateSteganography.Enabled = (size <= capacity) && carrierMedia != null;
+            buttonActivateSteganography.Text = CanEmbed ? "Embed content" : "Extract content";
         }
 
         private static string StringFormatBytes(long byteCount)
@@ -535,20 +544,6 @@ namespace Stegosaurus.Forms
             textBoxEncryptionKey.Text = File.ReadAllText(ofd.FileName);
         }
 
-        private void pictureBoxCarrier_MouseHover(object sender, EventArgs e)
-        {
-        }
-
-        private void pictureBoxCarrier_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void tabPageMain_Click(object sender, EventArgs e)
-        {
-
-        }
-
         private void listViewMessageContentFiles_MouseHover(object sender, EventArgs e)
         {
             ShowToolTip(this.listViewMessageContentFiles, "Right click to delete and save files.");
@@ -557,6 +552,32 @@ namespace Stegosaurus.Forms
         private void ShowToolTip(Control _control, string _message)
         {
             new ToolTip().SetToolTip(_control, _message);
+        }
+
+        private void browseToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog ofd = new OpenFileDialog();
+            ofd.Multiselect = false;
+            ofd.Filter = "Image files (*.jpg, *.jpeg, *.jpe, *.jfif, *.png, *.gif, *.bmp) | *.jpg; *.jpeg; *.jpe; *.jfif; *.png; *.gif; *.bmp|Audio files (*.wav)|*.wav";
+            
+            if (ofd.ShowDialog() != DialogResult.OK)
+                return;
+
+            HandleInput(new CarrierType(ofd.FileName));
+        }
+
+        private void addItemToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog ofd = new OpenFileDialog();
+            ofd.Multiselect = true;
+
+            if (ofd.ShowDialog() != DialogResult.OK)
+                return;
+
+            foreach (string fileName in ofd.FileNames)
+            {
+                HandleInput(new ContentType(fileName));
+            }
         }
     }
 }

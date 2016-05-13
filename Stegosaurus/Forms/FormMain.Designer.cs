@@ -36,6 +36,8 @@ namespace Stegosaurus.Forms
             this.columnHeader1 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeader2 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.contextMenuStripMain = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.addFilesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator = new System.Windows.Forms.ToolStripSeparator();
             this.saveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.deleteToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.imageListIcons = new System.Windows.Forms.ImageList(this.components);
@@ -44,6 +46,8 @@ namespace Stegosaurus.Forms
             this.imageListSilkIcons = new System.Windows.Forms.ImageList(this.components);
             this.labelEncryptionKey = new System.Windows.Forms.Label();
             this.pictureBoxCarrier = new System.Windows.Forms.PictureBox();
+            this.contextMenuStripPictureBox = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.browseToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.progressBarCapacity = new System.Windows.Forms.ProgressBar();
             this.panel1 = new System.Windows.Forms.Panel();
             this.labelCarrierMedia = new System.Windows.Forms.Label();
@@ -68,6 +72,7 @@ namespace Stegosaurus.Forms
             this.buttonGenerate = new System.Windows.Forms.Button();
             this.contextMenuStripMain.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxCarrier)).BeginInit();
+            this.contextMenuStripPictureBox.SuspendLayout();
             this.panel1.SuspendLayout();
             this.tabControlMain.SuspendLayout();
             this.tabPageMain.SuspendLayout();
@@ -109,17 +114,32 @@ namespace Stegosaurus.Forms
             // 
             this.contextMenuStripMain.ImageScalingSize = new System.Drawing.Size(20, 20);
             this.contextMenuStripMain.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.addFilesToolStripMenuItem,
+            this.toolStripSeparator,
             this.saveToolStripMenuItem,
             this.deleteToolStripMenuItem});
             this.contextMenuStripMain.Name = "contextMenuStrip1";
-            this.contextMenuStripMain.Size = new System.Drawing.Size(127, 56);
+            this.contextMenuStripMain.Size = new System.Drawing.Size(144, 88);
             this.contextMenuStripMain.Opening += new System.ComponentModel.CancelEventHandler(this.contextMenuStripMain_Opening);
+            // 
+            // addFilesToolStripMenuItem
+            // 
+            this.addFilesToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("addFilesToolStripMenuItem.Image")));
+            this.addFilesToolStripMenuItem.Name = "addFilesToolStripMenuItem";
+            this.addFilesToolStripMenuItem.Size = new System.Drawing.Size(143, 26);
+            this.addFilesToolStripMenuItem.Text = "Add files";
+            this.addFilesToolStripMenuItem.Click += new System.EventHandler(this.addItemToolStripMenuItem_Click);
+            // 
+            // toolStripSeparator
+            // 
+            this.toolStripSeparator.Name = "toolStripSeparator";
+            this.toolStripSeparator.Size = new System.Drawing.Size(140, 6);
             // 
             // saveToolStripMenuItem
             // 
             this.saveToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("saveToolStripMenuItem.Image")));
             this.saveToolStripMenuItem.Name = "saveToolStripMenuItem";
-            this.saveToolStripMenuItem.Size = new System.Drawing.Size(126, 26);
+            this.saveToolStripMenuItem.Size = new System.Drawing.Size(143, 26);
             this.saveToolStripMenuItem.Text = "Save";
             this.saveToolStripMenuItem.Click += new System.EventHandler(this.saveToolStripMenuItem_Click);
             // 
@@ -127,7 +147,7 @@ namespace Stegosaurus.Forms
             // 
             this.deleteToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("deleteToolStripMenuItem.Image")));
             this.deleteToolStripMenuItem.Name = "deleteToolStripMenuItem";
-            this.deleteToolStripMenuItem.Size = new System.Drawing.Size(126, 26);
+            this.deleteToolStripMenuItem.Size = new System.Drawing.Size(143, 26);
             this.deleteToolStripMenuItem.Text = "Delete";
             this.deleteToolStripMenuItem.Click += new System.EventHandler(this.deleteToolStripMenuItem_Click);
             // 
@@ -183,6 +203,7 @@ namespace Stegosaurus.Forms
             // 
             this.pictureBoxCarrier.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
             this.pictureBoxCarrier.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.pictureBoxCarrier.ContextMenuStrip = this.contextMenuStripPictureBox;
             this.pictureBoxCarrier.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pictureBoxCarrier.Location = new System.Drawing.Point(0, 0);
             this.pictureBoxCarrier.Name = "pictureBoxCarrier";
@@ -190,8 +211,22 @@ namespace Stegosaurus.Forms
             this.pictureBoxCarrier.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.pictureBoxCarrier.TabIndex = 12;
             this.pictureBoxCarrier.TabStop = false;
-            this.pictureBoxCarrier.Click += new System.EventHandler(this.pictureBoxCarrier_Click);
-            this.pictureBoxCarrier.MouseHover += new System.EventHandler(this.pictureBoxCarrier_MouseHover);
+            // 
+            // contextMenuStripPictureBox
+            // 
+            this.contextMenuStripPictureBox.ImageScalingSize = new System.Drawing.Size(20, 20);
+            this.contextMenuStripPictureBox.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.browseToolStripMenuItem});
+            this.contextMenuStripPictureBox.Name = "contextMenuStripPictureBox";
+            this.contextMenuStripPictureBox.Size = new System.Drawing.Size(133, 30);
+            // 
+            // browseToolStripMenuItem
+            // 
+            this.browseToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("browseToolStripMenuItem.Image")));
+            this.browseToolStripMenuItem.Name = "browseToolStripMenuItem";
+            this.browseToolStripMenuItem.Size = new System.Drawing.Size(132, 26);
+            this.browseToolStripMenuItem.Text = "Browse";
+            this.browseToolStripMenuItem.Click += new System.EventHandler(this.browseToolStripMenuItem_Click);
             // 
             // progressBarCapacity
             // 
@@ -333,7 +368,6 @@ namespace Stegosaurus.Forms
             this.tabPageMain.TabIndex = 0;
             this.tabPageMain.Text = "Main";
             this.tabPageMain.UseVisualStyleBackColor = true;
-            this.tabPageMain.Click += new System.EventHandler(this.tabPageMain_Click);
             // 
             // labelContentDescription
             // 
@@ -448,6 +482,7 @@ namespace Stegosaurus.Forms
             this.Text = "Stegosaurus";
             this.contextMenuStripMain.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxCarrier)).EndInit();
+            this.contextMenuStripPictureBox.ResumeLayout(false);
             this.panel1.ResumeLayout(false);
             this.tabControlMain.ResumeLayout(false);
             this.tabPageMain.ResumeLayout(false);
@@ -493,6 +528,10 @@ namespace Stegosaurus.Forms
         private System.Windows.Forms.Label labelContentDescription;
         private System.Windows.Forms.PropertyGrid propertyGridAlgorithmOptions;
         private System.Windows.Forms.Label labelAdvancedAlgorithm;
+        private System.Windows.Forms.ContextMenuStrip contextMenuStripPictureBox;
+        private System.Windows.Forms.ToolStripMenuItem browseToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem addFilesToolStripMenuItem;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator;
     }
 }
 

@@ -35,20 +35,20 @@ namespace Stegosaurus.Algorithm
         /// <summary>
         /// Get or set the bit that will be modified or read from.
         /// </summary>
-        [Category("Algorithm"), Description("The bit to modify and read from.")]
+        [Category("Algorithm"), Description("The bit to modify and read from. Changing this value may distort the carrier unnecessarily.")]
         public BitValues WorkingBit { get; set; } = BitValues.First;
 
         public override void Embed(StegoMessage _message, IProgress<int> _progress, CancellationToken _ct)
         {
             // Combine LsbSignature with byteArray and convert to bitArray.
             byte[] messageArray = _message.ToByteArray(CryptoProvider);
-            BitArray messageInBits = new BitArray(Signature.Concat(messageArray).ToArray());
+            BitArray messageBits = new BitArray(Signature.Concat(messageArray).ToArray());
 
             // Generate random sequence of integers.
             RandomNumberList numberList = new RandomNumberList(Seed, CarrierMedia.ByteArray.Length);
 
             // Iterate through all bits.
-            for (int index = 0; index < messageInBits.Length; index++)
+            for (int index = 0; index < messageBits.Length; index++)
             {
                 _ct.ThrowIfCancellationRequested();
 
@@ -58,8 +58,8 @@ namespace Stegosaurus.Algorithm
                 // Get the least significant bit of current position.
                 bool carrierBit = (sampleValue & (byte) WorkingBit) == (byte) WorkingBit;
 
-                // Flip LSB if no match.
-                if (carrierBit != messageInBits[index])
+                // Flip working bit if no match.
+                if (carrierBit != messageBits[index])
                 {
                     CarrierMedia.ByteArray[byteArrayIndex] ^= (byte) WorkingBit;
                 }
@@ -67,7 +67,7 @@ namespace Stegosaurus.Algorithm
                 // Report progress.
                 if (index % 500 != 0)
                     continue;
-                float percentage = ( ( index + 1 ) / (float) messageInBits.Length ) * 100;
+                float percentage = ( ( index + 1 ) / (float) messageBits.Length ) * 100;
                 _progress?.Report((int) percentage);
             }
 
@@ -89,8 +89,7 @@ namespace Stegosaurus.Algorithm
             int dataSize = BitConverter.ToInt32(ReadBytes(numberList, 4), 0);
 
             // Return new instance from read data.
-            byte[] encodedData = ReadBytes(numberList, dataSize);
-            return new StegoMessage(encodedData, CryptoProvider);
+            return new StegoMessage(ReadBytes(numberList, dataSize), CryptoProvider);
         }
 
         public override long ComputeBandwidth()

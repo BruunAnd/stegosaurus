@@ -29,7 +29,7 @@ namespace Stegosaurus.Forms
             InitializeComponent();
         }
 
-        public async void Run(StegoMessage _message, StegoAlgorithmBase _algorithm, string _name, string _extension)
+        public async Task Run(StegoMessage _message, StegoAlgorithmBase _algorithm, string _name, string _extension)
         {
             Progress<int> progress = new Progress<int>(p =>
             {

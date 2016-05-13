@@ -20,7 +20,7 @@ namespace Stegosaurus.Cryptography
         {
             using (AesManaged aesAlgorithm = new AesManaged())
             {
-                aesAlgorithm.KeySize = 256;
+                aesAlgorithm.KeySize = KeySize;
 
                 // Set key and generate initialization vector
                 aesAlgorithm.Key = Key;
