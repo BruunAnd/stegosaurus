@@ -16,7 +16,10 @@ namespace Stegosaurus.Forms
 {
     public partial class FormEmbeddingProgress : Form
     {
+        
         private readonly CancellationTokenSource cts = new CancellationTokenSource();
+
+        private bool embeddingComplete = false, fileSaved = false;
 
         private string name, extension;
         private ICarrierMedia carrierMedia;
@@ -59,6 +62,7 @@ namespace Stegosaurus.Forms
             {
                 SystemSounds.Hand.Play();
                 labelStatus.Text = "Embedding complete!";
+                embeddingComplete = true;
                 buttonCancel.Enabled = false;
                 buttonSaveAs.Enabled = true;
             }
@@ -66,6 +70,13 @@ namespace Stegosaurus.Forms
 
         private void FormEmbeddingProgress_FormClosing(object sender, FormClosingEventArgs e)
         {
+            string question = "Are you sure you want to " + ( embeddingComplete ? "close without saving?" : "cancel the embedding process?" );
+            if (!fileSaved && MessageBox.Show(question, "Question", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question) !=DialogResult.Yes)
+            {
+                e.Cancel = true;
+                return;
+            }
+
             cts.Cancel();
         }
 
@@ -86,6 +97,7 @@ namespace Stegosaurus.Forms
             }
 
             carrierMedia.SaveToFile(sfd.FileName);
+            fileSaved = true;
             Close();
         }
     }

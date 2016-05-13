@@ -32,7 +32,9 @@ namespace Stegosaurus.Utility
 
                 // Check if there are any more integers to generate.
                 if (generatedIntegers.Count >= maxValue)
+                {
                     throw new RandomNumbersOutOfRangeException();
+                }
 
                 // Generate an integer which has not yet been generated.
                 do
