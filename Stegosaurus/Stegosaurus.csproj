@@ -37,7 +37,7 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>stegosaurus.ico</ApplicationIcon>
+    <ApplicationIcon>stego.ico</ApplicationIcon>
   </PropertyGroup>
   <PropertyGroup>
     <StartupObject>
@@ -138,6 +138,7 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="stego.ico" />
     <Content Include="stegosaurus.ico" />
   </ItemGroup>
   <ItemGroup />
