@@ -1,0 +1,129 @@
+\hypertarget{class_stegosaurus_1_1_algorithm_1_1_stego_algorithm_base}{}\section{Stegosaurus.\+Algorithm.\+Stego\+Algorithm\+Base Class Reference}
+\label{class_stegosaurus_1_1_algorithm_1_1_stego_algorithm_base}\index{Stegosaurus.\+Algorithm.\+Stego\+Algorithm\+Base@{Stegosaurus.\+Algorithm.\+Stego\+Algorithm\+Base}}
+Inheritance diagram for Stegosaurus.\+Algorithm.\+Stego\+Algorithm\+Base\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=1.274175cm]{class_stegosaurus_1_1_algorithm_1_1_stego_algorithm_base}
+\end{center}
+\end{figure}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+abstract long \hyperlink{class_stegosaurus_1_1_algorithm_1_1_stego_algorithm_base_a2b4d2a0c3b65c980b5cbda2ab7601535}{Compute\+Bandwidth} ()
+\begin{DoxyCompactList}\small\item\em Returns the data capacity of the carrier media with the given algorithm. \end{DoxyCompactList}\item 
+abstract void \hyperlink{class_stegosaurus_1_1_algorithm_1_1_stego_algorithm_base_aa0d6b5f8f24d0ef5f9f2126b32cbad47}{Embed} (\hyperlink{class_stegosaurus_1_1_stego_message}{Stego\+Message} \+\_\+message, I\+Progress$<$ int $>$ \+\_\+progress, Cancellation\+Token \+\_\+ct)
+\begin{DoxyCompactList}\small\item\em Embeds a \hyperlink{class_stegosaurus_1_1_stego_message}{Stego\+Message} in the public Byte\+Array of the Carrier\+Media. \end{DoxyCompactList}\item 
+abstract \hyperlink{class_stegosaurus_1_1_stego_message}{Stego\+Message} \hyperlink{class_stegosaurus_1_1_algorithm_1_1_stego_algorithm_base_a069eef0b17aa0221d2c111925b8d735a}{Extract} ()
+\begin{DoxyCompactList}\small\item\em Returns a \hyperlink{class_stegosaurus_1_1_stego_message}{Stego\+Message} by extracting from the public Byte\+Array of the Carrier\+Media. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+virtual int \hyperlink{class_stegosaurus_1_1_algorithm_1_1_stego_algorithm_base_a8fb7f33711a582b1e102efa2c85e250f}{Seed} =$>$ \hyperlink{class_stegosaurus_1_1_algorithm_1_1_stego_algorithm_base_a58a15b795b59a77a818c12dd41b13841}{Crypto\+Provider}?.Seed ?? 0
+\begin{DoxyCompactList}\small\item\em Get Seed used in pseudo-\/random pattern. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Properties}
+\begin{DoxyCompactItemize}
+\item 
+abstract string \hyperlink{class_stegosaurus_1_1_algorithm_1_1_stego_algorithm_base_a348f32065aef0fec157f90d252edd71c}{Name}\hspace{0.3cm}{\ttfamily  \mbox{[}get\mbox{]}}
+\begin{DoxyCompactList}\small\item\em Get the name of the algorithm. \end{DoxyCompactList}\item 
+virtual \hyperlink{interface_stegosaurus_1_1_cryptography_1_1_i_crypto_provider}{I\+Crypto\+Provider} \hyperlink{class_stegosaurus_1_1_algorithm_1_1_stego_algorithm_base_a58a15b795b59a77a818c12dd41b13841}{Crypto\+Provider}\hspace{0.3cm}{\ttfamily  \mbox{[}get, set\mbox{]}}
+\begin{DoxyCompactList}\small\item\em Get or set crypto provider. \end{DoxyCompactList}\item 
+virtual \hyperlink{interface_stegosaurus_1_1_carrier_1_1_i_carrier_media}{I\+Carrier\+Media} \hyperlink{class_stegosaurus_1_1_algorithm_1_1_stego_algorithm_base_a5e77d196ee5a592ddf85184743c288e0}{Carrier\+Media}\hspace{0.3cm}{\ttfamily  \mbox{[}get, set\mbox{]}}
+\begin{DoxyCompactList}\small\item\em Get or set Carrier\+Media. \end{DoxyCompactList}\item 
+abstract byte\mbox{[}$\,$\mbox{]} \hyperlink{class_stegosaurus_1_1_algorithm_1_1_stego_algorithm_base_ace06936bcfcd9e9d9bb08ff97b1144f0}{Signature}\hspace{0.3cm}{\ttfamily  \mbox{[}get\mbox{]}}
+\begin{DoxyCompactList}\small\item\em Get signature. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Member Function Documentation}
+\index{Stegosaurus\+::\+Algorithm\+::\+Stego\+Algorithm\+Base@{Stegosaurus\+::\+Algorithm\+::\+Stego\+Algorithm\+Base}!Compute\+Bandwidth@{Compute\+Bandwidth}}
+\index{Compute\+Bandwidth@{Compute\+Bandwidth}!Stegosaurus\+::\+Algorithm\+::\+Stego\+Algorithm\+Base@{Stegosaurus\+::\+Algorithm\+::\+Stego\+Algorithm\+Base}}
+\subsubsection[{\texorpdfstring{Compute\+Bandwidth()}{ComputeBandwidth()}}]{\setlength{\rightskip}{0pt plus 5cm}abstract long Stegosaurus.\+Algorithm.\+Stego\+Algorithm\+Base.\+Compute\+Bandwidth (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [pure virtual]}}\hypertarget{class_stegosaurus_1_1_algorithm_1_1_stego_algorithm_base_a2b4d2a0c3b65c980b5cbda2ab7601535}{}\label{class_stegosaurus_1_1_algorithm_1_1_stego_algorithm_base_a2b4d2a0c3b65c980b5cbda2ab7601535}
+
+
+Returns the data capacity of the carrier media with the given algorithm. 
+
+
+
+Implemented in \hyperlink{class_stegosaurus_1_1_algorithm_1_1_common_sample_algorithm_aeb094a2d87af7b06f7710b79915164d8}{Stegosaurus.\+Algorithm.\+Common\+Sample\+Algorithm}, \hyperlink{class_stegosaurus_1_1_algorithm_1_1_l_s_b_algorithm_a4e3b04a0820a9d819c38d5ec38d3eeaa}{Stegosaurus.\+Algorithm.\+L\+S\+B\+Algorithm}, and \hyperlink{class_stegosaurus_1_1_algorithm_1_1_graph_theoretic_algorithm_aa3c0280792593fa75af74a7e3b9e8acc}{Stegosaurus.\+Algorithm.\+Graph\+Theoretic\+Algorithm}.
+
+\index{Stegosaurus\+::\+Algorithm\+::\+Stego\+Algorithm\+Base@{Stegosaurus\+::\+Algorithm\+::\+Stego\+Algorithm\+Base}!Embed@{Embed}}
+\index{Embed@{Embed}!Stegosaurus\+::\+Algorithm\+::\+Stego\+Algorithm\+Base@{Stegosaurus\+::\+Algorithm\+::\+Stego\+Algorithm\+Base}}
+\subsubsection[{\texorpdfstring{Embed(\+Stego\+Message \+\_\+message, I\+Progress$<$ int $>$ \+\_\+progress, Cancellation\+Token \+\_\+ct)}{Embed(StegoMessage _message, IProgress< int > _progress, CancellationToken _ct)}}]{\setlength{\rightskip}{0pt plus 5cm}abstract void Stegosaurus.\+Algorithm.\+Stego\+Algorithm\+Base.\+Embed (
+\begin{DoxyParamCaption}
+\item[{{\bf Stego\+Message}}]{\+\_\+message, }
+\item[{I\+Progress$<$ int $>$}]{\+\_\+progress, }
+\item[{Cancellation\+Token}]{\+\_\+ct}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [pure virtual]}}\hypertarget{class_stegosaurus_1_1_algorithm_1_1_stego_algorithm_base_aa0d6b5f8f24d0ef5f9f2126b32cbad47}{}\label{class_stegosaurus_1_1_algorithm_1_1_stego_algorithm_base_aa0d6b5f8f24d0ef5f9f2126b32cbad47}
+
+
+Embeds a \hyperlink{class_stegosaurus_1_1_stego_message}{Stego\+Message} in the public Byte\+Array of the Carrier\+Media. 
+
+
+
+Implemented in \hyperlink{class_stegosaurus_1_1_algorithm_1_1_graph_theoretic_algorithm_aecdce8aef6a5723d66bc93ca6f959767}{Stegosaurus.\+Algorithm.\+Graph\+Theoretic\+Algorithm}, \hyperlink{class_stegosaurus_1_1_algorithm_1_1_l_s_b_algorithm_a8899e46584f804ea4c08741d6cc48b08}{Stegosaurus.\+Algorithm.\+L\+S\+B\+Algorithm}, and \hyperlink{class_stegosaurus_1_1_algorithm_1_1_common_sample_algorithm_ab25967eede4bbf5ea54d64b168e4ae73}{Stegosaurus.\+Algorithm.\+Common\+Sample\+Algorithm}.
+
+\index{Stegosaurus\+::\+Algorithm\+::\+Stego\+Algorithm\+Base@{Stegosaurus\+::\+Algorithm\+::\+Stego\+Algorithm\+Base}!Extract@{Extract}}
+\index{Extract@{Extract}!Stegosaurus\+::\+Algorithm\+::\+Stego\+Algorithm\+Base@{Stegosaurus\+::\+Algorithm\+::\+Stego\+Algorithm\+Base}}
+\subsubsection[{\texorpdfstring{Extract()}{Extract()}}]{\setlength{\rightskip}{0pt plus 5cm}abstract {\bf Stego\+Message} Stegosaurus.\+Algorithm.\+Stego\+Algorithm\+Base.\+Extract (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [pure virtual]}}\hypertarget{class_stegosaurus_1_1_algorithm_1_1_stego_algorithm_base_a069eef0b17aa0221d2c111925b8d735a}{}\label{class_stegosaurus_1_1_algorithm_1_1_stego_algorithm_base_a069eef0b17aa0221d2c111925b8d735a}
+
+
+Returns a \hyperlink{class_stegosaurus_1_1_stego_message}{Stego\+Message} by extracting from the public Byte\+Array of the Carrier\+Media. 
+
+
+
+Implemented in \hyperlink{class_stegosaurus_1_1_algorithm_1_1_graph_theoretic_algorithm_ae12e30f823e7cedc1f3ae75fa8a914fb}{Stegosaurus.\+Algorithm.\+Graph\+Theoretic\+Algorithm}, \hyperlink{class_stegosaurus_1_1_algorithm_1_1_common_sample_algorithm_aab6487375c07bb4e77c719bb96605ad4}{Stegosaurus.\+Algorithm.\+Common\+Sample\+Algorithm}, and \hyperlink{class_stegosaurus_1_1_algorithm_1_1_l_s_b_algorithm_a4c0597f5f93e47dc5a8ad58d06c9b189}{Stegosaurus.\+Algorithm.\+L\+S\+B\+Algorithm}.
+
+
+
+\subsection{Member Data Documentation}
+\index{Stegosaurus\+::\+Algorithm\+::\+Stego\+Algorithm\+Base@{Stegosaurus\+::\+Algorithm\+::\+Stego\+Algorithm\+Base}!Seed@{Seed}}
+\index{Seed@{Seed}!Stegosaurus\+::\+Algorithm\+::\+Stego\+Algorithm\+Base@{Stegosaurus\+::\+Algorithm\+::\+Stego\+Algorithm\+Base}}
+\subsubsection[{\texorpdfstring{Seed}{Seed}}]{\setlength{\rightskip}{0pt plus 5cm}virtual int Stegosaurus.\+Algorithm.\+Stego\+Algorithm\+Base.\+Seed =$>$ {\bf Crypto\+Provider}?.Seed ?? 0\hspace{0.3cm}{\ttfamily [protected]}}\hypertarget{class_stegosaurus_1_1_algorithm_1_1_stego_algorithm_base_a8fb7f33711a582b1e102efa2c85e250f}{}\label{class_stegosaurus_1_1_algorithm_1_1_stego_algorithm_base_a8fb7f33711a582b1e102efa2c85e250f}
+
+
+Get Seed used in pseudo-\/random pattern. 
+
+
+
+\subsection{Property Documentation}
+\index{Stegosaurus\+::\+Algorithm\+::\+Stego\+Algorithm\+Base@{Stegosaurus\+::\+Algorithm\+::\+Stego\+Algorithm\+Base}!Carrier\+Media@{Carrier\+Media}}
+\index{Carrier\+Media@{Carrier\+Media}!Stegosaurus\+::\+Algorithm\+::\+Stego\+Algorithm\+Base@{Stegosaurus\+::\+Algorithm\+::\+Stego\+Algorithm\+Base}}
+\subsubsection[{\texorpdfstring{Carrier\+Media}{CarrierMedia}}]{\setlength{\rightskip}{0pt plus 5cm}virtual {\bf I\+Carrier\+Media} Stegosaurus.\+Algorithm.\+Stego\+Algorithm\+Base.\+Carrier\+Media\hspace{0.3cm}{\ttfamily [get]}, {\ttfamily [set]}}\hypertarget{class_stegosaurus_1_1_algorithm_1_1_stego_algorithm_base_a5e77d196ee5a592ddf85184743c288e0}{}\label{class_stegosaurus_1_1_algorithm_1_1_stego_algorithm_base_a5e77d196ee5a592ddf85184743c288e0}
+
+
+Get or set Carrier\+Media. 
+
+\index{Stegosaurus\+::\+Algorithm\+::\+Stego\+Algorithm\+Base@{Stegosaurus\+::\+Algorithm\+::\+Stego\+Algorithm\+Base}!Crypto\+Provider@{Crypto\+Provider}}
+\index{Crypto\+Provider@{Crypto\+Provider}!Stegosaurus\+::\+Algorithm\+::\+Stego\+Algorithm\+Base@{Stegosaurus\+::\+Algorithm\+::\+Stego\+Algorithm\+Base}}
+\subsubsection[{\texorpdfstring{Crypto\+Provider}{CryptoProvider}}]{\setlength{\rightskip}{0pt plus 5cm}virtual {\bf I\+Crypto\+Provider} Stegosaurus.\+Algorithm.\+Stego\+Algorithm\+Base.\+Crypto\+Provider\hspace{0.3cm}{\ttfamily [get]}, {\ttfamily [set]}}\hypertarget{class_stegosaurus_1_1_algorithm_1_1_stego_algorithm_base_a58a15b795b59a77a818c12dd41b13841}{}\label{class_stegosaurus_1_1_algorithm_1_1_stego_algorithm_base_a58a15b795b59a77a818c12dd41b13841}
+
+
+Get or set crypto provider. 
+
+\index{Stegosaurus\+::\+Algorithm\+::\+Stego\+Algorithm\+Base@{Stegosaurus\+::\+Algorithm\+::\+Stego\+Algorithm\+Base}!Name@{Name}}
+\index{Name@{Name}!Stegosaurus\+::\+Algorithm\+::\+Stego\+Algorithm\+Base@{Stegosaurus\+::\+Algorithm\+::\+Stego\+Algorithm\+Base}}
+\subsubsection[{\texorpdfstring{Name}{Name}}]{\setlength{\rightskip}{0pt plus 5cm}abstract string Stegosaurus.\+Algorithm.\+Stego\+Algorithm\+Base.\+Name\hspace{0.3cm}{\ttfamily [get]}}\hypertarget{class_stegosaurus_1_1_algorithm_1_1_stego_algorithm_base_a348f32065aef0fec157f90d252edd71c}{}\label{class_stegosaurus_1_1_algorithm_1_1_stego_algorithm_base_a348f32065aef0fec157f90d252edd71c}
+
+
+Get the name of the algorithm. 
+
+\index{Stegosaurus\+::\+Algorithm\+::\+Stego\+Algorithm\+Base@{Stegosaurus\+::\+Algorithm\+::\+Stego\+Algorithm\+Base}!Signature@{Signature}}
+\index{Signature@{Signature}!Stegosaurus\+::\+Algorithm\+::\+Stego\+Algorithm\+Base@{Stegosaurus\+::\+Algorithm\+::\+Stego\+Algorithm\+Base}}
+\subsubsection[{\texorpdfstring{Signature}{Signature}}]{\setlength{\rightskip}{0pt plus 5cm}abstract byte \mbox{[}$\,$\mbox{]} Stegosaurus.\+Algorithm.\+Stego\+Algorithm\+Base.\+Signature\hspace{0.3cm}{\ttfamily [get]}, {\ttfamily [protected]}}\hypertarget{class_stegosaurus_1_1_algorithm_1_1_stego_algorithm_base_ace06936bcfcd9e9d9bb08ff97b1144f0}{}\label{class_stegosaurus_1_1_algorithm_1_1_stego_algorithm_base_ace06936bcfcd9e9d9bb08ff97b1144f0}
+
+
+Get signature. 
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+Steganography/\+Stegosaurus/\+Algorithm/Stego\+Algorithm\+Base.\+cs\end{DoxyCompactItemize}
