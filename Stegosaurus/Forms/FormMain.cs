@@ -15,6 +15,7 @@ using Stegosaurus.Cryptography;
 using System.Threading.Tasks;
 using Stegosaurus.Algorithm.CommonSample;
 using System.Linq;
+using System.Reflection;
 
 namespace Stegosaurus.Forms
 {
@@ -314,8 +315,11 @@ namespace Stegosaurus.Forms
         private void AddAlgorithm(Type algorithmType)
         {
             StegoAlgorithmBase stegoAlgorithm = (StegoAlgorithmBase) Activator.CreateInstance(algorithmType);
-            algorithmDictionary.Add(stegoAlgorithm.Name, stegoAlgorithm);
-            comboBoxAlgorithmSelection.Items.Add(stegoAlgorithm.Name);
+            if (!algorithmDictionary.ContainsKey(stegoAlgorithm.Name))
+            {
+                algorithmDictionary.Add(stegoAlgorithm.Name, stegoAlgorithm);
+                comboBoxAlgorithmSelection.Items.Add(stegoAlgorithm.Name);
+            }
         }
 
         /// <summary>
@@ -599,6 +603,28 @@ namespace Stegosaurus.Forms
             MessageBox.Show($"There are {numUniqueSamples} unique samples.", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
             SetWaitingState(false);
+        }
+
+        private void buttonImportAlgorithm_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog ofd = new OpenFileDialog();
+            ofd.Filter = "DLL files (*.dll)|*.dll";
+
+            if (ofd.ShowDialog() != DialogResult.OK)
+            {
+                return;
+            }
+
+            // Load assembly
+            Assembly asm = Assembly.LoadFrom(ofd.FileName);
+            Type[] types = asm.GetTypes();
+            foreach (Type type in types)
+            {
+                if (type.BaseType == typeof(StegoAlgorithmBase))
+                {
+                    AddAlgorithm(type);
+                }
+            }
         }
     }
 }

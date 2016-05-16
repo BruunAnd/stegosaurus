@@ -71,6 +71,7 @@ namespace Stegosaurus.Forms
             this.propertyGridAlgorithmOptions = new System.Windows.Forms.PropertyGrid();
             this.buttonGenerate = new System.Windows.Forms.Button();
             this.findUniqueSamplesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.buttonImportAlgorithm = new System.Windows.Forms.Button();
             this.contextMenuStripMain.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxCarrier)).BeginInit();
             this.contextMenuStripPictureBox.SuspendLayout();
@@ -220,14 +221,14 @@ namespace Stegosaurus.Forms
             this.browseToolStripMenuItem,
             this.findUniqueSamplesToolStripMenuItem});
             this.contextMenuStripPictureBox.Name = "contextMenuStripPictureBox";
-            this.contextMenuStripPictureBox.Size = new System.Drawing.Size(220, 84);
+            this.contextMenuStripPictureBox.Size = new System.Drawing.Size(220, 56);
             this.contextMenuStripPictureBox.Opening += new System.ComponentModel.CancelEventHandler(this.contextMenuStripPictureBox_Opening);
             // 
             // browseToolStripMenuItem
             // 
             this.browseToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("browseToolStripMenuItem.Image")));
             this.browseToolStripMenuItem.Name = "browseToolStripMenuItem";
-            this.browseToolStripMenuItem.Size = new System.Drawing.Size(130, 26);
+            this.browseToolStripMenuItem.Size = new System.Drawing.Size(219, 26);
             this.browseToolStripMenuItem.Text = "Browse";
             this.browseToolStripMenuItem.Click += new System.EventHandler(this.browseToolStripMenuItem_Click);
             // 
@@ -277,7 +278,7 @@ namespace Stegosaurus.Forms
             this.comboBoxAlgorithmSelection.FormattingEnabled = true;
             this.comboBoxAlgorithmSelection.Location = new System.Drawing.Point(8, 29);
             this.comboBoxAlgorithmSelection.Name = "comboBoxAlgorithmSelection";
-            this.comboBoxAlgorithmSelection.Size = new System.Drawing.Size(158, 25);
+            this.comboBoxAlgorithmSelection.Size = new System.Drawing.Size(182, 25);
             this.comboBoxAlgorithmSelection.TabIndex = 19;
             this.comboBoxAlgorithmSelection.SelectedIndexChanged += new System.EventHandler(this.comboBoxAlgorithmSelection_SelectedIndexChanged);
             // 
@@ -317,7 +318,7 @@ namespace Stegosaurus.Forms
             // 
             this.labelCryptoProvider.AutoSize = true;
             this.labelCryptoProvider.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.labelCryptoProvider.Location = new System.Drawing.Point(5, 53);
+            this.labelCryptoProvider.Location = new System.Drawing.Point(6, 97);
             this.labelCryptoProvider.Name = "labelCryptoProvider";
             this.labelCryptoProvider.Size = new System.Drawing.Size(178, 19);
             this.labelCryptoProvider.TabIndex = 25;
@@ -327,9 +328,9 @@ namespace Stegosaurus.Forms
             // 
             this.comboBoxCryptoProviderSelection.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.comboBoxCryptoProviderSelection.FormattingEnabled = true;
-            this.comboBoxCryptoProviderSelection.Location = new System.Drawing.Point(8, 75);
+            this.comboBoxCryptoProviderSelection.Location = new System.Drawing.Point(9, 119);
             this.comboBoxCryptoProviderSelection.Name = "comboBoxCryptoProviderSelection";
-            this.comboBoxCryptoProviderSelection.Size = new System.Drawing.Size(158, 25);
+            this.comboBoxCryptoProviderSelection.Size = new System.Drawing.Size(181, 25);
             this.comboBoxCryptoProviderSelection.TabIndex = 26;
             this.comboBoxCryptoProviderSelection.SelectedIndexChanged += new System.EventHandler(this.comboBoxCryptoProviderSelection_SelectedIndexChanged);
             // 
@@ -426,6 +427,7 @@ namespace Stegosaurus.Forms
             // 
             // tabPageAdvanced
             // 
+            this.tabPageAdvanced.Controls.Add(this.buttonImportAlgorithm);
             this.tabPageAdvanced.Controls.Add(this.labelAdvancedAlgorithm);
             this.tabPageAdvanced.Controls.Add(this.propertyGridAlgorithmOptions);
             this.tabPageAdvanced.Controls.Add(this.buttonGenerate);
@@ -446,7 +448,7 @@ namespace Stegosaurus.Forms
             // 
             this.labelAdvancedAlgorithm.AutoSize = true;
             this.labelAdvancedAlgorithm.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.labelAdvancedAlgorithm.Location = new System.Drawing.Point(174, 7);
+            this.labelAdvancedAlgorithm.Location = new System.Drawing.Point(196, 7);
             this.labelAdvancedAlgorithm.Name = "labelAdvancedAlgorithm";
             this.labelAdvancedAlgorithm.Size = new System.Drawing.Size(241, 19);
             this.labelAdvancedAlgorithm.TabIndex = 30;
@@ -455,16 +457,16 @@ namespace Stegosaurus.Forms
             // propertyGridAlgorithmOptions
             // 
             this.propertyGridAlgorithmOptions.CategoryForeColor = System.Drawing.SystemColors.InactiveCaptionText;
-            this.propertyGridAlgorithmOptions.Location = new System.Drawing.Point(177, 29);
+            this.propertyGridAlgorithmOptions.Location = new System.Drawing.Point(199, 29);
             this.propertyGridAlgorithmOptions.Name = "propertyGridAlgorithmOptions";
             this.propertyGridAlgorithmOptions.Size = new System.Drawing.Size(299, 349);
             this.propertyGridAlgorithmOptions.TabIndex = 29;
             // 
             // buttonGenerate
             // 
-            this.buttonGenerate.Location = new System.Drawing.Point(8, 102);
+            this.buttonGenerate.Location = new System.Drawing.Point(9, 150);
             this.buttonGenerate.Name = "buttonGenerate";
-            this.buttonGenerate.Size = new System.Drawing.Size(158, 34);
+            this.buttonGenerate.Size = new System.Drawing.Size(181, 34);
             this.buttonGenerate.TabIndex = 27;
             this.buttonGenerate.Text = "Generate RSA keypair";
             this.buttonGenerate.UseVisualStyleBackColor = true;
@@ -477,6 +479,16 @@ namespace Stegosaurus.Forms
             this.findUniqueSamplesToolStripMenuItem.Size = new System.Drawing.Size(219, 26);
             this.findUniqueSamplesToolStripMenuItem.Text = "Find unique samples";
             this.findUniqueSamplesToolStripMenuItem.Click += new System.EventHandler(this.findUniqueSamplesToolStripMenuItem_Click);
+            // 
+            // buttonImportAlgorithm
+            // 
+            this.buttonImportAlgorithm.Location = new System.Drawing.Point(8, 60);
+            this.buttonImportAlgorithm.Name = "buttonImportAlgorithm";
+            this.buttonImportAlgorithm.Size = new System.Drawing.Size(182, 34);
+            this.buttonImportAlgorithm.TabIndex = 31;
+            this.buttonImportAlgorithm.Text = "Import algorithm";
+            this.buttonImportAlgorithm.UseVisualStyleBackColor = true;
+            this.buttonImportAlgorithm.Click += new System.EventHandler(this.buttonImportAlgorithm_Click);
             // 
             // FormMain
             // 
@@ -544,6 +556,7 @@ namespace Stegosaurus.Forms
         private System.Windows.Forms.ToolStripMenuItem addFilesToolStripMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator;
         private System.Windows.Forms.ToolStripMenuItem findUniqueSamplesToolStripMenuItem;
+        private System.Windows.Forms.Button buttonImportAlgorithm;
     }
 }
 

@@ -139,7 +139,6 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="stego.ico" />
-    <Content Include="stegosaurus.ico" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
