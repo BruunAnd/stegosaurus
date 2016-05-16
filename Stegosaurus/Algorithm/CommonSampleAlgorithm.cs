@@ -33,7 +33,7 @@ namespace Stegosaurus.Algorithm
             var messageBits = new BitArray(Signature.Concat(message.ToByteArray(CryptoProvider)).ToArray());
 
             // Get all samples.
-            List<Sample> samples = GetAllSamples();
+            List<Sample> samples = Sample.GetSampleListFrom(CarrierMedia);
 
             // Find color frequencies.
             // The Samples are clones so their values are not changed by mistake.
@@ -100,7 +100,7 @@ namespace Stegosaurus.Algorithm
         public override StegoMessage Extract()
         {
             // Get all samples.
-            List<Sample> samples = GetAllSamples();
+            List<Sample> samples = Sample.GetSampleListFrom(CarrierMedia);
 
             // Generate random numbers.
             RandomNumberList randomNumbers = new RandomNumberList(Seed, samples.Count);
@@ -142,29 +142,6 @@ namespace Stegosaurus.Algorithm
             tempBitArray.CopyTo(tempByteArray, 0);
 
             return tempByteArray;
-        }
-
-        /// <summary>
-        /// Returns a list of all samples in the CarrierMedia.
-        /// </summary>
-        public List<Sample> GetAllSamples()
-        {
-            List<Sample> sampleList = new List<Sample>(CarrierMedia.ByteArray.Length / CarrierMedia.BytesPerSample);
-
-            int currentSample = 0;
-            while (currentSample < CarrierMedia.ByteArray.Length)
-            {
-                byte[] sampleValues = new byte[CarrierMedia.BytesPerSample];
-
-                for (int i = 0; i < CarrierMedia.BytesPerSample; i++)
-                {
-                    sampleValues[i] = CarrierMedia.ByteArray[currentSample++];
-                }
-
-                sampleList.Add(new Sample(sampleValues));
-            }
-
-            return sampleList;
         }
     }
 }

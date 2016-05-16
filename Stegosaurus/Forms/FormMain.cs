@@ -13,6 +13,8 @@ using System.Text;
 using System.Windows.Forms;
 using Stegosaurus.Cryptography;
 using System.Threading.Tasks;
+using Stegosaurus.Algorithm.CommonSample;
+using System.Linq;
 
 namespace Stegosaurus.Forms
 {
@@ -578,6 +580,25 @@ namespace Stegosaurus.Forms
             {
                 HandleInput(new ContentType(fileName));
             }
+        }
+
+        private void contextMenuStripPictureBox_Opening(object sender, CancelEventArgs e)
+        {
+            findUniqueSamplesToolStripMenuItem.Enabled = carrierMedia != null;
+        }
+
+        private async void findUniqueSamplesToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            SetWaitingState(true);
+
+            // Wait for unique sample count
+            int numUniqueSamples = await Task.Run(() =>
+            {
+                return Sample.GetSampleListFrom(carrierMedia).GroupBy(v => v).Count();
+            });
+            MessageBox.Show($"There are {numUniqueSamples} unique samples.", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+            SetWaitingState(false);
         }
     }
 }
