@@ -70,37 +70,37 @@ namespace StegosaurusTest
         }
 
         [TestMethod]
-        public void MainImplementation_LSB_AES_ExpectedOutput()
+        public void LSB_AES_ExpectedOutput()
         {
             TestSpecifiedAlgorithms(new AESProvider(), new LSBAlgorithm(), 16);
         }
 
         [TestMethod]
-        public void MainImplementation_LSB_TripleDES_ExpectedOutput()
+        public void LSB_TripleDES_ExpectedOutput()
         {
             TestSpecifiedAlgorithms(new TripleDESProvider(), new LSBAlgorithm(), 16);
         }
 
         [TestMethod]
-        public void MainImplementation_LSB_RSA_ExpectedOutput()
+        public void LSB_RSA_ExpectedOutput()
         {
             TestSpecifiedAlgorithms(new RSAProvider(), new LSBAlgorithm(), 16);
         }
 
         [TestMethod]
-        public void MainImplementation_CSA_AES_ExpectedOutput()
+        public void CSA_AES_ExpectedOutput()
         {
             TestSpecifiedAlgorithms(new AESProvider(), new CommonSampleAlgorithm(), 3);
         }
 
         [TestMethod]
-        public void MainImplementation_CSA_TripleDES_ExpectedOutput()
+        public void CSA_TripleDES_ExpectedOutput()
         {
             TestSpecifiedAlgorithms(new TripleDESProvider(), new CommonSampleAlgorithm(), 3);
         }
 
         [TestMethod]
-        public void MainImplementation_CSA_RSA_ExpectedOutput()
+        public void CSA_RSA_ExpectedOutput()
         {
             TestSpecifiedAlgorithms(new RSAProvider(), new CommonSampleAlgorithm(), 3);
         }

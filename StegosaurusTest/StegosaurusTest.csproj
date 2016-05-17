@@ -59,12 +59,8 @@
     <Compile Include="InputFileTests.cs" />
     <Compile Include="StegoMessageTests.cs" />
     <Compile Include="TestUtility.cs" />
-<<<<<<< HEAD
     <Compile Include="UtillityTests.cs" />
-=======
-    <Compile Include="RandomNumberListTests.cs" />
     <Compile Include="SigningTest.cs" />
->>>>>>> origin/experimental
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Stegosaurus\Stegosaurus.csproj">

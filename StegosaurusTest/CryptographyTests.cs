@@ -13,7 +13,7 @@ namespace StegosaurusTest
     public class CryptographyTests
     {
         [TestMethod]
-        public void TripleDEST_DecryptCorrectKey_CorrectOutput ()
+        public void TripleDES_DecryptCorrectKey_CorrectOutput ()
         {
             byte[] randomBytes = TestUtility.GetRandomBytes(32 * 1024);
 
@@ -27,7 +27,7 @@ namespace StegosaurusTest
 
         [TestMethod]
         [ExpectedException(typeof(CryptographicException))]
-        public void TripleDEST_DecryptWrongKey_ThrowsCryptographicException ()
+        public void TripleDES_DecryptWrongKey_ThrowsCryptographicException ()
         {
             byte[] randomBytes = TestUtility.GetRandomBytes(32 * 1024);
 
