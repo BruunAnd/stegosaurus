@@ -430,7 +430,7 @@ namespace Stegosaurus.Forms
             {
                 labelSignStatus.Image = imageListSilkIcons.Images[6];
                 labelSignStatus.ForeColor = Color.DarkRed;
-                labelSignStatus.Text = stegoMessage.SignState == StegoMessage.StegoMessageSignState.Unsigned ? "This message has been signed with an unknown key." : "This message is unsigned.";
+                labelSignStatus.Text = stegoMessage.SignState == StegoMessage.StegoMessageSignState.Unsigned ? "This message is unsigned." : "This message has been signed with an unknown key.";
             }
 
             // Add files
