@@ -108,7 +108,7 @@ namespace Stegosaurus.Algorithm
             // Read bytes and verify magic header.
             if (!ReadBytes(randomNumbers, samples, Signature.Length).SequenceEqual(Signature))
             {
-                throw new StegoAlgorithmException("Magic header is invalid, possibly using a wrong key.");
+                throw new StegoAlgorithmException($"Signature for {Name} is invalid, possibly using a wrong key.");
             }
 
             // Read length.

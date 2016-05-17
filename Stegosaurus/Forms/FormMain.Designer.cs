@@ -68,6 +68,8 @@ namespace Stegosaurus.Forms
             this.buttonImportKey = new System.Windows.Forms.Button();
             this.textBoxEncryptionKey = new System.Windows.Forms.RichTextBox();
             this.tabPageAdvanced = new System.Windows.Forms.TabPage();
+            this.buttonAddPublicKey = new System.Windows.Forms.Button();
+            this.labelMessageSIgning = new System.Windows.Forms.Label();
             this.checkBoxSignMessages = new System.Windows.Forms.CheckBox();
             this.buttonImportAlgorithm = new System.Windows.Forms.Button();
             this.labelAdvancedAlgorithm = new System.Windows.Forms.Label();
@@ -75,8 +77,6 @@ namespace Stegosaurus.Forms
             this.buttonGenerate = new System.Windows.Forms.Button();
             this.statusStrip = new System.Windows.Forms.StatusStrip();
             this.labelSignStatus = new System.Windows.Forms.ToolStripStatusLabel();
-            this.labelMessageSIgning = new System.Windows.Forms.Label();
-            this.buttonAddPublicKey = new System.Windows.Forms.Button();
             this.contextMenuStripMain.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxCarrier)).BeginInit();
             this.contextMenuStripPictureBox.SuspendLayout();
@@ -463,6 +463,26 @@ namespace Stegosaurus.Forms
             this.tabPageAdvanced.Text = "Advanced options";
             this.tabPageAdvanced.UseVisualStyleBackColor = true;
             // 
+            // buttonAddPublicKey
+            // 
+            this.buttonAddPublicKey.Location = new System.Drawing.Point(10, 209);
+            this.buttonAddPublicKey.Name = "buttonAddPublicKey";
+            this.buttonAddPublicKey.Size = new System.Drawing.Size(180, 34);
+            this.buttonAddPublicKey.TabIndex = 34;
+            this.buttonAddPublicKey.Text = "Add known public key";
+            this.buttonAddPublicKey.UseVisualStyleBackColor = true;
+            this.buttonAddPublicKey.Click += new System.EventHandler(this.buttonAddPublicKey_Click);
+            // 
+            // labelMessageSIgning
+            // 
+            this.labelMessageSIgning.AutoSize = true;
+            this.labelMessageSIgning.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.labelMessageSIgning.Location = new System.Drawing.Point(5, 187);
+            this.labelMessageSIgning.Name = "labelMessageSIgning";
+            this.labelMessageSIgning.Size = new System.Drawing.Size(123, 19);
+            this.labelMessageSIgning.TabIndex = 33;
+            this.labelMessageSIgning.Text = "Message signing:";
+            // 
             // checkBoxSignMessages
             // 
             this.checkBoxSignMessages.AutoSize = true;
@@ -528,26 +548,6 @@ namespace Stegosaurus.Forms
             this.labelSignStatus.Name = "labelSignStatus";
             this.labelSignStatus.Size = new System.Drawing.Size(50, 20);
             this.labelSignStatus.Text = "Ready";
-            // 
-            // labelMessageSIgning
-            // 
-            this.labelMessageSIgning.AutoSize = true;
-            this.labelMessageSIgning.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.labelMessageSIgning.Location = new System.Drawing.Point(5, 187);
-            this.labelMessageSIgning.Name = "labelMessageSIgning";
-            this.labelMessageSIgning.Size = new System.Drawing.Size(123, 19);
-            this.labelMessageSIgning.TabIndex = 33;
-            this.labelMessageSIgning.Text = "Message signing:";
-            // 
-            // buttonAddPublicKey
-            // 
-            this.buttonAddPublicKey.Location = new System.Drawing.Point(10, 209);
-            this.buttonAddPublicKey.Name = "buttonAddPublicKey";
-            this.buttonAddPublicKey.Size = new System.Drawing.Size(180, 34);
-            this.buttonAddPublicKey.TabIndex = 34;
-            this.buttonAddPublicKey.Text = "Add known key";
-            this.buttonAddPublicKey.UseVisualStyleBackColor = true;
-            this.buttonAddPublicKey.Click += new System.EventHandler(this.buttonAddPublicKey_Click);
             // 
             // FormMain
             // 

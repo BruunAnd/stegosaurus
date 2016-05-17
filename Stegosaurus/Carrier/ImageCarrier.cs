@@ -87,7 +87,7 @@ namespace Stegosaurus.Carrier
             BitmapData imageData = LockBitmap();
 
             // Calculate the bytelength of the pixels and allocate memory for it
-            int imageDataLength = Math.Abs(imageData.Height * imageData.Stride);
+            int imageDataLength = Image.GetPixelFormatSize(Image.PixelFormat) / 8 * Image.Width * Image.Height;
             ByteArray = new byte[imageDataLength];
 
             // Copy the pixel array from the innerImage to ByteArray
