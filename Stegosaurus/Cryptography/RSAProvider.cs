@@ -90,7 +90,14 @@ namespace Stegosaurus.Cryptography
             {
                 rsaProvider.ImportParameters(Parameters);
 
-                return rsaProvider.SignData(_originalData, new SHA1CryptoServiceProvider());
+                try
+                {
+                    return rsaProvider.SignData(_originalData, new SHA1CryptoServiceProvider());
+                }
+                catch (CryptographicException ex)
+                {
+                    throw new StegoCryptoException("Could not sign data, private key is invalid.", ex);
+                }
             }
         }
 
@@ -103,7 +110,14 @@ namespace Stegosaurus.Cryptography
             {
                 rsaProvider.ImportParameters(Parameters);
 
-                return rsaProvider.VerifyData(_originalData, new SHA1CryptoServiceProvider(), _signedData);
+                try
+                {
+                    return rsaProvider.VerifyData(_originalData, new SHA1CryptoServiceProvider(), _signedData);
+                }
+                catch (CryptographicException ex)
+                {
+                    throw new StegoCryptoException("Could not verify data, public key is invalid.", ex);
+                }
             }
         }
 

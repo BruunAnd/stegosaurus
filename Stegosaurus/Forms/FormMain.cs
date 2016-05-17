@@ -60,8 +60,6 @@ namespace Stegosaurus.Forms
         /// <summary>
         /// Checks that the files dragged into the panelCarrierMedia control are valid and assigs the effect of the Drag&Drop accordingly.
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void panelCarrierMedia_DragEnter(object sender, DragEventArgs e)
         {
             e.Effect = e.Data.GetDataPresent(DataFormats.FileDrop) ? DragDropEffects.Copy : DragDropEffects.None;
@@ -69,10 +67,7 @@ namespace Stegosaurus.Forms
 
         /// <summary>
         /// Gets the paths of the dropped files and converts the first to CarrierType and calls HandleInput.
-        /// TODO: Implement chack for multiple dropped files and show apropriate error.
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void panelCarrierMedia_DragDrop(object sender, DragEventArgs e)
         {
             string[] inputFiles = (string[]) e.Data.GetData(DataFormats.FileDrop);
@@ -114,8 +109,6 @@ namespace Stegosaurus.Forms
         /// <summary>
         /// Assigns the content of the textBoxTextMessage.Text property to the stegoMessage.TextMessage property and updates the  to be the progressBarCapacity control.
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void textBoxTextMessage_TextChanged(object sender, EventArgs e)
         {
             stegoMessage.TextMessage = textBoxTextMessage.Text;
@@ -126,8 +119,6 @@ namespace Stegosaurus.Forms
         /// <summary>
         /// Checks that the items dragged into the listViewMessageContentFiles control are valid and changes the effect, and color accordingly.
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void listViewMessageContentFiles_DragEnter(object sender, DragEventArgs e)
         {
             if (e.Data.GetDataPresent(DataFormats.FileDrop))
@@ -145,8 +136,6 @@ namespace Stegosaurus.Forms
         /// <summary>
         /// Reverts the color of the listViewMessageContentFiles control to white when the files are dragged out of the conrtrols boundaries. 
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void listViewMessageContentFiles_DragLeave(object sender, EventArgs e)
         {
             listViewMessageContentFiles.BackColor = Color.White;
@@ -155,8 +144,6 @@ namespace Stegosaurus.Forms
         /// <summary>
         /// Gets the file paths of all dropped files, converts them to the ContentType and calls the HandleInput to handle them further.
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void listViewMessageContentFiles_DragDrop(object sender, DragEventArgs e)
         {
             string[] inputFiles = (string[]) e.Data.GetData(DataFormats.FileDrop);
@@ -172,8 +159,6 @@ namespace Stegosaurus.Forms
         /// <summary>
         /// Ensures that the contextMenuStripMain wont open if no items from listViewMessageContentFiles are selected.
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void contextMenuStripMain_Opening(object sender, CancelEventArgs e)
         {
             bool enableIndividualButtons = listViewMessageContentFiles.SelectedItems.Count > 0;
@@ -187,8 +172,6 @@ namespace Stegosaurus.Forms
         /// and if multiple files are selected the user is prompted to select a folder to which all selected file will be saved
         /// with their default names.
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void saveToolStripMenuItem_Click(object sender, EventArgs e)
         {
             int[] fileIndices = GetSelectedContentIndices();
@@ -252,8 +235,6 @@ namespace Stegosaurus.Forms
         /// <summary>
         /// Handles the deletion of items from the listViewMessageContentFiles control and stegoMessage.InputFiles collection.
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void deleteToolStripMenuItem_Click(object sender, EventArgs e)
         {
             int[] fileIndices = GetSelectedContentIndices();
@@ -270,7 +251,6 @@ namespace Stegosaurus.Forms
         /// <summary>
         /// Returns an array of integers containing the indices of all selected items in the listViewMessageContentFiles control.
         /// </summary>
-        /// <returns></returns>
         private int[] GetSelectedContentIndices()
         {
             int[] indices = new int[listViewMessageContentFiles.SelectedIndices.Count];
@@ -287,20 +267,18 @@ namespace Stegosaurus.Forms
         {
             ICryptoProvider newCryptoProvider = (ICryptoProvider) Activator.CreateInstance(cryptoProviderType);
             cryptoProviderDictionary.Add(newCryptoProvider.Name, newCryptoProvider);
+
             comboBoxCryptoProviderSelection.Items.Add(newCryptoProvider.Name);
         }
 
         /// <summary>
         /// Updates the cryptoProvider to reflect the chosen item in the comboBoxCryptoProviderSelection control.
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void comboBoxCryptoProviderSelection_SelectedIndexChanged(object sender, EventArgs e)
         {
             cryptoProvider = cryptoProviderDictionary[comboBoxCryptoProviderSelection.Text];
-            //textBoxEncryptionKey.MaxLength = cryptoProvider.KeySize / 8;
-            //textBoxEncryptionKey.Text = textBoxEncryptionKey.Text.Remove(cryptoProvider.KeySize / 8);
             cryptoProvider.SetKey(textBoxEncryptionKey.Text);
+
             algorithm.CryptoProvider = cryptoProvider;
 
             buttonImportKey.Enabled = cryptoProvider is RSAProvider;
@@ -311,8 +289,6 @@ namespace Stegosaurus.Forms
             UseWaitCursor = _isWaiting;
             tabControlMain.Enabled = !_isWaiting; 
         }
-
-        //TODO: Implement Key size limit for XML keys(REMEMBER rsa uses XML keys)
         #endregion
 
         #region Steganography Handling
@@ -330,14 +306,17 @@ namespace Stegosaurus.Forms
         }
 
         /// <summary>
-        /// Assigns the chosen algorithm to the algorithm variable and supplies the algorithm with the current carrierMedia. At last the progressBarCapacity is updated.
+        /// Assigns the chosen algorithm to the algorithm variable and supplies the algorithm with the current carrierMedia.
+        /// At last the progressBarCapacity is updated.
         /// </summary>
         private void comboBoxAlgorithmSelection_SelectedIndexChanged(object sender, EventArgs e)
         {
             algorithm = algorithmDictionary[comboBoxAlgorithmSelection.Text];
             algorithm.CarrierMedia = carrierMedia;
             algorithm.CryptoProvider = cryptoProvider;
+
             propertyGridAlgorithmOptions.SelectedObject = algorithm;
+
             UpdateInterface();
         }
 
@@ -345,8 +324,6 @@ namespace Stegosaurus.Forms
         /// Checks whether stegoMessage contains content to be embedded, and runs the algoritm.Extract or algorithm.Embed methods accordingly.
         /// If the Extract method was called the interface is updated according to the new content of stegoMessage.
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private async void buttonActivateSteganography_Click(object sender, EventArgs e)
         {
             if (CanEmbed && string.IsNullOrEmpty(textBoxEncryptionKey.Text))
@@ -471,6 +448,7 @@ namespace Stegosaurus.Forms
 
             FormEmbeddingProgress progressForm = new FormEmbeddingProgress();
             progressForm.Show(this);
+
             await progressForm.Run(stegoMessage, algorithm, carrierName, carrierExtension);
         }
         #endregion
@@ -478,7 +456,6 @@ namespace Stegosaurus.Forms
         /// <summary>
         /// Gets an IInputType with a file path. Checks the type of the input and handles it accordingly.
         /// </summary>
-        /// <param name="_input"></param>
         private void HandleInput(IInputType _input)
         {
             InputFile inputFile = new InputFile(_input.FilePath);

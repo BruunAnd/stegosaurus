@@ -22,6 +22,14 @@ namespace Stegosaurus.Cryptography
         }
 
         /// <summary>
+        /// Adds an existing SavedPublicKey.
+        /// </summary>
+        public static void Add(SavedPublicKey _existingKey)
+        {
+            publicKeyList.Add(_existingKey);
+        }
+
+        /// <summary>
         /// Returns the list of public keys.
         /// </summary>
         public static List<SavedPublicKey> GetKeyList()
