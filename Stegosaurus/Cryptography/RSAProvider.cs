@@ -80,6 +80,36 @@ namespace Stegosaurus.Cryptography
             }
         }
 
+
+        /// <summary>
+        /// Sign data using a private key.
+        /// </summary>
+        public byte[] SignData(byte[] _originalData)
+        {
+            using (RSACryptoServiceProvider rsaProvider = new RSACryptoServiceProvider())
+            {
+                rsaProvider.ImportParameters(Parameters);
+
+                return rsaProvider.SignData(_originalData, new SHA1CryptoServiceProvider());
+            }
+        }
+
+        /// <summary>
+        /// Verify data using a public key.
+        /// </summary>
+        public bool VerifyData(byte[] _originalData, byte[] _signedData)
+        {
+            using (RSACryptoServiceProvider rsaProvider = new RSACryptoServiceProvider())
+            {
+                rsaProvider.ImportParameters(Parameters);
+
+                return rsaProvider.VerifyData(_originalData, new SHA1CryptoServiceProvider(), _signedData);
+            }
+        }
+
+        /// <summary>
+        /// Generate a valid RSA keypair.
+        /// </summary>
         public static RSAKeyPair GenerateKeys(int _keySize)
         {
             using (RSACryptoServiceProvider rsaProvider = new RSACryptoServiceProvider(_keySize))

@@ -44,9 +44,11 @@
     </StartupObject>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Microsoft.VisualBasic" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.DirectoryServices" />
+    <Reference Include="System.XML" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -54,7 +56,6 @@
     <Reference Include="System.Deployment" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
-    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Algorithm\CommonSampleAlgorithm.cs" />
@@ -72,6 +73,8 @@
     <Compile Include="Carrier\ImageCarrier.cs" />
     <Compile Include="Cryptography\AESProvider.cs" />
     <Compile Include="Cryptography\ICryptoProvider.cs" />
+    <Compile Include="Cryptography\PublicKeyList.cs" />
+    <Compile Include="Cryptography\SavedPublicKey.cs" />
     <Compile Include="Cryptography\RSAKeyPair.cs" />
     <Compile Include="Cryptography\RSAProvider.cs" />
     <Compile Include="Cryptography\TripleDESProvider.cs" />

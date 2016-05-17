@@ -48,6 +48,7 @@ namespace Stegosaurus.Forms
             this.pictureBoxCarrier = new System.Windows.Forms.PictureBox();
             this.contextMenuStripPictureBox = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.browseToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.findUniqueSamplesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.progressBarCapacity = new System.Windows.Forms.ProgressBar();
             this.panel1 = new System.Windows.Forms.Panel();
             this.labelCarrierMedia = new System.Windows.Forms.Label();
@@ -67,11 +68,15 @@ namespace Stegosaurus.Forms
             this.buttonImportKey = new System.Windows.Forms.Button();
             this.textBoxEncryptionKey = new System.Windows.Forms.RichTextBox();
             this.tabPageAdvanced = new System.Windows.Forms.TabPage();
+            this.checkBoxSignMessages = new System.Windows.Forms.CheckBox();
+            this.buttonImportAlgorithm = new System.Windows.Forms.Button();
             this.labelAdvancedAlgorithm = new System.Windows.Forms.Label();
             this.propertyGridAlgorithmOptions = new System.Windows.Forms.PropertyGrid();
             this.buttonGenerate = new System.Windows.Forms.Button();
-            this.findUniqueSamplesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.buttonImportAlgorithm = new System.Windows.Forms.Button();
+            this.statusStrip = new System.Windows.Forms.StatusStrip();
+            this.labelSignStatus = new System.Windows.Forms.ToolStripStatusLabel();
+            this.labelMessageSIgning = new System.Windows.Forms.Label();
+            this.buttonAddPublicKey = new System.Windows.Forms.Button();
             this.contextMenuStripMain.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxCarrier)).BeginInit();
             this.contextMenuStripPictureBox.SuspendLayout();
@@ -79,6 +84,7 @@ namespace Stegosaurus.Forms
             this.tabControlMain.SuspendLayout();
             this.tabPageMain.SuspendLayout();
             this.tabPageAdvanced.SuspendLayout();
+            this.statusStrip.SuspendLayout();
             this.SuspendLayout();
             // 
             // listViewMessageContentFiles
@@ -121,27 +127,27 @@ namespace Stegosaurus.Forms
             this.saveToolStripMenuItem,
             this.deleteToolStripMenuItem});
             this.contextMenuStripMain.Name = "contextMenuStrip1";
-            this.contextMenuStripMain.Size = new System.Drawing.Size(142, 88);
+            this.contextMenuStripMain.Size = new System.Drawing.Size(144, 88);
             this.contextMenuStripMain.Opening += new System.ComponentModel.CancelEventHandler(this.contextMenuStripMain_Opening);
             // 
             // addFilesToolStripMenuItem
             // 
             this.addFilesToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("addFilesToolStripMenuItem.Image")));
             this.addFilesToolStripMenuItem.Name = "addFilesToolStripMenuItem";
-            this.addFilesToolStripMenuItem.Size = new System.Drawing.Size(141, 26);
+            this.addFilesToolStripMenuItem.Size = new System.Drawing.Size(143, 26);
             this.addFilesToolStripMenuItem.Text = "Add files";
             this.addFilesToolStripMenuItem.Click += new System.EventHandler(this.addItemToolStripMenuItem_Click);
             // 
             // toolStripSeparator
             // 
             this.toolStripSeparator.Name = "toolStripSeparator";
-            this.toolStripSeparator.Size = new System.Drawing.Size(138, 6);
+            this.toolStripSeparator.Size = new System.Drawing.Size(140, 6);
             // 
             // saveToolStripMenuItem
             // 
             this.saveToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("saveToolStripMenuItem.Image")));
             this.saveToolStripMenuItem.Name = "saveToolStripMenuItem";
-            this.saveToolStripMenuItem.Size = new System.Drawing.Size(141, 26);
+            this.saveToolStripMenuItem.Size = new System.Drawing.Size(143, 26);
             this.saveToolStripMenuItem.Text = "Save";
             this.saveToolStripMenuItem.Click += new System.EventHandler(this.saveToolStripMenuItem_Click);
             // 
@@ -149,7 +155,7 @@ namespace Stegosaurus.Forms
             // 
             this.deleteToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("deleteToolStripMenuItem.Image")));
             this.deleteToolStripMenuItem.Name = "deleteToolStripMenuItem";
-            this.deleteToolStripMenuItem.Size = new System.Drawing.Size(141, 26);
+            this.deleteToolStripMenuItem.Size = new System.Drawing.Size(143, 26);
             this.deleteToolStripMenuItem.Text = "Delete";
             this.deleteToolStripMenuItem.Click += new System.EventHandler(this.deleteToolStripMenuItem_Click);
             // 
@@ -164,9 +170,9 @@ namespace Stegosaurus.Forms
             this.labelTextMesage.AutoSize = true;
             this.labelTextMesage.Location = new System.Drawing.Point(406, 231);
             this.labelTextMesage.Name = "labelTextMesage";
-            this.labelTextMesage.Size = new System.Drawing.Size(324, 19);
+            this.labelTextMesage.Size = new System.Drawing.Size(262, 19);
             this.labelTextMesage.TabIndex = 8;
-            this.labelTextMesage.Text = "Text message to hide in the carrier media (optional):";
+            this.labelTextMesage.Text = "Text message to hide in the carrier media:";
             // 
             // buttonActivateSteganography
             // 
@@ -191,6 +197,8 @@ namespace Stegosaurus.Forms
             this.imageListSilkIcons.Images.SetKeyName(2, "application_xp.png");
             this.imageListSilkIcons.Images.SetKeyName(3, "cog.png");
             this.imageListSilkIcons.Images.SetKeyName(4, "key.png");
+            this.imageListSilkIcons.Images.SetKeyName(5, "accept.png");
+            this.imageListSilkIcons.Images.SetKeyName(6, "error.png");
             // 
             // labelEncryptionKey
             // 
@@ -231,6 +239,14 @@ namespace Stegosaurus.Forms
             this.browseToolStripMenuItem.Size = new System.Drawing.Size(219, 26);
             this.browseToolStripMenuItem.Text = "Browse";
             this.browseToolStripMenuItem.Click += new System.EventHandler(this.browseToolStripMenuItem_Click);
+            // 
+            // findUniqueSamplesToolStripMenuItem
+            // 
+            this.findUniqueSamplesToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("findUniqueSamplesToolStripMenuItem.Image")));
+            this.findUniqueSamplesToolStripMenuItem.Name = "findUniqueSamplesToolStripMenuItem";
+            this.findUniqueSamplesToolStripMenuItem.Size = new System.Drawing.Size(219, 26);
+            this.findUniqueSamplesToolStripMenuItem.Text = "Find unique samples";
+            this.findUniqueSamplesToolStripMenuItem.Click += new System.EventHandler(this.findUniqueSamplesToolStripMenuItem_Click);
             // 
             // progressBarCapacity
             // 
@@ -344,7 +360,7 @@ namespace Stegosaurus.Forms
             this.tabControlMain.Location = new System.Drawing.Point(0, 0);
             this.tabControlMain.Name = "tabControlMain";
             this.tabControlMain.SelectedIndex = 0;
-            this.tabControlMain.Size = new System.Drawing.Size(796, 416);
+            this.tabControlMain.Size = new System.Drawing.Size(796, 432);
             this.tabControlMain.TabIndex = 29;
             // 
             // tabPageMain
@@ -368,7 +384,7 @@ namespace Stegosaurus.Forms
             this.tabPageMain.Location = new System.Drawing.Point(4, 29);
             this.tabPageMain.Name = "tabPageMain";
             this.tabPageMain.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPageMain.Size = new System.Drawing.Size(788, 383);
+            this.tabPageMain.Size = new System.Drawing.Size(788, 399);
             this.tabPageMain.TabIndex = 0;
             this.tabPageMain.Text = "Main";
             this.tabPageMain.UseVisualStyleBackColor = true;
@@ -378,9 +394,9 @@ namespace Stegosaurus.Forms
             this.labelContentDescription.AutoSize = true;
             this.labelContentDescription.Location = new System.Drawing.Point(406, 22);
             this.labelContentDescription.Name = "labelContentDescription";
-            this.labelContentDescription.Size = new System.Drawing.Size(360, 19);
+            this.labelContentDescription.Size = new System.Drawing.Size(298, 19);
             this.labelContentDescription.TabIndex = 33;
-            this.labelContentDescription.Text = "Drag and drop files to hide in the carrier media (optional).";
+            this.labelContentDescription.Text = "Drag and drop files to hide in the carrier media:";
             // 
             // labelContent
             // 
@@ -427,6 +443,9 @@ namespace Stegosaurus.Forms
             // 
             // tabPageAdvanced
             // 
+            this.tabPageAdvanced.Controls.Add(this.buttonAddPublicKey);
+            this.tabPageAdvanced.Controls.Add(this.labelMessageSIgning);
+            this.tabPageAdvanced.Controls.Add(this.checkBoxSignMessages);
             this.tabPageAdvanced.Controls.Add(this.buttonImportAlgorithm);
             this.tabPageAdvanced.Controls.Add(this.labelAdvancedAlgorithm);
             this.tabPageAdvanced.Controls.Add(this.propertyGridAlgorithmOptions);
@@ -439,10 +458,30 @@ namespace Stegosaurus.Forms
             this.tabPageAdvanced.Location = new System.Drawing.Point(4, 29);
             this.tabPageAdvanced.Name = "tabPageAdvanced";
             this.tabPageAdvanced.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPageAdvanced.Size = new System.Drawing.Size(788, 383);
+            this.tabPageAdvanced.Size = new System.Drawing.Size(788, 399);
             this.tabPageAdvanced.TabIndex = 1;
             this.tabPageAdvanced.Text = "Advanced options";
             this.tabPageAdvanced.UseVisualStyleBackColor = true;
+            // 
+            // checkBoxSignMessages
+            // 
+            this.checkBoxSignMessages.AutoSize = true;
+            this.checkBoxSignMessages.Location = new System.Drawing.Point(10, 249);
+            this.checkBoxSignMessages.Name = "checkBoxSignMessages";
+            this.checkBoxSignMessages.Size = new System.Drawing.Size(143, 23);
+            this.checkBoxSignMessages.TabIndex = 32;
+            this.checkBoxSignMessages.Text = "Sign my messages";
+            this.checkBoxSignMessages.UseVisualStyleBackColor = true;
+            // 
+            // buttonImportAlgorithm
+            // 
+            this.buttonImportAlgorithm.Location = new System.Drawing.Point(8, 60);
+            this.buttonImportAlgorithm.Name = "buttonImportAlgorithm";
+            this.buttonImportAlgorithm.Size = new System.Drawing.Size(182, 34);
+            this.buttonImportAlgorithm.TabIndex = 31;
+            this.buttonImportAlgorithm.Text = "Import algorithm";
+            this.buttonImportAlgorithm.UseVisualStyleBackColor = true;
+            this.buttonImportAlgorithm.Click += new System.EventHandler(this.buttonImportAlgorithm_Click);
             // 
             // labelAdvancedAlgorithm
             // 
@@ -472,29 +511,50 @@ namespace Stegosaurus.Forms
             this.buttonGenerate.UseVisualStyleBackColor = true;
             this.buttonGenerate.Click += new System.EventHandler(this.buttonGenerate_Click);
             // 
-            // findUniqueSamplesToolStripMenuItem
+            // statusStrip
             // 
-            this.findUniqueSamplesToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("findUniqueSamplesToolStripMenuItem.Image")));
-            this.findUniqueSamplesToolStripMenuItem.Name = "findUniqueSamplesToolStripMenuItem";
-            this.findUniqueSamplesToolStripMenuItem.Size = new System.Drawing.Size(219, 26);
-            this.findUniqueSamplesToolStripMenuItem.Text = "Find unique samples";
-            this.findUniqueSamplesToolStripMenuItem.Click += new System.EventHandler(this.findUniqueSamplesToolStripMenuItem_Click);
+            this.statusStrip.ImageScalingSize = new System.Drawing.Size(20, 20);
+            this.statusStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.labelSignStatus});
+            this.statusStrip.Location = new System.Drawing.Point(0, 407);
+            this.statusStrip.Name = "statusStrip";
+            this.statusStrip.Size = new System.Drawing.Size(796, 25);
+            this.statusStrip.TabIndex = 30;
+            this.statusStrip.Text = "statusStrip1";
             // 
-            // buttonImportAlgorithm
+            // labelSignStatus
             // 
-            this.buttonImportAlgorithm.Location = new System.Drawing.Point(8, 60);
-            this.buttonImportAlgorithm.Name = "buttonImportAlgorithm";
-            this.buttonImportAlgorithm.Size = new System.Drawing.Size(182, 34);
-            this.buttonImportAlgorithm.TabIndex = 31;
-            this.buttonImportAlgorithm.Text = "Import algorithm";
-            this.buttonImportAlgorithm.UseVisualStyleBackColor = true;
-            this.buttonImportAlgorithm.Click += new System.EventHandler(this.buttonImportAlgorithm_Click);
+            this.labelSignStatus.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
+            this.labelSignStatus.Name = "labelSignStatus";
+            this.labelSignStatus.Size = new System.Drawing.Size(50, 20);
+            this.labelSignStatus.Text = "Ready";
+            // 
+            // labelMessageSIgning
+            // 
+            this.labelMessageSIgning.AutoSize = true;
+            this.labelMessageSIgning.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.labelMessageSIgning.Location = new System.Drawing.Point(5, 187);
+            this.labelMessageSIgning.Name = "labelMessageSIgning";
+            this.labelMessageSIgning.Size = new System.Drawing.Size(123, 19);
+            this.labelMessageSIgning.TabIndex = 33;
+            this.labelMessageSIgning.Text = "Message signing:";
+            // 
+            // buttonAddPublicKey
+            // 
+            this.buttonAddPublicKey.Location = new System.Drawing.Point(10, 209);
+            this.buttonAddPublicKey.Name = "buttonAddPublicKey";
+            this.buttonAddPublicKey.Size = new System.Drawing.Size(180, 34);
+            this.buttonAddPublicKey.TabIndex = 34;
+            this.buttonAddPublicKey.Text = "Add known key";
+            this.buttonAddPublicKey.UseVisualStyleBackColor = true;
+            this.buttonAddPublicKey.Click += new System.EventHandler(this.buttonAddPublicKey_Click);
             // 
             // FormMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(796, 416);
+            this.ClientSize = new System.Drawing.Size(796, 432);
+            this.Controls.Add(this.statusStrip);
             this.Controls.Add(this.tabControlMain);
             this.Font = new System.Drawing.Font("Segoe UI", 8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
@@ -512,7 +572,10 @@ namespace Stegosaurus.Forms
             this.tabPageMain.PerformLayout();
             this.tabPageAdvanced.ResumeLayout(false);
             this.tabPageAdvanced.PerformLayout();
+            this.statusStrip.ResumeLayout(false);
+            this.statusStrip.PerformLayout();
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
@@ -557,6 +620,11 @@ namespace Stegosaurus.Forms
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator;
         private System.Windows.Forms.ToolStripMenuItem findUniqueSamplesToolStripMenuItem;
         private System.Windows.Forms.Button buttonImportAlgorithm;
+        private System.Windows.Forms.CheckBox checkBoxSignMessages;
+        private System.Windows.Forms.StatusStrip statusStrip;
+        private System.Windows.Forms.ToolStripStatusLabel labelSignStatus;
+        private System.Windows.Forms.Button buttonAddPublicKey;
+        private System.Windows.Forms.Label labelMessageSIgning;
     }
 }
 

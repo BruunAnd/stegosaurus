@@ -11,6 +11,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Stegosaurus.Carrier;
+using System.Diagnostics;
 
 namespace Stegosaurus.Forms
 {
@@ -41,6 +42,8 @@ namespace Stegosaurus.Forms
             });
 
             // Await execution
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
             bool result = await Task.Run(() =>
             {
                 try
@@ -57,11 +60,12 @@ namespace Stegosaurus.Forms
                 }
                 return true;
             });
+            sw.Stop();
 
             if (result)
             {
                 SystemSounds.Hand.Play();
-                labelStatus.Text = "Embedding complete!";
+                labelStatus.Text = $"Embedding complete! ({sw.Elapsed.TotalSeconds} seconds)";
                 embeddingComplete = true;
                 buttonCancel.Enabled = false;
                 buttonSaveAs.Enabled = true;

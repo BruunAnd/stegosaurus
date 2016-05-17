@@ -21,21 +21,41 @@ namespace Stegosaurus
             Signed = 0x8,
         }
 
+        public enum StegoMessageSignState
+        {
+            Unsigned,
+            SignedByKnown,
+            SignedByUnknown,
+        }
+
         /// <summary>
         /// This is the text message that can be saved in the StegoMessage.
         /// </summary>
         public string TextMessage { get; set; }
+
         /// <summary>
         /// This is where each file will be stored in the StegoMessage.
         /// </summary>
         public List<InputFile> InputFiles { get; } = new List<InputFile>();
 
-        public StegoMessageFlags Flags;
-
         /// <summary>
-        /// TODO: Write summary.
+        /// Private Signing Key used to verify the authenticity of the sender.
         /// </summary>
         public string PrivateSigningKey { get; set; }
+
+        /// <summary>
+        /// Indicates who has signed this message, if any.
+        /// </summary>
+        public string SignedBy { get; private set; }
+
+        /// <summary>
+        /// Indicates whether the message has been signed or not.
+        /// </summary>
+        public StegoMessageSignState SignState { get; private set; }
+
+        public StegoMessageFlags Flags;
+
+        
 
         /// <summary>
         /// Empty constructor.
@@ -69,6 +89,28 @@ namespace Stegosaurus
                 if (!encodedData.ComputeSHAHash().SequenceEqual(hash))
                 {
                     throw new StegoMessageException("Hash does not match, data is corrupt.");
+                }
+
+                // Verify authenticity of signed sender.
+                if (Flags.HasFlag(StegoMessageFlags.Signed))
+                {
+                    SignState = StegoMessageSignState.SignedByUnknown;
+                    byte[] signedData = inputStream.ReadBytes();
+
+                    RSAProvider rsa = new RSAProvider();
+                    foreach (SavedPublicKey key in PublicKeyList.GetKeyList())
+                    {
+                        // Set the RSA key to the current public key
+                        rsa.SetKey(key.Key);
+
+                        // Check if hashed data matches
+                        if (!rsa.VerifyData(encodedData, signedData))
+                            continue;
+
+                        // Set sign state and who signed it
+                        SignState = StegoMessageSignState.SignedByKnown;
+                        SignedBy = key.Alias;
+                    }
                 }
 
                 // Decrypt if a key is specified.
@@ -177,19 +219,37 @@ namespace Stegosaurus
             {
                 // Do not write at the beginning of the stream.
                 // Allocate some space for the int that contains size.
-                tempStream.Seek(sizeof(int), SeekOrigin.Begin);
-                tempStream.WriteByte((byte) Flags);
+                // Also allocate space for a byte which contains our flags.
+                tempStream.Seek(sizeof(int) + sizeof(byte), SeekOrigin.Begin);
+
+                // Write encoded data
                 tempStream.Write(encodedData, true);
+
+                // Write hash of encoded data
                 tempStream.Write(encodedData.ComputeSHAHash(), true);
+
+                // Sign if private key is specified
                 if (!string.IsNullOrEmpty(PrivateSigningKey))
                 {
-                    // TODO add signing stuff here.
-                    SetFlag(StegoMessageFlags.Signed, true);    
+                    // Create RSA provider and set key
+                    RSAProvider rsa = new RSAProvider();
+                    rsa.SetKey(PrivateSigningKey);
+
+                    // Sign and write data
+                    tempStream.Write(rsa.SignData(encodedData), true);
+                    Console.WriteLine("Message has been signed");
+
+                    // Set signed flag
+                    SetFlag(StegoMessageFlags.Signed, true);
+
+                    // Reset key
+                    PrivateSigningKey = null;
                 }
 
-                // Go back to beginning of stream and write length.
+                // Go back to beginning of stream and write length and flags.
                 tempStream.Seek(0, SeekOrigin.Begin);
                 tempStream.Write((int)tempStream.Length - sizeof(int));
+                tempStream.WriteByte((byte) Flags);
 
                 return tempStream.ToArray();
             }

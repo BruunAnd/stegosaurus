@@ -16,6 +16,7 @@ using System.Threading.Tasks;
 using Stegosaurus.Algorithm.CommonSample;
 using System.Linq;
 using System.Reflection;
+using Microsoft.VisualBasic;
 
 namespace Stegosaurus.Forms
 {
@@ -355,6 +356,21 @@ namespace Stegosaurus.Forms
             // Embed or extract
             if (CanEmbed)
             {
+                stegoMessage.PrivateSigningKey = null;
+
+                // Check if we need to use a private signing key
+                if (checkBoxSignMessages.Checked)
+                {
+                    OpenFileDialog ofd = new OpenFileDialog();
+                    ofd.Filter = "Private Key (*.xml)|*.xml";
+
+                    if (ofd.ShowDialog() != DialogResult.OK)
+                    {
+                        return;
+                    }
+
+                    stegoMessage.PrivateSigningKey = File.ReadAllText(ofd.FileName);
+                }
 
                 // Embedding happens in another thread
                 await Embed();
@@ -397,9 +413,24 @@ namespace Stegosaurus.Forms
                 return null;
             });
 
+            // Return if invalid message
             if (stegoMessage == null)
             {
                 return;
+            }
+
+            // Check if message is signed
+            if (stegoMessage.SignState == StegoMessage.StegoMessageSignState.SignedByKnown)
+            {
+                labelSignStatus.Image = imageListSilkIcons.Images[5];
+                labelSignStatus.ForeColor = Color.DarkGreen;
+                labelSignStatus.Text = $"This message has been signed by {stegoMessage.SignedBy}.";
+            }
+            else
+            {
+                labelSignStatus.Image = imageListSilkIcons.Images[6];
+                labelSignStatus.ForeColor = Color.DarkRed;
+                labelSignStatus.Text = stegoMessage.SignState == StegoMessage.StegoMessageSignState.Unsigned ? "This message has been signed with an unknown key." : "This message is unsigned.";
             }
 
             // Add files
@@ -454,6 +485,10 @@ namespace Stegosaurus.Forms
             }
             else if (_input is CarrierType)
             {
+                labelSignStatus.Text = "Ready";
+                labelSignStatus.ForeColor = Color.Black;
+                labelSignStatus.Image = null;
+
                 if (fileInfo.Extension == ".wav")
                 {
                     carrierMedia = new AudioCarrier(_input.FilePath);
@@ -625,6 +660,41 @@ namespace Stegosaurus.Forms
                     AddAlgorithm(type);
                 }
             }
+        }
+
+        private void buttonAddPublicKey_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog ofd = new OpenFileDialog();
+            ofd.Filter = "XML files (*.xml)|*.xml|All files (*.*)|*.*";
+
+            if (ofd.ShowDialog() != DialogResult.OK)
+            {
+                return;
+            }
+
+            // Get an alias for this key
+            string alias = Interaction.InputBox("What alias do you want to give to this key?", "Alias", Path.GetFileNameWithoutExtension(ofd.FileName));
+            if (string.IsNullOrWhiteSpace(alias))
+            {
+                return;
+            }
+
+            // Create known keys folder
+            if (!Directory.Exists(Program.KnownKeysFolder))
+            {
+                Directory.CreateDirectory(Program.KnownKeysFolder);
+            }
+
+            // Check if file exists
+            string fileDestination = Path.Combine(Program.KnownKeysFolder, $"{alias}.xml");
+            if (File.Exists(fileDestination))
+            {
+                MessageBox.Show("The alias '{alias}' has already been added.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+
+            // Copy to destination
+            PublicKeyList.Add(alias, ofd.FileName);
+            File.Copy(ofd.FileName, fileDestination);
         }
     }
 }
