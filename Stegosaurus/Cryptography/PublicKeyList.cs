@@ -1,15 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Stegosaurus.Cryptography
 {
     public class PublicKeyList
     {
-        private static List<SavedPublicKey> publicKeyList = new List<SavedPublicKey>();
+        private static readonly List<SavedPublicKey> InnerList = new List<SavedPublicKey>();
 
         /// <summary>
         /// Adds a public key to the keystore.
@@ -18,7 +14,7 @@ namespace Stegosaurus.Cryptography
         {
             // todo check if file exists
             SavedPublicKey key = new SavedPublicKey(_alias, File.ReadAllText(_publicKeyLocation));
-            publicKeyList.Add(key);
+            InnerList.Add(key);
         }
 
         /// <summary>
@@ -26,7 +22,7 @@ namespace Stegosaurus.Cryptography
         /// </summary>
         public static void Add(SavedPublicKey _existingKey)
         {
-            publicKeyList.Add(_existingKey);
+            InnerList.Add(_existingKey);
         }
 
         /// <summary>
@@ -34,7 +30,7 @@ namespace Stegosaurus.Cryptography
         /// </summary>
         public static List<SavedPublicKey> GetKeyList()
         {
-            return publicKeyList;
+            return InnerList;
         }
     }
 }

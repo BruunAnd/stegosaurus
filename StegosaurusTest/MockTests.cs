@@ -1,6 +1,5 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.IO;
 using Stegosaurus.Algorithm;
 using Stegosaurus;
 using Stegosaurus.Carrier;
@@ -42,8 +41,7 @@ namespace StegosaurusTest
             _algorithm.CryptoProvider = _cryptoProvider;
 
             // Instantiate StegoMessage
-            StegoMessage inMessage = new StegoMessage();
-            inMessage.TextMessage = testMessageString;
+            StegoMessage inMessage = new StegoMessage {TextMessage = testMessageString};
             inMessage.InputFiles.Add(new InputFile(testFileName, testFileBuffer));
             _algorithm.Embed(inMessage, null, CancellationToken.None);
 

@@ -1,8 +1,5 @@
 ﻿using Stegosaurus.Algorithm;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using Stegosaurus;
 using System.Threading;
 using Stegosaurus.Exceptions;

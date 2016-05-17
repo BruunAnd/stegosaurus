@@ -28,9 +28,9 @@ namespace Stegosaurus.Algorithm
         [Category("Algorithm"), Description("The maximum amount of samples to use. Higher values will take more time to compute.")]
         public int MaxSampleCount { get; set; } = 1000;
 
-        public override void Embed(StegoMessage message, IProgress<int> _progress, CancellationToken _ct)
+        public override void Embed(StegoMessage _message, IProgress<int> _progress, CancellationToken _ct)
         {
-            var messageBits = new BitArray(Signature.Concat(message.ToByteArray(CryptoProvider)).ToArray());
+            var messageBits = new BitArray(Signature.Concat(_message.ToByteArray(CryptoProvider)).ToArray());
 
             // Get all samples.
             List<Sample> samples = Sample.GetSampleListFrom(CarrierMedia);
@@ -87,7 +87,7 @@ namespace Stegosaurus.Algorithm
 
             // Report that we are finished.
             _progress?.Report(100);
-            Console.WriteLine("{0}% forced, {1}% replaced", 100 * ((float)numForced / (numForced + numReplaced)), 100 * ((float) numReplaced / (numForced + numReplaced)));
+            Console.WriteLine(@"{0}% forced, {1}% replaced", 100 * ((float)numForced / (numForced + numReplaced)), 100 * ((float) numReplaced / (numForced + numReplaced)));
 
             // Write changes.
             int pos = 0;
@@ -126,7 +126,7 @@ namespace Stegosaurus.Algorithm
         /// <summary>
         /// Reads the specified amount of bytes from the CarrierMedia.
         /// </summary>
-        private byte[] ReadBytes(RandomNumberList _numberList, List<Sample> samples, int _count)
+        private byte[] ReadBytes(RandomNumberList _numberList, List<Sample> _samples, int _count)
         {
             // Allocate BitArray with count * 8 bits
             BitArray tempBitArray = new BitArray(_count * 8);
@@ -134,7 +134,7 @@ namespace Stegosaurus.Algorithm
             // Set bits from the values in samples
             for (int i = 0; i < tempBitArray.Length; i++)
             {
-                tempBitArray[i] = samples[_numberList.Next].ModValue == 1;
+                tempBitArray[i] = _samples[_numberList.Next].ModValue == 1;
             }
 
             // Copy bitArray to new byteArray

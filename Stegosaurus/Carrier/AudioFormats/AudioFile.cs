@@ -30,7 +30,7 @@ namespace Stegosaurus.Carrier.AudioFormats
         /// </summary>
         public short BitsPerSample { get; protected set; }
 
-        protected byte[] innerData;
+        protected byte[] InnerData;
 
         /// <summary>
         /// Construct an AudioFile from a file path.
@@ -60,7 +60,7 @@ namespace Stegosaurus.Carrier.AudioFormats
         /// </summary>
         public virtual void SetInnerData(byte[] _innerData)
         {
-            innerData = _innerData;
+            InnerData = _innerData;
         }
 
         /// <summary>
@@ -68,7 +68,7 @@ namespace Stegosaurus.Carrier.AudioFormats
         /// </summary>
         public virtual byte[] CopyInnerData()
         {
-            return (byte[]) innerData.Clone();
+            return (byte[]) InnerData.Clone();
         }
     }
 }

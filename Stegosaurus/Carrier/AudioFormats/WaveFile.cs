@@ -1,7 +1,5 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using System.Linq;
-using System.Windows.Forms;
 using Stegosaurus.Utility.Extensions;
 using Stegosaurus.Exceptions;
 
@@ -13,7 +11,6 @@ namespace Stegosaurus.Carrier.AudioFormats
         private static readonly byte[] RiffHeader = {82, 73, 70, 70};
         private static readonly byte[] FormatHeader = { 87, 65, 86, 69, 102, 109, 116, 32 };
         private static readonly byte[] DataHeader = { 100, 97, 116, 97 };
-        private static readonly byte[] FactHeader = { 102, 97, 99, 116 };
 
         /// <summary>
         /// Get or set the chunk size.
@@ -96,7 +93,7 @@ namespace Stegosaurus.Carrier.AudioFormats
                 DataSubChunkSize = fileStream.ReadInt();
 
                 // Read samples
-                innerData = fileStream.ReadBytes(DataSubChunkSize);
+                InnerData = fileStream.ReadBytes(DataSubChunkSize);
             }
         }
 
@@ -119,7 +116,7 @@ namespace Stegosaurus.Carrier.AudioFormats
                 // Write data
                 tempStream.Write(DataHeader);
                 tempStream.Write(DataSubChunkSize);
-                tempStream.Write(innerData);
+                tempStream.Write(InnerData);
 
                 return tempStream.ToArray();
             }

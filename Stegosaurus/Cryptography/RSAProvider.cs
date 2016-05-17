@@ -128,9 +128,11 @@ namespace Stegosaurus.Cryptography
         {
             using (RSACryptoServiceProvider rsaProvider = new RSACryptoServiceProvider(_keySize))
             {
-                RSAKeyPair newKeyPair = new RSAKeyPair();
-                newKeyPair.PublicKey = SerializeKey(rsaProvider.ExportParameters(false));
-                newKeyPair.PrivateKey = SerializeKey(rsaProvider.ExportParameters(true));
+                RSAKeyPair newKeyPair = new RSAKeyPair
+                {
+                    PublicKey = SerializeKey(rsaProvider.ExportParameters(false)),
+                    PrivateKey = SerializeKey(rsaProvider.ExportParameters(true))
+                };
 
                 return newKeyPair;
             }

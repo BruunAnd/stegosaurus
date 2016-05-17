@@ -1,12 +1,9 @@
 ﻿using System;
-using Stegosaurus.Carrier;
 using System.Collections;
 using System.Linq;
 using Stegosaurus.Exceptions;
 using Stegosaurus.Utility;
-using System.Collections.Generic;
 using System.ComponentModel;
-using Stegosaurus.Cryptography;
 using System.Threading;
 
 namespace Stegosaurus.Algorithm

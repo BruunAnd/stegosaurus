@@ -1,5 +1,4 @@
-﻿using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Stegosaurus.Cryptography;
 using Stegosaurus;
 using System.Linq;
@@ -18,9 +17,11 @@ namespace StegosaurusTest
             PublicKeyList.Add(new SavedPublicKey(trustedAlias, _publicKey));
 
             // Create signed dummy message.
-            StegoMessage foo = new StegoMessage();
-            foo.TextMessage = "FooBar";
-            foo.PrivateSigningKey = _privateKey;
+            StegoMessage foo = new StegoMessage
+            {
+                TextMessage = "FooBar",
+                PrivateSigningKey = _privateKey
+            };
             byte[] encoded = foo.ToByteArray();
 
             // Recreate message.

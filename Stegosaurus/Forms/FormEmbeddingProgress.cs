@@ -1,12 +1,6 @@
 ﻿using Stegosaurus.Algorithm;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
 using System.Media;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -20,7 +14,7 @@ namespace Stegosaurus.Forms
         
         private readonly CancellationTokenSource cts = new CancellationTokenSource();
 
-        private bool embeddingComplete = false, fileSaved = false;
+        private bool embeddingComplete, fileSaved;
 
         private string name, extension;
         private ICarrierMedia carrierMedia;
@@ -96,9 +90,11 @@ namespace Stegosaurus.Forms
 
         private void buttonSaveAs_Click(object sender, EventArgs e)
         {
-            SaveFileDialog sfd = new SaveFileDialog();
-            sfd.FileName = $"stego-{name}";
-            sfd.Filter = $"Original extension (*{extension})|*{extension}|All files (*.*)|*.*";
+            SaveFileDialog sfd = new SaveFileDialog
+            {
+                FileName = $"stego-{name}",
+                Filter = $"Original extension (*{extension})|*{extension}|All files (*.*)|*.*"
+            };
 
             if (sfd.ShowDialog() != DialogResult.OK)
             {

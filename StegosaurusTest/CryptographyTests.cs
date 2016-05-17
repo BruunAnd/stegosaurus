@@ -1,9 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Stegosaurus.Cryptography;
 using System.Security.Cryptography;
 
@@ -36,7 +32,7 @@ namespace StegosaurusTest
             byte[] encryptedData = cryptoProvider.Encrypt(randomBytes);
             // change key
             cryptoProvider.Key = cryptoProvider.GenerateKey();
-            byte[] decryptedData = cryptoProvider.Decrypt(encryptedData);
+            cryptoProvider.Decrypt(encryptedData);
         }
 
         [TestMethod]
@@ -68,7 +64,7 @@ namespace StegosaurusTest
             byte[] encryptedData = cryptoProvider.Encrypt(randomBytes);
             // use a new private key, that should not correspond
             cryptoProvider.SetKey(RSAProvider.GenerateKeys(2048).PrivateKey);
-            byte[] decryptedData = cryptoProvider.Decrypt(encryptedData);
+            cryptoProvider.Decrypt(encryptedData);
         }
         
         [TestMethod]
@@ -96,7 +92,7 @@ namespace StegosaurusTest
             byte[] encryptedData = cryptoProvider.Encrypt(randomData);
             // generate new key
             cryptoProvider.Key = cryptoProvider.GenerateKey();
-            byte[] decryptedData = cryptoProvider.Decrypt(encryptedData);
+            cryptoProvider.Decrypt(encryptedData);
         }
     }
 }

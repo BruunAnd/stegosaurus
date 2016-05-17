@@ -204,7 +204,7 @@ namespace Stegosaurus
             }
 
             // Encrypt if key is specified.
-            if (_cryptoProvider != null && _cryptoProvider.Key != null)
+            if (_cryptoProvider?.Key != null)
             {
                 encodedData = _cryptoProvider.Encrypt(encodedData);
                 SetFlag(StegoMessageFlags.Encrypted, true);
@@ -237,7 +237,6 @@ namespace Stegosaurus
 
                     // Sign and write data
                     tempStream.Write(rsa.SignData(encodedData), true);
-                    Console.WriteLine("Message has been signed");
 
                     // Set signed flag
                     SetFlag(StegoMessageFlags.Signed, true);

@@ -43,13 +43,13 @@ namespace Stegosaurus.Algorithm.CommonSample
             ModValue = Values.Sum(val => val) % 2;
         }
 
-        public int DistanceTo(Sample otherSample)
+        public int DistanceTo(Sample _otherSample)
         {
             int distance = 0;
 
-            for (int i = 0; i < otherSample.Values.Length; i++)
+            for (int i = 0; i < _otherSample.Values.Length; i++)
             {
-                distance += (int) Math.Pow(Values[i] - otherSample.Values[i], 2);
+                distance += (int) Math.Pow(Values[i] - _otherSample.Values[i], 2);
             }
 
             LastDistance = distance;
@@ -62,9 +62,9 @@ namespace Stegosaurus.Algorithm.CommonSample
             return Values.ComputeHash();
         }
 
-        public bool Equals(Sample other)
+        public bool Equals(Sample _other)
         {
-            return Values.SequenceEqual(other.Values);
+            return Values.SequenceEqual(_other.Values);
         }
 
         public object Clone()

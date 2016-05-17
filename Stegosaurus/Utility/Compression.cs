@@ -34,7 +34,7 @@ namespace Stegosaurus.Utility
                 byte[] buffer = new byte[size];
                 using (MemoryStream memory = new MemoryStream())
                 {
-                    int count = 0;
+                    int count;
                     do
                     {
                         count = stream.Read(buffer, 0, size);

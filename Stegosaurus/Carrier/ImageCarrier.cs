@@ -4,7 +4,6 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Runtime.InteropServices;
-using System.Windows.Forms;
 
 namespace Stegosaurus.Carrier
 {
@@ -28,7 +27,7 @@ namespace Stegosaurus.Carrier
         {
             if (_image == null)
             {
-                throw new ArgumentNullException("Invalid input image in ImageCarrier.\n");
+                throw new StegosaurusException("Image can not be null.");
             }
 
             // Clone image or convert to PNG

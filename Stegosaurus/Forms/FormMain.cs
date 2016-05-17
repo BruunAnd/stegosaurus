@@ -2,7 +2,6 @@
 using Stegosaurus.Carrier;
 using Stegosaurus.Exceptions;
 using Stegosaurus.Utility;
-using Stegosaurus.Utility.Extensions;
 using Stegosaurus.Utility.InputTypes;
 using System;
 using System.Collections.Generic;
@@ -58,7 +57,8 @@ namespace Stegosaurus.Forms
         
         #region Carrier Media Handling
         /// <summary>
-        /// Checks that the files dragged into the panelCarrierMedia control are valid and assigs the effect of the Drag&Drop accordingly.
+        /// Checks that the files dragged into the panelCarrierMedia control are valid.
+        /// Assigns the effect of the Drag and Drop accordingly.
         /// </summary>
         private void panelCarrierMedia_DragEnter(object sender, DragEventArgs e)
         {
@@ -96,11 +96,6 @@ namespace Stegosaurus.Forms
         private void ShowError(string message, string title = "Error")
         {
             MessageBox.Show(message, title, MessageBoxButtons.OK, MessageBoxIcon.Error);
-        }
-
-        private void ShowSuccess(string message, string title = "Success")
-        {
-            MessageBox.Show(message, title, MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
         #endregion
@@ -182,8 +177,7 @@ namespace Stegosaurus.Forms
             }
             else if (selectedCount == 1)
             {
-                SaveFileDialog sfd = new SaveFileDialog();
-                sfd.FileName = stegoMessage.InputFiles[fileIndices[0]].Name;
+                SaveFileDialog sfd = new SaveFileDialog {FileName = stegoMessage.InputFiles[fileIndices[0]].Name};
 
                 if (sfd.ShowDialog() != DialogResult.OK)
                 {
@@ -208,7 +202,7 @@ namespace Stegosaurus.Forms
 
                 if (string.IsNullOrEmpty(folderBrowserDialog.SelectedPath))
                 {
-                    MessageBox.Show("The chosen destination cannot be blank.", "Save Error");
+                    MessageBox.Show(@"The chosen destination cannot be blank.", @"Save Error");
                 }
                 else
                 {
@@ -220,7 +214,7 @@ namespace Stegosaurus.Forms
                         // Ask to overwrite if file exists
                         if (File.Exists(saveDestination))
                         {
-                            if (MessageBox.Show($"The file {fileName} already exists. Do you want to overwrite it?", "File already exists", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question) != DialogResult.Yes)
+                            if (MessageBox.Show($"The file {fileName} already exists. Do you want to overwrite it?", @"File already exists", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question) != DialogResult.Yes)
                             {
                                 continue;
                             }
@@ -263,9 +257,9 @@ namespace Stegosaurus.Forms
         /// <summary>
         /// Adds a crypto provider to the cryptoprovider dictionary and combolist
         /// </summary>
-        private void AddCryptoProvider(Type cryptoProviderType)
+        private void AddCryptoProvider(Type _cryptoProviderType)
         {
-            ICryptoProvider newCryptoProvider = (ICryptoProvider) Activator.CreateInstance(cryptoProviderType);
+            ICryptoProvider newCryptoProvider = (ICryptoProvider) Activator.CreateInstance(_cryptoProviderType);
             cryptoProviderDictionary.Add(newCryptoProvider.Name, newCryptoProvider);
 
             comboBoxCryptoProviderSelection.Items.Add(newCryptoProvider.Name);
@@ -295,9 +289,9 @@ namespace Stegosaurus.Forms
         /// <summary>
         /// Add an algorithm to the algorithm dictionary and combolist
         /// </summary>
-        private void AddAlgorithm(Type algorithmType)
+        private void AddAlgorithm(Type _algorithmType)
         {
-            StegoAlgorithmBase stegoAlgorithm = (StegoAlgorithmBase) Activator.CreateInstance(algorithmType);
+            StegoAlgorithmBase stegoAlgorithm = (StegoAlgorithmBase) Activator.CreateInstance(_algorithmType);
             if (!algorithmDictionary.ContainsKey(stegoAlgorithm.Name))
             {
                 algorithmDictionary.Add(stegoAlgorithm.Name, stegoAlgorithm);
@@ -328,7 +322,7 @@ namespace Stegosaurus.Forms
         {
             if (CanEmbed && string.IsNullOrEmpty(textBoxEncryptionKey.Text))
             {
-                if (MessageBox.Show("You are about to embed without using an encryption key. Do you want to continue?", "Warning", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Warning) != DialogResult.Yes)
+                if (MessageBox.Show(@"You are about to embed without using an encryption key. Do you want to continue?", "Warning", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Warning) != DialogResult.Yes)
                 {
                     textBoxEncryptionKey.Focus();
                     return;
@@ -344,9 +338,11 @@ namespace Stegosaurus.Forms
                 // Check if we need to use a private signing key
                 if (checkBoxSignMessages.Checked)
                 {
-                    OpenFileDialog ofd = new OpenFileDialog();
-                    ofd.Title = "Choose your private signing key";
-                    ofd.Filter = "Private Key (*.xml)|*.xml";
+                    OpenFileDialog ofd = new OpenFileDialog
+                    {
+                        Title = @"Choose your private signing key",
+                        Filter = @"Private Key (*.xml)|*.xml"
+                    };
 
                     if (ofd.ShowDialog() != DialogResult.OK)
                     {
@@ -528,21 +524,6 @@ namespace Stegosaurus.Forms
             buttonActivateSteganography.Text = CanEmbed ? "Embed content" : "Extract content";
         }
 
-        private static string StringFormatBytes(long byteCount)
-        {
-            string[] suffixes = { "B", "KiB", "MiB", "GiB", "TiB", "PiB", "EiB", "ZiB" };
-            int logIndex = 0;
-            const int order = 1024;
-            decimal decByteCount = byteCount;
-
-            for (logIndex = 0; decByteCount >= order || decByteCount <= -order; logIndex++)
-            {
-                decByteCount /= order;
-            }
-
-            return $"{decByteCount:0.##} {suffixes[logIndex]}";
-        }
-
         private void buttonGenerate_Click(object sender, EventArgs e)
         {
             RSAKeyPair keyPair = RSAProvider.GenerateKeys(2048);
@@ -565,8 +546,7 @@ namespace Stegosaurus.Forms
 
         private void buttonImportKey_Click(object sender, EventArgs e)
         {
-            OpenFileDialog ofd = new OpenFileDialog();
-            ofd.Filter = "XML files (*.xml)|*.xml|All files (*.*)|*.*";
+            OpenFileDialog ofd = new OpenFileDialog {Filter = @"XML files (*.xml)|*.xml|All files (*.*)|*.*"};
 
             if (ofd.ShowDialog() != DialogResult.OK)
                 return;
@@ -576,7 +556,7 @@ namespace Stegosaurus.Forms
 
         private void listViewMessageContentFiles_MouseHover(object sender, EventArgs e)
         {
-            ShowToolTip(this.listViewMessageContentFiles, "Right click to delete and save files.");
+            ShowToolTip(listViewMessageContentFiles, "Right click to delete and save files.");
         }
 
         private void ShowToolTip(Control _control, string _message)
@@ -586,10 +566,12 @@ namespace Stegosaurus.Forms
 
         private void browseToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            OpenFileDialog ofd = new OpenFileDialog();
-            ofd.Multiselect = false;
-            ofd.Filter = "Image files (*.jpg, *.jpeg, *.jpe, *.jfif, *.png, *.gif, *.bmp) | *.jpg; *.jpeg; *.jpe; *.jfif; *.png; *.gif; *.bmp|Audio files (*.wav)|*.wav";
-            
+            OpenFileDialog ofd = new OpenFileDialog
+            {
+                Multiselect = false,
+                Filter = @"Image files (*.jpg, *.jpeg, *.jpe, *.jfif, *.png, *.gif, *.bmp) | *.jpg; *.jpeg; *.jpe; *.jfif; *.png; *.gif; *.bmp|Audio files (*.wav)|*.wav"
+            };
+
             if (ofd.ShowDialog() != DialogResult.OK)
                 return;
 
