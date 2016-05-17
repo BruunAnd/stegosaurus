@@ -203,7 +203,9 @@ namespace Stegosaurus.Forms
                 sfd.FileName = stegoMessage.InputFiles[fileIndices[0]].Name;
 
                 if (sfd.ShowDialog() != DialogResult.OK)
+                {
                     return;
+                }
 
                 if (sfd.FileName == "")
                 {
@@ -217,7 +219,9 @@ namespace Stegosaurus.Forms
             else
             {
                 if (folderBrowserDialog.ShowDialog() != DialogResult.OK)
+                {
                     return;
+                }
 
                 if (string.IsNullOrEmpty(folderBrowserDialog.SelectedPath))
                 {
@@ -234,7 +238,9 @@ namespace Stegosaurus.Forms
                         if (File.Exists(saveDestination))
                         {
                             if (MessageBox.Show($"The file {fileName} already exists. Do you want to overwrite it?", "File already exists", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question) != DialogResult.Yes)
+                            {
                                 continue;
+                            }
                         }
 
                         stegoMessage.InputFiles[fileIndices[index]].SaveTo(saveDestination);
@@ -362,10 +368,12 @@ namespace Stegosaurus.Forms
                 if (checkBoxSignMessages.Checked)
                 {
                     OpenFileDialog ofd = new OpenFileDialog();
+                    ofd.Title = "Choose your private signing key";
                     ofd.Filter = "Private Key (*.xml)|*.xml";
 
                     if (ofd.ShowDialog() != DialogResult.OK)
                     {
+                        SetWaitingState(false);
                         return;
                     }
 
@@ -392,7 +400,7 @@ namespace Stegosaurus.Forms
             algorithm.CryptoProvider.SetKey(textBoxEncryptionKey.Text);
 
             // Wait for StegoMessage
-            stegoMessage = await Task.Run(() =>
+            StegoMessage extractedMessage = await Task.Run(() =>
             {
                 try
                 {
@@ -414,10 +422,12 @@ namespace Stegosaurus.Forms
             });
 
             // Return if invalid message
-            if (stegoMessage == null)
+            if (extractedMessage == null)
             {
                 return;
             }
+
+            stegoMessage = extractedMessage;
 
             // Check if message is signed
             if (stegoMessage.SignState == StegoMessage.StegoMessageSignState.SignedByKnown)
@@ -440,7 +450,9 @@ namespace Stegosaurus.Forms
                 fileItem.SubItems.Add(SizeFormatter.StringFormatBytes(file.Content.LongLength));
                 fileItem.ImageKey = file.Name.Substring(file.Name.LastIndexOf('.'));
                 if (!imageListIcons.Images.ContainsKey(fileItem.ImageKey))
+                {
                     imageListIcons.Images.Add(fileItem.ImageKey, IconExtractor.ExtractIcon(fileItem.ImageKey));
+                }
 
                 listViewMessageContentFiles.Items.Add(fileItem);
                 UpdateInterface();

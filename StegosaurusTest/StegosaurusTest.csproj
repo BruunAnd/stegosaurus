@@ -63,6 +63,7 @@
     <Compile Include="RSATests.cs" />
     <Compile Include="TestUtility.cs" />
     <Compile Include="RandomNumberListTests.cs" />
+    <Compile Include="SigningTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Stegosaurus\Stegosaurus.csproj">
