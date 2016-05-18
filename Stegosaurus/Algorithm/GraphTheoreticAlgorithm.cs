@@ -518,18 +518,19 @@ namespace Stegosaurus.Algorithm
             List<Vertex> leftoverVertices = new List<Vertex>();
             bool swapped;
             int numVertices = _vertices.Count;
-            byte[] tempSampleBytes;
             Vertex vertex;
-            
+            int bytesPerSample = CarrierMedia.BytesPerSample;
+            byte[] tempSampleBytes = new byte[bytesPerSample];
             Console.WriteLine("... Sorting for edges");
             _vertices.Sort((v1, v2) => v1.Edges.Count - v2.Edges.Count);
             Console.WriteLine("... Sorted.");
+
+            byte[] iValues, oValues;
 
             progressUpdateInterval = numVertices / _progressWeight;
             progressCounter = 1;
             for (int i = 0; i < numVertices; i++, progressCounter++)
             {
-
                 _ct.ThrowIfCancellationRequested();
                 vertex = _vertices[i];
                 if (vertex.IsValid)
@@ -540,10 +541,20 @@ namespace Stegosaurus.Algorithm
                     {
                         if (_vertices[edge.Vertices[0]].IsValid && _vertices[edge.Vertices[1]].IsValid && edge.Vertices[0] != edge.Vertices[1])
                         {
-                            //swap sample bytes.
-                            tempSampleBytes = _vertices[edge.Vertices[0]].Samples[edge.BestSwaps[0]].Values;
-                            _vertices[edge.Vertices[0]].Samples[edge.BestSwaps[0]].Values = _vertices[edge.Vertices[1]].Samples[edge.BestSwaps[1]].Values;
-                            _vertices[edge.Vertices[1]].Samples[edge.BestSwaps[1]].Values = tempSampleBytes;
+                            ////swap sample bytes.
+                            //tempSampleBytes = _vertices[edge.Vertices[0]].Samples[edge.BestSwaps[0]].Values;
+                            //_vertices[edge.Vertices[0]].Samples[edge.BestSwaps[0]].Values = _vertices[edge.Vertices[1]].Samples[edge.BestSwaps[1]].Values;
+                            //_vertices[edge.Vertices[1]].Samples[edge.BestSwaps[1]].Values = tempSampleBytes;
+
+                            oValues = _vertices[edge.Vertices[0]].Samples[edge.BestSwaps[0]].Values;
+                            iValues = _vertices[edge.Vertices[1]].Samples[edge.BestSwaps[1]].Values;
+                            for (int byteIndex = 0; byteIndex < bytesPerSample; byteIndex++)
+                            {
+                                tempSampleBytes[byteIndex] = oValues[byteIndex];
+                                oValues[byteIndex] = iValues[byteIndex];
+                                iValues[byteIndex] = tempSampleBytes[byteIndex];
+                            }
+
                             foreach (int edgeVertexId in edge.Vertices)
                             {
                                 _vertices[edgeVertexId].IsValid = false;
