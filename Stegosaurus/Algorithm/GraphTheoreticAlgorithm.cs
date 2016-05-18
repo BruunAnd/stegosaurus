@@ -78,7 +78,16 @@ namespace Stegosaurus.Algorithm
         
 
         public override string Name => "Graph Theoretic Algorithm";
-        
+
+        // todo: implement
+        protected override byte[] Signature
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+        }
+
         public override long ComputeBandwidth()
         {
             return ((((CarrierMedia.ByteArray.Length / CarrierMedia.BytesPerSample) / samplesPerVertex) * messageBitsPerVertex ) / 8) - GraphTheorySignature.Length;

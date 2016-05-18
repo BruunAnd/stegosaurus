@@ -4,50 +4,52 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Runtime.InteropServices;
-using System.Windows.Forms;
 
 namespace Stegosaurus.Carrier
 {
     public class ImageCarrier : ICarrierMedia
     {
+        private readonly Bitmap image;
+
         public byte[] ByteArray { get; set; }
 
         public int BytesPerSample => 3;
 
-        private readonly Bitmap innerImage;
-
-        public Image InnerImage => innerImage;
+        /// <summary>
+        /// Returns the inner instance of Image.
+        /// </summary>
+        public Image Image => image;
 
         /// <summary>
-        /// Main constructer. Gets image, checks if null pointer and sets private variable to cloned image if not null.
+        /// Construct ImageCarrier from an instance of Image.
         /// </summary>
-        public ImageCarrier(Image _innerImage)
+        public ImageCarrier(Image _image)
         {
-            if (_innerImage == null)
+            if (_image == null)
             {
-                throw new ArgumentNullException("Invalid input image in ImageCarrier.\n");
+                throw new StegosaurusException("Image can not be null.");
             }
 
             // Clone image or convert to PNG
-            if (_innerImage.RawFormat.Equals(ImageFormat.Png) && _innerImage.PixelFormat == PixelFormat.Format24bppRgb)
+            if (_image.RawFormat.Equals(ImageFormat.Png) && _image.PixelFormat == PixelFormat.Format24bppRgb)
             {
-                innerImage = (Bitmap) _innerImage.Clone();
+                image = (Bitmap) _image.Clone();
             }
             else
             {
-                innerImage = new Bitmap( _innerImage.Width, _innerImage.Height, PixelFormat.Format24bppRgb);
-                using (Graphics graphics = Graphics.FromImage(innerImage))
+                image = new Bitmap(_image.Width, _image.Height, PixelFormat.Format24bppRgb);
+                using (Graphics graphics = Graphics.FromImage(image))
                 {
-                    graphics.DrawImage(_innerImage, new Rectangle(0, 0, _innerImage.Width, _innerImage.Height));
+                    graphics.DrawImage(_image, new Rectangle(0, 0, _image.Width, _image.Height));
                 }
             }
-            _innerImage.Dispose();
+            _image.Dispose();
 
             Decode();
         }
 
         /// <summary>
-        /// Gets file path to image file and sends image to constructer.
+        /// Gets file path to image file and passes instace of Image to constructor.
         /// </summary>
         /// <param name="_filePath"></param>
         public ImageCarrier(string _filePath) : this(LoadImageFromFile(_filePath))
@@ -55,17 +57,17 @@ namespace Stegosaurus.Carrier
         }
 
         /// <summary>
-        /// Locks innerImage in system memory and returns instance of BitmapData
+        /// Locks innerImage in system memory and returns instance of BitmapData.
         /// </summary>
-        /// <returns></returns>
         private BitmapData LockBitmap()
         {
-            Rectangle imageRectangle = new Rectangle(new Point(0, 0), innerImage.Size);
-            return innerImage.LockBits(imageRectangle, ImageLockMode.ReadWrite, innerImage.PixelFormat);
+            Rectangle imageRectangle = new Rectangle(new Point(0, 0), image.Size);
+            return image.LockBits(imageRectangle, ImageLockMode.ReadWrite, image.PixelFormat);
         }
 
         /// <summary>
-        /// Custom Image.FromFile method, since that method does not release the file handle
+        /// Load Image from a specified file.
+        /// Alternative to Image.FromFile, which does not always release file handle.
         /// </summary>
         private static Image LoadImageFromFile(string _filePath)
         {
@@ -79,23 +81,20 @@ namespace Stegosaurus.Carrier
             }
         }
 
-        /// <summary>
-        /// Moves data from innerImage into ByteArray
-        /// </summary>
         public void Decode()
         {
             // Lock bits
             BitmapData imageData = LockBitmap();
 
             // Calculate the bytelength of the pixels and allocate memory for it
-            int imageDataLength = Math.Abs(imageData.Height * imageData.Stride);
+            int imageDataLength = Image.GetPixelFormatSize(Image.PixelFormat) / 8 * Image.Width * Image.Height;
             ByteArray = new byte[imageDataLength];
 
             // Copy the pixel array from the innerImage to ByteArray
             Marshal.Copy(imageData.Scan0, ByteArray, 0, imageDataLength);
 
             // Unlock bits
-            innerImage.UnlockBits(imageData);
+            image.UnlockBits(imageData);
         }
 
         /// <summary>
@@ -110,7 +109,7 @@ namespace Stegosaurus.Carrier
             Marshal.Copy(ByteArray, 0, imageData.Scan0, ByteArray.Length);
 
             // Unlock bits
-            innerImage.UnlockBits(imageData);
+            image.UnlockBits(imageData);
         }
 
         /// <summary>
@@ -119,7 +118,7 @@ namespace Stegosaurus.Carrier
         public void SaveToFile(string _destination)
         {
             Encode();
-            innerImage.Save(_destination, ImageFormat.Png);
+            image.Save(_destination, ImageFormat.Png);
         }
     }
 }

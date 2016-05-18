@@ -8,7 +8,7 @@ namespace Stegosaurus.Cryptography
     {
         public string Name => "TripleDES";
 
-        public int Seed => Key == null ? 0 : Key.ComputeHash();
+        public int Seed => Key?.ComputeHash() ?? 0;
         public int KeySize => 192;
 
         public byte[] Key { get; set; }

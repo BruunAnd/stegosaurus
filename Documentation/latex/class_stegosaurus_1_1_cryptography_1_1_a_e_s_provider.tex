@@ -1,0 +1,105 @@
+\hypertarget{class_stegosaurus_1_1_cryptography_1_1_a_e_s_provider}{}\section{Stegosaurus.\+Cryptography.\+A\+E\+S\+Provider Class Reference}
+\label{class_stegosaurus_1_1_cryptography_1_1_a_e_s_provider}\index{Stegosaurus.\+Cryptography.\+A\+E\+S\+Provider@{Stegosaurus.\+Cryptography.\+A\+E\+S\+Provider}}
+Inheritance diagram for Stegosaurus.\+Cryptography.\+A\+E\+S\+Provider\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{class_stegosaurus_1_1_cryptography_1_1_a_e_s_provider}
+\end{center}
+\end{figure}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+byte\mbox{[}$\,$\mbox{]} \hyperlink{class_stegosaurus_1_1_cryptography_1_1_a_e_s_provider_a81deb5da864b25f93810afbd8fc6449d}{Encrypt} (byte\mbox{[}$\,$\mbox{]} \+\_\+data)
+\begin{DoxyCompactList}\small\item\em Encrypts and returns encrypted data. \end{DoxyCompactList}\item 
+byte\mbox{[}$\,$\mbox{]} \hyperlink{class_stegosaurus_1_1_cryptography_1_1_a_e_s_provider_a7f9c88ceae0fb598224b04953ee70e0a}{Decrypt} (byte\mbox{[}$\,$\mbox{]} \+\_\+data)
+\begin{DoxyCompactList}\small\item\em Decrypts and returns decrypted data. \end{DoxyCompactList}\item 
+byte\mbox{[}$\,$\mbox{]} \hyperlink{class_stegosaurus_1_1_cryptography_1_1_a_e_s_provider_a0e14ad61f9e6bb0555f159e2008153ee}{Generate\+Key} ()
+\begin{DoxyCompactList}\small\item\em Generates and returns a key which can be used with the algorithm. \end{DoxyCompactList}\item 
+void \hyperlink{class_stegosaurus_1_1_cryptography_1_1_a_e_s_provider_ab9119737779ce4aea6c8c7e6c4725923}{Set\+Key} (string \+\_\+key\+String)
+\begin{DoxyCompactList}\small\item\em Set the Key from a string. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+string {\bfseries Name} =$>$ \char`\"{}A\+ES\char`\"{}\hypertarget{class_stegosaurus_1_1_cryptography_1_1_a_e_s_provider_aa0a1b3560b0c4a8c2fe39b363e80d853}{}\label{class_stegosaurus_1_1_cryptography_1_1_a_e_s_provider_aa0a1b3560b0c4a8c2fe39b363e80d853}
+
+\item 
+int {\bfseries Seed} =$>$ Key == null ? 0 \+: Key.\+Compute\+Hash()\hypertarget{class_stegosaurus_1_1_cryptography_1_1_a_e_s_provider_a2dff11140dc512ee712c08061d878d53}{}\label{class_stegosaurus_1_1_cryptography_1_1_a_e_s_provider_a2dff11140dc512ee712c08061d878d53}
+
+\item 
+int {\bfseries Key\+Size} =$>$ 256\hypertarget{class_stegosaurus_1_1_cryptography_1_1_a_e_s_provider_a7383e60bd76754dd3a2e75cb2e06876f}{}\label{class_stegosaurus_1_1_cryptography_1_1_a_e_s_provider_a7383e60bd76754dd3a2e75cb2e06876f}
+
+\end{DoxyCompactItemize}
+\subsection*{Properties}
+\begin{DoxyCompactItemize}
+\item 
+byte\mbox{[}$\,$\mbox{]} {\bfseries Key}\hspace{0.3cm}{\ttfamily  \mbox{[}get, set\mbox{]}}\hypertarget{class_stegosaurus_1_1_cryptography_1_1_a_e_s_provider_ad657916d9256db7404625166c03c0603}{}\label{class_stegosaurus_1_1_cryptography_1_1_a_e_s_provider_ad657916d9256db7404625166c03c0603}
+
+\end{DoxyCompactItemize}
+
+
+\subsection{Member Function Documentation}
+\index{Stegosaurus\+::\+Cryptography\+::\+A\+E\+S\+Provider@{Stegosaurus\+::\+Cryptography\+::\+A\+E\+S\+Provider}!Decrypt@{Decrypt}}
+\index{Decrypt@{Decrypt}!Stegosaurus\+::\+Cryptography\+::\+A\+E\+S\+Provider@{Stegosaurus\+::\+Cryptography\+::\+A\+E\+S\+Provider}}
+\subsubsection[{\texorpdfstring{Decrypt(byte[] \+\_\+data)}{Decrypt(byte[] _data)}}]{\setlength{\rightskip}{0pt plus 5cm}byte \mbox{[}$\,$\mbox{]} Stegosaurus.\+Cryptography.\+A\+E\+S\+Provider.\+Decrypt (
+\begin{DoxyParamCaption}
+\item[{byte\mbox{[}$\,$\mbox{]}}]{\+\_\+data}
+\end{DoxyParamCaption}
+)}\hypertarget{class_stegosaurus_1_1_cryptography_1_1_a_e_s_provider_a7f9c88ceae0fb598224b04953ee70e0a}{}\label{class_stegosaurus_1_1_cryptography_1_1_a_e_s_provider_a7f9c88ceae0fb598224b04953ee70e0a}
+
+
+Decrypts and returns decrypted data. 
+
+
+
+Implements \hyperlink{interface_stegosaurus_1_1_cryptography_1_1_i_crypto_provider_a673607b0f3392591db9c647d2499f38d}{Stegosaurus.\+Cryptography.\+I\+Crypto\+Provider}.
+
+\index{Stegosaurus\+::\+Cryptography\+::\+A\+E\+S\+Provider@{Stegosaurus\+::\+Cryptography\+::\+A\+E\+S\+Provider}!Encrypt@{Encrypt}}
+\index{Encrypt@{Encrypt}!Stegosaurus\+::\+Cryptography\+::\+A\+E\+S\+Provider@{Stegosaurus\+::\+Cryptography\+::\+A\+E\+S\+Provider}}
+\subsubsection[{\texorpdfstring{Encrypt(byte[] \+\_\+data)}{Encrypt(byte[] _data)}}]{\setlength{\rightskip}{0pt plus 5cm}byte \mbox{[}$\,$\mbox{]} Stegosaurus.\+Cryptography.\+A\+E\+S\+Provider.\+Encrypt (
+\begin{DoxyParamCaption}
+\item[{byte\mbox{[}$\,$\mbox{]}}]{\+\_\+data}
+\end{DoxyParamCaption}
+)}\hypertarget{class_stegosaurus_1_1_cryptography_1_1_a_e_s_provider_a81deb5da864b25f93810afbd8fc6449d}{}\label{class_stegosaurus_1_1_cryptography_1_1_a_e_s_provider_a81deb5da864b25f93810afbd8fc6449d}
+
+
+Encrypts and returns encrypted data. 
+
+
+
+Implements \hyperlink{interface_stegosaurus_1_1_cryptography_1_1_i_crypto_provider_a2222231bf16ba92e8efc8d515943aacd}{Stegosaurus.\+Cryptography.\+I\+Crypto\+Provider}.
+
+\index{Stegosaurus\+::\+Cryptography\+::\+A\+E\+S\+Provider@{Stegosaurus\+::\+Cryptography\+::\+A\+E\+S\+Provider}!Generate\+Key@{Generate\+Key}}
+\index{Generate\+Key@{Generate\+Key}!Stegosaurus\+::\+Cryptography\+::\+A\+E\+S\+Provider@{Stegosaurus\+::\+Cryptography\+::\+A\+E\+S\+Provider}}
+\subsubsection[{\texorpdfstring{Generate\+Key()}{GenerateKey()}}]{\setlength{\rightskip}{0pt plus 5cm}byte \mbox{[}$\,$\mbox{]} Stegosaurus.\+Cryptography.\+A\+E\+S\+Provider.\+Generate\+Key (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}\hypertarget{class_stegosaurus_1_1_cryptography_1_1_a_e_s_provider_a0e14ad61f9e6bb0555f159e2008153ee}{}\label{class_stegosaurus_1_1_cryptography_1_1_a_e_s_provider_a0e14ad61f9e6bb0555f159e2008153ee}
+
+
+Generates and returns a key which can be used with the algorithm. 
+
+
+
+Implements \hyperlink{interface_stegosaurus_1_1_cryptography_1_1_i_crypto_provider_ae25c64411409f0cc41c2282030c6dc5c}{Stegosaurus.\+Cryptography.\+I\+Crypto\+Provider}.
+
+\index{Stegosaurus\+::\+Cryptography\+::\+A\+E\+S\+Provider@{Stegosaurus\+::\+Cryptography\+::\+A\+E\+S\+Provider}!Set\+Key@{Set\+Key}}
+\index{Set\+Key@{Set\+Key}!Stegosaurus\+::\+Cryptography\+::\+A\+E\+S\+Provider@{Stegosaurus\+::\+Cryptography\+::\+A\+E\+S\+Provider}}
+\subsubsection[{\texorpdfstring{Set\+Key(string \+\_\+key\+String)}{SetKey(string _keyString)}}]{\setlength{\rightskip}{0pt plus 5cm}void Stegosaurus.\+Cryptography.\+A\+E\+S\+Provider.\+Set\+Key (
+\begin{DoxyParamCaption}
+\item[{string}]{\+\_\+key\+String}
+\end{DoxyParamCaption}
+)}\hypertarget{class_stegosaurus_1_1_cryptography_1_1_a_e_s_provider_ab9119737779ce4aea6c8c7e6c4725923}{}\label{class_stegosaurus_1_1_cryptography_1_1_a_e_s_provider_ab9119737779ce4aea6c8c7e6c4725923}
+
+
+Set the Key from a string. 
+
+
+
+Implements \hyperlink{interface_stegosaurus_1_1_cryptography_1_1_i_crypto_provider_a95c1bb37e8bfdb62e6f66e8094d9d51b}{Stegosaurus.\+Cryptography.\+I\+Crypto\+Provider}.
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+Steganography/\+Stegosaurus/\+Cryptography/A\+E\+S\+Provider.\+cs\end{DoxyCompactItemize}

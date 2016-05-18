@@ -1,7 +1,5 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using System.Linq;
-using System.Windows.Forms;
 using Stegosaurus.Utility.Extensions;
 using Stegosaurus.Exceptions;
 
@@ -13,14 +11,30 @@ namespace Stegosaurus.Carrier.AudioFormats
         private static readonly byte[] RiffHeader = {82, 73, 70, 70};
         private static readonly byte[] FormatHeader = { 87, 65, 86, 69, 102, 109, 116, 32 };
         private static readonly byte[] DataHeader = { 100, 97, 116, 97 };
-        private static readonly byte[] FactHeader = { 102, 97, 99, 116 };
 
-        // Wave-specific properties
+        /// <summary>
+        /// Get or set the chunk size.
+        /// </summary>
         public int ChunkSize { get; private set; }
+
+        /// <summary>
+        /// Get or set the size of the format subchunk.
+        /// </summary>
         public int FormatSubChunkSize { get; private set; }
+
+        /// <summary>
+        /// Get or set the size of the data subchunk.
+        /// </summary>
         public int DataSubChunkSize { get; private set; }
+
+        /// <summary>
+        /// Get or set the audio format.
+        /// </summary>
         public short AudioFormat { get; private set; }
 
+        /// <summary>
+        /// Construct a WaveFile from a file path.
+        /// </summary>
         public WaveFile(string _filePath) : base(_filePath)
         {
         }
@@ -79,7 +93,7 @@ namespace Stegosaurus.Carrier.AudioFormats
                 DataSubChunkSize = fileStream.ReadInt();
 
                 // Read samples
-                innerData = fileStream.ReadBytes(DataSubChunkSize);
+                InnerData = fileStream.ReadBytes(DataSubChunkSize);
             }
         }
 
@@ -102,13 +116,10 @@ namespace Stegosaurus.Carrier.AudioFormats
                 // Write data
                 tempStream.Write(DataHeader);
                 tempStream.Write(DataSubChunkSize);
-                tempStream.Write(innerData);
+                tempStream.Write(InnerData);
 
                 return tempStream.ToArray();
             }
         }
-
-        
-
     }
 }

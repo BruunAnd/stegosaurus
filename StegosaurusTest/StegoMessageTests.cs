@@ -1,6 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Stegosaurus;
-using System;
 using System.Linq;
 
 namespace StegosaurusTest
@@ -13,8 +12,7 @@ namespace StegosaurusTest
         {
             const string testString = "Example string.";
 
-            StegoMessage newMessage = new StegoMessage();
-            newMessage.TextMessage = testString;
+            StegoMessage newMessage = new StegoMessage {TextMessage = testString};
 
             // recreate message, skip 4 bytes (length)
             StegoMessage recreatedMessage = new StegoMessage(newMessage.ToByteArray().Skip(4).ToArray());

@@ -1,6 +1,5 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.IO;
 using Stegosaurus.Algorithm;
 using Stegosaurus;
 using Stegosaurus.Carrier;
@@ -22,7 +21,16 @@ namespace StegosaurusTest
             new Random().NextBytes(testFileBuffer);
 
             // Setup cryptoProvider
-            _cryptoProvider.Key = _cryptoProvider.GenerateKey();
+            RSAKeyPair rsaPair = null;
+            if (_cryptoProvider is RSAProvider)
+            {
+                rsaPair = RSAProvider.GenerateKeys(_cryptoProvider.KeySize);
+                _cryptoProvider.SetKey(rsaPair.PublicKey);
+            }
+            else
+            {
+                _cryptoProvider.Key = _cryptoProvider.GenerateKey();
+            }
 
             // Test requires a cover file
             Image testImage = new Bitmap(500, 500);
@@ -33,8 +41,7 @@ namespace StegosaurusTest
             _algorithm.CryptoProvider = _cryptoProvider;
 
             // Instantiate StegoMessage
-            StegoMessage inMessage = new StegoMessage();
-            inMessage.TextMessage = testMessageString;
+            StegoMessage inMessage = new StegoMessage {TextMessage = testMessageString};
             inMessage.InputFiles.Add(new InputFile(testFileName, testFileBuffer));
             _algorithm.Embed(inMessage, null, CancellationToken.None);
 
@@ -43,6 +50,12 @@ namespace StegosaurusTest
 
             // Load the output file we just saved
             _algorithm.CarrierMedia = new ImageCarrier("output.png");
+
+            // Change key if using RSA
+            if (_cryptoProvider is RSAProvider)
+            {
+                _cryptoProvider.SetKey(rsaPair.PrivateKey);
+            }
 
             // Get outMessage and verify message
             StegoMessage outMessage = _algorithm.Extract();
@@ -55,15 +68,39 @@ namespace StegosaurusTest
         }
 
         [TestMethod]
-        public void MainImplementation_DefaultAlgorithms_ExpectedOutput()
+        public void LSB_AES_ExpectedOutput()
         {
             TestSpecifiedAlgorithms(new AESProvider(), new LSBAlgorithm(), 16);
         }
 
         [TestMethod]
-        public void MainImplementation_CommonSampleAlgorithm_ExpectedOutput()
+        public void LSB_TripleDES_ExpectedOutput()
+        {
+            TestSpecifiedAlgorithms(new TripleDESProvider(), new LSBAlgorithm(), 16);
+        }
+
+        [TestMethod]
+        public void LSB_RSA_ExpectedOutput()
+        {
+            TestSpecifiedAlgorithms(new RSAProvider(), new LSBAlgorithm(), 16);
+        }
+
+        [TestMethod]
+        public void CSA_AES_ExpectedOutput()
         {
             TestSpecifiedAlgorithms(new AESProvider(), new CommonSampleAlgorithm(), 3);
+        }
+
+        [TestMethod]
+        public void CSA_TripleDES_ExpectedOutput()
+        {
+            TestSpecifiedAlgorithms(new TripleDESProvider(), new CommonSampleAlgorithm(), 3);
+        }
+
+        [TestMethod]
+        public void CSA_RSA_ExpectedOutput()
+        {
+            TestSpecifiedAlgorithms(new RSAProvider(), new CommonSampleAlgorithm(), 3);
         }
     }
 }

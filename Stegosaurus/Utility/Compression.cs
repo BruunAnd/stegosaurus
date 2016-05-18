@@ -6,10 +6,9 @@ namespace Stegosaurus.Utility
     public static class Compression
     {
         /// <summary>
-        /// http://www.dotnetperls.com/compress
-        /// Gets input from Bytes[] and compresses the data, and returns it to Bytes[] in compressed form.
+        /// Returns compressed byte array from an existing byte array.
+        /// Source: http://www.dotnetperls.com/compress
         /// </summary>
-        /// <returns></returns>
         public static byte[] Compress(byte[] _bytes)
         {
             using (MemoryStream memory = new MemoryStream())
@@ -24,8 +23,8 @@ namespace Stegosaurus.Utility
         }
 
         /// <summary>
-        /// http://www.dotnetperls.com/decompress
-        /// TODO read up on CompressionMode and GZipStream
+        /// Returns a decompressed byte array from an existing byte array.
+        /// Source: http://www.dotnetperls.com/decompress
         /// </summary>
         public static byte[] Decompress(byte[] _byteArray)
         {
@@ -35,7 +34,7 @@ namespace Stegosaurus.Utility
                 byte[] buffer = new byte[size];
                 using (MemoryStream memory = new MemoryStream())
                 {
-                    int count = 0;
+                    int count;
                     do
                     {
                         count = stream.Read(buffer, 0, size);

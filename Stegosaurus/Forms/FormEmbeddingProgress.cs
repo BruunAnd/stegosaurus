@@ -1,22 +1,20 @@
 ﻿using Stegosaurus.Algorithm;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
 using System.Media;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Stegosaurus.Carrier;
+using System.Diagnostics;
 
 namespace Stegosaurus.Forms
 {
     public partial class FormEmbeddingProgress : Form
     {
+        
         private readonly CancellationTokenSource cts = new CancellationTokenSource();
+
+        private bool embeddingComplete, fileSaved;
 
         private string name, extension;
         private ICarrierMedia carrierMedia;
@@ -26,7 +24,7 @@ namespace Stegosaurus.Forms
             InitializeComponent();
         }
 
-        public async void Run(StegoMessage _message, StegoAlgorithmBase _algorithm, string _name, string _extension)
+        public async Task Run(StegoMessage _message, StegoAlgorithmBase _algorithm, string _name, string _extension)
         {
             Progress<int> progress = new Progress<int>(p =>
             {
@@ -38,6 +36,8 @@ namespace Stegosaurus.Forms
             });
 
             // Await execution
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
             bool result = await Task.Run(() =>
             {
                 try
@@ -54,11 +54,13 @@ namespace Stegosaurus.Forms
                 }
                 return true;
             });
+            sw.Stop();
 
             if (result)
             {
                 SystemSounds.Hand.Play();
-                labelStatus.Text = "Embedding complete!";
+                labelStatus.Text = $"Embedding complete! ({sw.Elapsed.TotalSeconds} seconds)";
+                embeddingComplete = true;
                 buttonCancel.Enabled = false;
                 buttonSaveAs.Enabled = true;
             }
@@ -66,7 +68,19 @@ namespace Stegosaurus.Forms
 
         private void FormEmbeddingProgress_FormClosing(object sender, FormClosingEventArgs e)
         {
+            string question = "Are you sure you want to " + ( embeddingComplete ? "close without saving?" : "cancel the embedding process?" );
+            if (!fileSaved && MessageBox.Show(question, "Question", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question) !=DialogResult.Yes)
+            {
+                e.Cancel = true;
+                return;
+            }
+
             cts.Cancel();
+        }
+
+        private void FormEmbeddingProgress_Load(object sender, EventArgs e)
+        {
+            CenterToParent();
         }
 
         private void buttonCancel_Click(object sender, EventArgs e)
@@ -76,9 +90,11 @@ namespace Stegosaurus.Forms
 
         private void buttonSaveAs_Click(object sender, EventArgs e)
         {
-            SaveFileDialog sfd = new SaveFileDialog();
-            sfd.FileName = $"stego-{name}";
-            sfd.Filter = $"Original extension (*{extension})|*{extension}|All files (*.*)|*.*";
+            SaveFileDialog sfd = new SaveFileDialog
+            {
+                FileName = $"stego-{name}",
+                Filter = $"Original extension (*{extension})|*{extension}|All files (*.*)|*.*"
+            };
 
             if (sfd.ShowDialog() != DialogResult.OK)
             {
@@ -86,6 +102,8 @@ namespace Stegosaurus.Forms
             }
 
             carrierMedia.SaveToFile(sfd.FileName);
+            fileSaved = true;
+            Close();
         }
     }
 }

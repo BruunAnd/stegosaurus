@@ -12,6 +12,9 @@ namespace Stegosaurus.Carrier
 
         private readonly AudioFile audioFile;
 
+        /// <summary>
+        /// Construct an AudioCarrier from a file path.
+        /// </summary>
         public AudioCarrier(string _filePath)
         {
             // Check if format is supported

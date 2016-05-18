@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Stegosaurus.Exceptions
+﻿namespace Stegosaurus.Exceptions
 {
     public class RandomNumbersOutOfRangeException : StegosaurusException
     {

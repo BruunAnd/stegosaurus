@@ -80,13 +80,59 @@ namespace Stegosaurus.Cryptography
             }
         }
 
+
+        /// <summary>
+        /// Sign data using a private key.
+        /// </summary>
+        public byte[] SignData(byte[] _originalData)
+        {
+            using (RSACryptoServiceProvider rsaProvider = new RSACryptoServiceProvider())
+            {
+                rsaProvider.ImportParameters(Parameters);
+
+                try
+                {
+                    return rsaProvider.SignData(_originalData, new SHA1CryptoServiceProvider());
+                }
+                catch (CryptographicException ex)
+                {
+                    throw new StegoCryptoException("Could not sign data, private key is invalid.", ex);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Verify data using a public key.
+        /// </summary>
+        public bool VerifyData(byte[] _originalData, byte[] _signedData)
+        {
+            using (RSACryptoServiceProvider rsaProvider = new RSACryptoServiceProvider())
+            {
+                rsaProvider.ImportParameters(Parameters);
+
+                try
+                {
+                    return rsaProvider.VerifyData(_originalData, new SHA1CryptoServiceProvider(), _signedData);
+                }
+                catch (CryptographicException ex)
+                {
+                    throw new StegoCryptoException("Could not verify data, public key is invalid.", ex);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Generate a valid RSA keypair.
+        /// </summary>
         public static RSAKeyPair GenerateKeys(int _keySize)
         {
             using (RSACryptoServiceProvider rsaProvider = new RSACryptoServiceProvider(_keySize))
             {
-                RSAKeyPair newKeyPair = new RSAKeyPair();
-                newKeyPair.PublicKey = SerializeKey(rsaProvider.ExportParameters(false));
-                newKeyPair.PrivateKey = SerializeKey(rsaProvider.ExportParameters(true));
+                RSAKeyPair newKeyPair = new RSAKeyPair
+                {
+                    PublicKey = SerializeKey(rsaProvider.ExportParameters(false)),
+                    PrivateKey = SerializeKey(rsaProvider.ExportParameters(true))
+                };
 
                 return newKeyPair;
             }

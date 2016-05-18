@@ -37,16 +37,18 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>stegosaurus.ico</ApplicationIcon>
+    <ApplicationIcon>stego.ico</ApplicationIcon>
   </PropertyGroup>
   <PropertyGroup>
     <StartupObject>
     </StartupObject>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Microsoft.VisualBasic" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.DirectoryServices" />
+    <Reference Include="System.XML" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -54,7 +56,6 @@
     <Reference Include="System.Deployment" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
-    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Algorithm\CommonSampleAlgorithm.cs" />
@@ -63,7 +64,6 @@
     <Compile Include="Algorithm\GraphTheory\Edge.cs" />
     <Compile Include="Algorithm\GraphTheory\Sample.cs" />
     <Compile Include="Algorithm\GraphTheory\Vertex.cs" />
-    <Compile Include="Algorithm\IStegoAlgorithm.cs" />
     <Compile Include="Algorithm\LSBAlgorithm.cs" />
     <Compile Include="Algorithm\StegoAlgorithmBase.cs" />
     <Compile Include="Carrier\AudioCarrier.cs" />
@@ -72,6 +72,8 @@
     <Compile Include="Carrier\ImageCarrier.cs" />
     <Compile Include="Cryptography\AESProvider.cs" />
     <Compile Include="Cryptography\ICryptoProvider.cs" />
+    <Compile Include="Cryptography\PublicKeyList.cs" />
+    <Compile Include="Cryptography\SavedPublicKey.cs" />
     <Compile Include="Cryptography\RSAKeyPair.cs" />
     <Compile Include="Cryptography\RSAProvider.cs" />
     <Compile Include="Cryptography\TripleDESProvider.cs" />
@@ -138,7 +140,7 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="stegosaurus.ico" />
+    <Content Include="stego.ico" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

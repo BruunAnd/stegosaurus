@@ -1,18 +1,18 @@
 ﻿using System;
-using Stegosaurus.Carrier;
 using System.Collections;
 using System.Linq;
 using Stegosaurus.Exceptions;
 using Stegosaurus.Utility;
-using System.Collections.Generic;
 using System.ComponentModel;
-using Stegosaurus.Cryptography;
 using System.Threading;
 
 namespace Stegosaurus.Algorithm
 {
     public class LSBAlgorithm : StegoAlgorithmBase
     {
+        /// <summary>
+        /// Enum containing the different bit values.
+        /// </summary>
         public enum BitValues : byte
         {
             First = 0x1,
@@ -25,47 +25,50 @@ namespace Stegosaurus.Algorithm
             Eighth = 0x80,
         }
 
-        private static readonly byte[] LsbSignature = { 0x6C, 0x73, 0x62, 0x51 };
-
         public override string Name => "Least Significant Bit";
 
-        [Category("Algorithm"), Description("The bit to modify and read from.")]
-        public BitValues WorkingBit { get; set; }= BitValues.First;
+        protected override byte[] Signature => new byte[] { 0x6C, 0x73, 0x62, 0x51 };
+
+        /// <summary>
+        /// Get or set the bit that will be modified or read from.
+        /// </summary>
+        [Category("Algorithm"), Description("The bit to modify and read from. Changing this value may distort the carrier unnecessarily.")]
+        public BitValues WorkingBit { get; set; } = BitValues.First;
 
         public override void Embed(StegoMessage _message, IProgress<int> _progress, CancellationToken _ct)
         {
-            // Combine LsbSignature with byteArray and convert to bitArray
+            // Combine LsbSignature with byteArray and convert to bitArray.
             byte[] messageArray = _message.ToByteArray(CryptoProvider);
-            BitArray messageInBits = new BitArray(LsbSignature.Concat(messageArray).ToArray());
+            BitArray messageBits = new BitArray(Signature.Concat(messageArray).ToArray());
 
-            // Generate random sequence of integers
+            // Generate random sequence of integers.
             RandomNumberList numberList = new RandomNumberList(Seed, CarrierMedia.ByteArray.Length);
 
-            // Iterate through all bits
-            for (int index = 0; index < messageInBits.Length; index++)
+            // Iterate through all bits.
+            for (int index = 0; index < messageBits.Length; index++)
             {
                 _ct.ThrowIfCancellationRequested();
 
                 int byteArrayIndex = numberList.Next;
                 byte sampleValue = CarrierMedia.ByteArray[byteArrayIndex];
 
-                // Get the least significant bit of current position
+                // Get the least significant bit of current position.
                 bool carrierBit = (sampleValue & (byte) WorkingBit) == (byte) WorkingBit;
 
-                // Flip LSB if no match
-                if (carrierBit != messageInBits[index])
+                // Flip working bit if no match.
+                if (carrierBit != messageBits[index])
                 {
                     CarrierMedia.ByteArray[byteArrayIndex] ^= (byte) WorkingBit;
                 }
 
-                // Report progress
+                // Report progress.
                 if (index % 500 != 0)
                     continue;
-                float percentage = ( ( index + 1 ) / (float) messageInBits.Length ) * 100;
+                float percentage = ( ( index + 1 ) / (float) messageBits.Length ) * 100;
                 _progress?.Report((int) percentage);
             }
 
-            // Report that we are finished
+            // Report that we are finished.
             _progress?.Report(100);
         }
 
@@ -73,25 +76,27 @@ namespace Stegosaurus.Algorithm
         {
             RandomNumberList numberList = new RandomNumberList(Seed, CarrierMedia.ByteArray.Length);
 
-            // Read bytes and verify LsbSignature
-            if (!ReadBytes(numberList, LsbSignature.Length).SequenceEqual(LsbSignature))
+            // Read bytes and verify magic header.
+            if (!ReadBytes(numberList, Signature.Length).SequenceEqual(Signature))
             {
-                throw new StegoAlgorithmException("Signature is invalid, possibly using a wrong key.");
+                throw new StegoAlgorithmException($"Signature for {Name} is invalid, possibly using a wrong key.");
             }
 
-            // Read data size
+            // Read data size.
             int dataSize = BitConverter.ToInt32(ReadBytes(numberList, 4), 0);
 
-            // Return new instance from read data
-            byte[] encodedData = ReadBytes(numberList, dataSize);
-            return new StegoMessage(encodedData, CryptoProvider);
+            // Return new instance from read data.
+            return new StegoMessage(ReadBytes(numberList, dataSize), CryptoProvider);
         }
 
         public override long ComputeBandwidth()
         {
-            return (CarrierMedia.ByteArray.Length / 8 ) - LsbSignature.Length;
+            return (CarrierMedia.ByteArray.Length / 8 ) - Signature.Length;
         }
 
+        /// <summary>
+        /// Reads a specified amount of bytes from the CarrierMedia.
+        /// </summary>
         private byte[] ReadBytes(RandomNumberList _numberList, int _count)
         {
             // Allocate BitArray with count * 8 bits

@@ -3,7 +3,6 @@ using System.Security.Cryptography;
 using Stegosaurus.Utility.Extensions;
 using Stegosaurus.Exceptions;
 using Stegosaurus.Utility;
-using System;
 
 namespace Stegosaurus.Cryptography
 {
@@ -11,7 +10,7 @@ namespace Stegosaurus.Cryptography
     {
         public string Name => "AES";
 
-        public int Seed => Key == null ? 0 : Key.ComputeHash();
+        public int Seed => Key?.ComputeHash() ?? 0;
         public int KeySize => 256;
 
         public byte[] Key { get; set; }
@@ -20,7 +19,7 @@ namespace Stegosaurus.Cryptography
         {
             using (AesManaged aesAlgorithm = new AesManaged())
             {
-                aesAlgorithm.KeySize = 256;
+                aesAlgorithm.KeySize = KeySize;
 
                 // Set key and generate initialization vector
                 aesAlgorithm.Key = Key;
