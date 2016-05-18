@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using Stegosaurus.Utility.Extensions;
 using Stegosaurus.Cryptography;
@@ -54,8 +55,6 @@ namespace Stegosaurus
         public StegoMessageSignState SignState { get; private set; }
 
         public StegoMessageFlags Flags;
-
-        
 
         /// <summary>
         /// Empty constructor.
@@ -249,7 +248,7 @@ namespace Stegosaurus
 
                 // Go back to beginning of stream and write length and flags.
                 tempStream.Seek(0, SeekOrigin.Begin);
-                tempStream.Write((int)(tempStream.Length + sizeof(byte)));
+                tempStream.Write((int)tempStream.Length - sizeof(int));
                 tempStream.WriteByte((byte) Flags);
 
                 return tempStream.ToArray();
