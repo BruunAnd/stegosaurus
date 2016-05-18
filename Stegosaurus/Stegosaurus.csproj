@@ -76,7 +76,6 @@
     <Compile Include="Cryptography\SavedPublicKey.cs" />
     <Compile Include="Cryptography\RSAKeyPair.cs" />
     <Compile Include="Cryptography\RSAProvider.cs" />
-    <Compile Include="Cryptography\TripleDESProvider.cs" />
     <Compile Include="Exceptions\InvalidCarrierFileException.cs" />
     <Compile Include="Exceptions\InvalidImageFileException.cs" />
     <Compile Include="Exceptions\InvalidWaveFileException.cs" />

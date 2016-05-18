@@ -8,6 +8,11 @@
         byte[] Key { get; set; }
 
         /// <summary>
+        /// The size of the header.
+        /// </summary>
+        int HeaderSize { get; }
+
+        /// <summary>
         /// The name of the algorithm.
         /// </summary>
         string Name { get; }

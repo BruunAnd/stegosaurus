@@ -9,33 +9,6 @@ namespace StegosaurusTest
     public class CryptographyTests
     {
         [TestMethod]
-        public void TripleDES_DecryptCorrectKey_CorrectOutput ()
-        {
-            byte[] randomBytes = TestUtility.GetRandomBytes(32 * 1024);
-
-            ICryptoProvider cryptoProvider = new TripleDESProvider();
-            cryptoProvider.Key = cryptoProvider.GenerateKey();
-            byte[] encryptedData = cryptoProvider.Encrypt(randomBytes);
-            byte[] decryptedData = cryptoProvider.Decrypt(encryptedData);
-
-            Assert.IsTrue(decryptedData.SequenceEqual(randomBytes));
-        }
-
-        [TestMethod]
-        [ExpectedException(typeof(CryptographicException))]
-        public void TripleDES_DecryptWrongKey_ThrowsCryptographicException ()
-        {
-            byte[] randomBytes = TestUtility.GetRandomBytes(32 * 1024);
-
-            ICryptoProvider cryptoProvider = new TripleDESProvider();
-            cryptoProvider.Key = cryptoProvider.GenerateKey();
-            byte[] encryptedData = cryptoProvider.Encrypt(randomBytes);
-            // change key
-            cryptoProvider.Key = cryptoProvider.GenerateKey();
-            cryptoProvider.Decrypt(encryptedData);
-        }
-
-        [TestMethod]
         public void RSA_DecryptCorrectKey_CorrectOutput ()
         {
             byte[] randomBytes = TestUtility.GetRandomBytes(32 * 1024);

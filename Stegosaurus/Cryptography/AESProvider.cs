@@ -11,6 +11,7 @@ namespace Stegosaurus.Cryptography
         public string Name => "AES";
 
         public int Seed => Key?.ComputeHash() ?? 0;
+        public int HeaderSize => Key == null ? 0 : 16;
         public int KeySize => 256;
 
         public byte[] Key { get; set; }
@@ -31,7 +32,9 @@ namespace Stegosaurus.Cryptography
                 using (MemoryStream outputStream = new MemoryStream())
                 {
                     if (aesAlgorithm.IV.Length != 16)
-                        throw new StegosaurusException("Unexpected length of initialization vector."); // TODO custom exception
+                    {
+                        throw new StegoCryptoException("Unexpected length of initialization vector.");
+                    }
 
                     // Append initialization vector to stream
                     outputStream.Write(aesAlgorithm.IV);
