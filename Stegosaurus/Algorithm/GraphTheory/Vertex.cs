@@ -20,7 +20,7 @@ namespace Stegosaurus.Algorithm.GraphTheory
 
         public override string ToString()
         {
-            string message = "";
+            string message = $"E:{Edges.Count ,4}";
             foreach (Sample sample in Samples)
             {
                 message += $"V:{sample.ModValue}, T:{sample.TargetValue}|";

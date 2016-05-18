@@ -14,7 +14,7 @@
 
         public override string ToString()
         {
-            return $"W:{Weight}||{Vertices[0]};{Vertices[1]}";
+            return $"W:{Weight}|{Vertices[0]},{BestSwaps[0]};{Vertices[1]},{BestSwaps[1]}";
         }
     }
 }
