@@ -47,7 +47,7 @@ namespace Stegosaurus.Forms
 
             // Add crypto providers
             AddCryptoProvider(typeof(AESProvider));
-            AddCryptoProvider(typeof(TripleDESProvider));
+            //AddCryptoProvider(typeof(TripleDESProvider));
             AddCryptoProvider(typeof(RSAProvider));
 
             // Set default values
@@ -497,7 +497,8 @@ namespace Stegosaurus.Forms
         /// </summary>
         private void UpdateInterface()
         {
-            long size = stegoMessage.GetCompressedSize();
+            long size = stegoMessage.GetCompressedSize() + cryptoProvider?.HeaderSize ?? 0;
+            Console.WriteLine("Size: {0}", cryptoProvider.HeaderSize);
             if (carrierMedia == null)
             {
                 progressBarCapacity.Value = progressBarCapacity.Maximum;
@@ -666,6 +667,13 @@ namespace Stegosaurus.Forms
             // Copy to destination
             PublicKeyList.Add(alias, ofd.FileName);
             File.Copy(ofd.FileName, fileDestination);
+        }
+
+        private void textBoxEncryptionKey_TextChanged(object sender, EventArgs e)
+        {
+            cryptoProvider?.SetKey(textBoxEncryptionKey.Text);
+
+            UpdateInterface();
         }
     }
 }

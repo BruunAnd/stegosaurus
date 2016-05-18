@@ -74,12 +74,6 @@ namespace StegosaurusTest
         }
 
         [TestMethod]
-        public void LSB_TripleDES_ExpectedOutput()
-        {
-            TestSpecifiedAlgorithms(new TripleDESProvider(), new LSBAlgorithm(), 16);
-        }
-
-        [TestMethod]
         public void LSB_RSA_ExpectedOutput()
         {
             TestSpecifiedAlgorithms(new RSAProvider(), new LSBAlgorithm(), 16);
@@ -89,12 +83,6 @@ namespace StegosaurusTest
         public void CSA_AES_ExpectedOutput()
         {
             TestSpecifiedAlgorithms(new AESProvider(), new CommonSampleAlgorithm(), 3);
-        }
-
-        [TestMethod]
-        public void CSA_TripleDES_ExpectedOutput()
-        {
-            TestSpecifiedAlgorithms(new TripleDESProvider(), new CommonSampleAlgorithm(), 3);
         }
 
         [TestMethod]

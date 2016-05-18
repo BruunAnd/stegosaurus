@@ -50,7 +50,7 @@ namespace Stegosaurus.Forms
             this.browseToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.findUniqueSamplesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.progressBarCapacity = new System.Windows.Forms.ProgressBar();
-            this.panel1 = new System.Windows.Forms.Panel();
+            this.panelPictureBox = new System.Windows.Forms.Panel();
             this.labelCarrierMedia = new System.Windows.Forms.Label();
             this.labelAlgorithmList = new System.Windows.Forms.Label();
             this.comboBoxAlgorithmSelection = new System.Windows.Forms.ComboBox();
@@ -80,7 +80,7 @@ namespace Stegosaurus.Forms
             this.contextMenuStripMain.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxCarrier)).BeginInit();
             this.contextMenuStripPictureBox.SuspendLayout();
-            this.panel1.SuspendLayout();
+            this.panelPictureBox.SuspendLayout();
             this.tabControlMain.SuspendLayout();
             this.tabPageMain.SuspendLayout();
             this.tabPageAdvanced.SuspendLayout();
@@ -257,16 +257,16 @@ namespace Stegosaurus.Forms
             this.progressBarCapacity.TabIndex = 13;
             this.progressBarCapacity.Value = 50;
             // 
-            // panel1
+            // panelPictureBox
             // 
-            this.panel1.AllowDrop = true;
-            this.panel1.Controls.Add(this.pictureBoxCarrier);
-            this.panel1.Location = new System.Drawing.Point(10, 44);
-            this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(390, 184);
-            this.panel1.TabIndex = 14;
-            this.panel1.DragDrop += new System.Windows.Forms.DragEventHandler(this.panelCarrierMedia_DragDrop);
-            this.panel1.DragEnter += new System.Windows.Forms.DragEventHandler(this.panelCarrierMedia_DragEnter);
+            this.panelPictureBox.AllowDrop = true;
+            this.panelPictureBox.Controls.Add(this.pictureBoxCarrier);
+            this.panelPictureBox.Location = new System.Drawing.Point(10, 44);
+            this.panelPictureBox.Name = "panelPictureBox";
+            this.panelPictureBox.Size = new System.Drawing.Size(390, 184);
+            this.panelPictureBox.TabIndex = 14;
+            this.panelPictureBox.DragDrop += new System.Windows.Forms.DragEventHandler(this.panelCarrierMedia_DragDrop);
+            this.panelPictureBox.DragEnter += new System.Windows.Forms.DragEventHandler(this.panelCarrierMedia_DragEnter);
             // 
             // labelCarrierMedia
             // 
@@ -370,7 +370,7 @@ namespace Stegosaurus.Forms
             this.tabPageMain.Controls.Add(this.labelCarrierDecsription);
             this.tabPageMain.Controls.Add(this.buttonImportKey);
             this.tabPageMain.Controls.Add(this.textBoxEncryptionKey);
-            this.tabPageMain.Controls.Add(this.panel1);
+            this.tabPageMain.Controls.Add(this.panelPictureBox);
             this.tabPageMain.Controls.Add(this.labelTextMesage);
             this.tabPageMain.Controls.Add(this.listViewMessageContentFiles);
             this.tabPageMain.Controls.Add(this.textBoxTextMessage);
@@ -440,6 +440,7 @@ namespace Stegosaurus.Forms
             this.textBoxEncryptionKey.Size = new System.Drawing.Size(390, 64);
             this.textBoxEncryptionKey.TabIndex = 28;
             this.textBoxEncryptionKey.Text = "";
+            this.textBoxEncryptionKey.TextChanged += new System.EventHandler(this.textBoxEncryptionKey_TextChanged);
             // 
             // tabPageAdvanced
             // 
@@ -566,7 +567,7 @@ namespace Stegosaurus.Forms
             this.contextMenuStripMain.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxCarrier)).EndInit();
             this.contextMenuStripPictureBox.ResumeLayout(false);
-            this.panel1.ResumeLayout(false);
+            this.panelPictureBox.ResumeLayout(false);
             this.tabControlMain.ResumeLayout(false);
             this.tabPageMain.ResumeLayout(false);
             this.tabPageMain.PerformLayout();
@@ -592,7 +593,7 @@ namespace Stegosaurus.Forms
         private System.Windows.Forms.Label labelEncryptionKey;
         private System.Windows.Forms.PictureBox pictureBoxCarrier;
         private System.Windows.Forms.ProgressBar progressBarCapacity;
-        private System.Windows.Forms.Panel panel1;
+        private System.Windows.Forms.Panel panelPictureBox;
         private System.Windows.Forms.Label labelCarrierMedia;
         private System.Windows.Forms.Label labelAlgorithmList;
         private System.Windows.Forms.ComboBox comboBoxAlgorithmSelection;

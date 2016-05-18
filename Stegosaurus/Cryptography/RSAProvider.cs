@@ -17,9 +17,12 @@ namespace Stegosaurus.Cryptography
         /// Since the public and private key share modulus, we use its hash as a seed.
         /// </summary>
         public int Seed => Key == null ? 0 : Parameters.Modulus.ComputeHash();
+        public int HeaderSize => Key == null ? 0 : symmetricAlgorithm.KeySize / 8 + symmetricAlgorithm.HeaderSize;
         public int KeySize => 2048;
 
         public byte[] Key { get; set; }
+
+        private readonly ICryptoProvider symmetricAlgorithm = new AESProvider();
 
         private RSAParameters Parameters
         {
@@ -51,10 +54,9 @@ namespace Stegosaurus.Cryptography
                 {
                     byte[] symmetricKey = rsaProvider.Decrypt(tempStream.ReadBytes(), true);
 
-                    ICryptoProvider cryptoProvider = new TripleDESProvider();
-                    cryptoProvider.Key = symmetricKey;
+                    symmetricAlgorithm.Key = symmetricKey;
 
-                    return cryptoProvider.Decrypt(tempStream.ReadBytes((int) tempStream.GetRemainingLength()));
+                    return symmetricAlgorithm.Decrypt(tempStream.ReadBytes((int) tempStream.GetRemainingLength()));
                 }
             }
         }
@@ -67,7 +69,7 @@ namespace Stegosaurus.Cryptography
 
                 using (MemoryStream tempStream = new MemoryStream())
                 {
-                    ICryptoProvider cryptoProvider = new TripleDESProvider();
+                    ICryptoProvider cryptoProvider = new AESProvider();
                     cryptoProvider.Key = cryptoProvider.GenerateKey();
 
                     // Write the encrypted key and its length
