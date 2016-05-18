@@ -675,5 +675,10 @@ namespace Stegosaurus.Forms
 
             UpdateInterface();
         }
+
+        private void dumpCarrierMediaToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            File.WriteAllBytes("dump.bin", carrierMedia.ByteArray);
+        }
     }
 }

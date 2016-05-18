@@ -77,6 +77,7 @@ namespace Stegosaurus.Forms
             this.buttonGenerate = new System.Windows.Forms.Button();
             this.statusStrip = new System.Windows.Forms.StatusStrip();
             this.labelSignStatus = new System.Windows.Forms.ToolStripStatusLabel();
+            this.dumpCarrierMediaToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.contextMenuStripMain.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxCarrier)).BeginInit();
             this.contextMenuStripPictureBox.SuspendLayout();
@@ -227,9 +228,10 @@ namespace Stegosaurus.Forms
             this.contextMenuStripPictureBox.ImageScalingSize = new System.Drawing.Size(20, 20);
             this.contextMenuStripPictureBox.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.browseToolStripMenuItem,
-            this.findUniqueSamplesToolStripMenuItem});
+            this.findUniqueSamplesToolStripMenuItem,
+            this.dumpCarrierMediaToolStripMenuItem});
             this.contextMenuStripPictureBox.Name = "contextMenuStripPictureBox";
-            this.contextMenuStripPictureBox.Size = new System.Drawing.Size(220, 56);
+            this.contextMenuStripPictureBox.Size = new System.Drawing.Size(220, 110);
             this.contextMenuStripPictureBox.Opening += new System.ComponentModel.CancelEventHandler(this.contextMenuStripPictureBox_Opening);
             // 
             // browseToolStripMenuItem
@@ -550,6 +552,13 @@ namespace Stegosaurus.Forms
             this.labelSignStatus.Size = new System.Drawing.Size(50, 20);
             this.labelSignStatus.Text = "Ready";
             // 
+            // dumpCarrierMediaToolStripMenuItem
+            // 
+            this.dumpCarrierMediaToolStripMenuItem.Name = "dumpCarrierMediaToolStripMenuItem";
+            this.dumpCarrierMediaToolStripMenuItem.Size = new System.Drawing.Size(219, 26);
+            this.dumpCarrierMediaToolStripMenuItem.Text = "Dump carrier media";
+            this.dumpCarrierMediaToolStripMenuItem.Click += new System.EventHandler(this.dumpCarrierMediaToolStripMenuItem_Click);
+            // 
             // FormMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
@@ -626,6 +635,7 @@ namespace Stegosaurus.Forms
         private System.Windows.Forms.ToolStripStatusLabel labelSignStatus;
         private System.Windows.Forms.Button buttonAddPublicKey;
         private System.Windows.Forms.Label labelMessageSIgning;
+        private System.Windows.Forms.ToolStripMenuItem dumpCarrierMediaToolStripMenuItem;
     }
 }
 

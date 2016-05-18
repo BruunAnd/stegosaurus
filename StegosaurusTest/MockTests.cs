@@ -68,6 +68,18 @@ namespace StegosaurusTest
         }
 
         [TestMethod]
+        public void GTA_AES_ExpectedOutput()
+        {
+            TestSpecifiedAlgorithms(new AESProvider(), new GraphTheoreticAlgorithm(), 16);
+        }
+
+        [TestMethod]
+        public void GTA_RSA_ExpectedOutput()
+        {
+            TestSpecifiedAlgorithms(new RSAProvider(), new GraphTheoreticAlgorithm(), 16);
+        }
+
+        [TestMethod]
         public void LSB_AES_ExpectedOutput()
         {
             TestSpecifiedAlgorithms(new AESProvider(), new LSBAlgorithm(), 16);

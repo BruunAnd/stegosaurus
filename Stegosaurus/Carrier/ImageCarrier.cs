@@ -30,18 +30,10 @@ namespace Stegosaurus.Carrier
                 throw new StegosaurusException("Image can not be null.");
             }
 
-            // Clone image or convert to PNG
-            if (_image.RawFormat.Equals(ImageFormat.Png) && _image.PixelFormat == PixelFormat.Format24bppRgb)
+            image = new Bitmap(_image.Width, _image.Height, PixelFormat.Format24bppRgb);
+            using (Graphics graphics = Graphics.FromImage(image))
             {
-                image = (Bitmap) _image.Clone();
-            }
-            else
-            {
-                image = new Bitmap(_image.Width, _image.Height, PixelFormat.Format24bppRgb);
-                using (Graphics graphics = Graphics.FromImage(image))
-                {
-                    graphics.DrawImage(_image, new Rectangle(0, 0, _image.Width, _image.Height));
-                }
+                graphics.DrawImage(_image, new Rectangle(0, 0, _image.Width, _image.Height));
             }
             _image.Dispose();
 
@@ -87,7 +79,7 @@ namespace Stegosaurus.Carrier
             BitmapData imageData = LockBitmap();
 
             // Calculate the bytelength of the pixels and allocate memory for it
-            int imageDataLength = Image.GetPixelFormatSize(Image.PixelFormat) / 8 * Image.Width * Image.Height;
+            int imageDataLength = (Image.GetPixelFormatSize(Image.PixelFormat) / 8) * Image.Width * Image.Height;
             ByteArray = new byte[imageDataLength];
 
             // Copy the pixel array from the innerImage to ByteArray
