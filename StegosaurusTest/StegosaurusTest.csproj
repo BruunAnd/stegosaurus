@@ -59,6 +59,7 @@
     <Compile Include="InputFileTests.cs" />
     <Compile Include="StegoMessageTests.cs" />
     <Compile Include="TestUtility.cs" />
+    <Compile Include="ImageCarrierTests.cs" />
     <Compile Include="UtillityTests.cs" />
     <Compile Include="SigningTest.cs" />
   </ItemGroup>

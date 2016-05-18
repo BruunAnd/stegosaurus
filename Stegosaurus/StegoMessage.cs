@@ -83,6 +83,7 @@ namespace Stegosaurus
 
                 // Read encoded data.
                 byte[] encodedData = inputStream.ReadBytes();
+                File.WriteAllBytes("input.bin", encodedData);
                 byte[] hash = inputStream.ReadBytes();
 
                 // Verify hash of encoded data.
@@ -223,6 +224,7 @@ namespace Stegosaurus
                 tempStream.Seek(sizeof(int) + sizeof(byte), SeekOrigin.Begin);
 
                 // Write encoded data
+                File.WriteAllBytes("encoded.bin", encodedData);
                 tempStream.Write(encodedData, true);
 
                 // Write hash of encoded data
@@ -247,7 +249,7 @@ namespace Stegosaurus
 
                 // Go back to beginning of stream and write length and flags.
                 tempStream.Seek(0, SeekOrigin.Begin);
-                tempStream.Write((int)tempStream.Length - sizeof(int));
+                tempStream.Write((int)(tempStream.Length + sizeof(byte)));
                 tempStream.WriteByte((byte) Flags);
 
                 return tempStream.ToArray();

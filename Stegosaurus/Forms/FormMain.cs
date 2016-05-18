@@ -51,7 +51,7 @@ namespace Stegosaurus.Forms
             AddCryptoProvider(typeof(RSAProvider));
 
             // Set default values
-            comboBoxAlgorithmSelection.SelectedIndex = 1;
+            comboBoxAlgorithmSelection.SelectedIndex = 0;
             comboBoxCryptoProviderSelection.SelectedIndex = 0;
         }
         
@@ -483,7 +483,7 @@ namespace Stegosaurus.Forms
                 else
                 {
                     carrierMedia = new ImageCarrier(_input.FilePath);
-                    pictureBoxCarrier.Image = ((ImageCarrier) carrierMedia).Image;
+                    pictureBoxCarrier.Image = ((ImageCarrier) carrierMedia).InnerImage;
                     carrierExtension = ".png";
                 }
                 carrierName = fileInfo.Name.Remove(fileInfo.Name.LastIndexOf('.'));
@@ -570,7 +570,7 @@ namespace Stegosaurus.Forms
             OpenFileDialog ofd = new OpenFileDialog
             {
                 Multiselect = false,
-                Filter = @"Image files (*.jpg, *.jpeg, *.jpe, *.jfif, *.png, *.gif, *.bmp) | *.jpg; *.jpeg; *.jpe; *.jfif; *.png; *.gif; *.bmp|Audio files (*.wav)|*.wav"
+                Filter = @"InnerImage files (*.jpg, *.jpeg, *.jpe, *.jfif, *.png, *.gif, *.bmp) | *.jpg; *.jpeg; *.jpe; *.jfif; *.png; *.gif; *.bmp|Audio files (*.wav)|*.wav"
             };
 
             if (ofd.ShowDialog() != DialogResult.OK)
