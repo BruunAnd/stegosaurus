@@ -42,7 +42,7 @@ namespace Stegosaurus.Forms
 
             // Add algorithms
             AddAlgorithm(typeof(LSBAlgorithm));
-            // AddAlgorithm(typeof(GraphTheoreticAlgorithm));
+            AddAlgorithm(typeof(GraphTheoreticAlgorithm));
             AddAlgorithm(typeof(CommonSampleAlgorithm));
 
             // Add crypto providers

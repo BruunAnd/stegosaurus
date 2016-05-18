@@ -9,9 +9,7 @@ namespace Stegosaurus.Algorithm.GraphTheory
     {
         public Sample[] Samples;
         public List<Edge> Edges = new List<Edge>();
-        public short Value;
-        public short ValueDif;
-        public int numEdges = 0;
+        public byte Value;
         public bool IsValid;
 
         public Vertex(Sample[] _samples)
@@ -19,12 +17,13 @@ namespace Stegosaurus.Algorithm.GraphTheory
             Samples = _samples;
             IsValid = true;
         }
+
         public override string ToString()
         {
             string message = "";
             foreach (Sample sample in Samples)
             {
-                message += $"V:{sample.Value}, T:{sample.TargetValue}|";
+                message += $"V:{sample.ModValue}, T:{sample.TargetValue}|";
             }
 
             return message;
