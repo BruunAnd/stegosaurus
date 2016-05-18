@@ -483,7 +483,7 @@ namespace Stegosaurus.Forms
                 else
                 {
                     carrierMedia = new ImageCarrier(_input.FilePath);
-                    pictureBoxCarrier.Image = ((ImageCarrier) carrierMedia).Image;
+                    pictureBoxCarrier.Image = ((ImageCarrier) carrierMedia).InnerImage;
                     carrierExtension = ".png";
                 }
                 carrierName = fileInfo.Name.Remove(fileInfo.Name.LastIndexOf('.'));

@@ -33,7 +33,7 @@ namespace StegosaurusTest
             }
 
             // Test requires a cover file
-            Image testImage = new Bitmap(500, 500);
+            Bitmap testImage = new Bitmap(500, 500);
 
             // Setup algorithm
             _algorithm.CarrierMedia = new ImageCarrier(testImage);

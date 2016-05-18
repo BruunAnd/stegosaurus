@@ -18,24 +18,27 @@ namespace Stegosaurus.Carrier
         /// <summary>
         /// Returns the inner instance of Image.
         /// </summary>
-        public Image Image => image;
+        public Image InnerImage => image;
 
         /// <summary>
         /// Construct ImageCarrier from an instance of Image.
         /// </summary>
-        public ImageCarrier(Image _image)
+        public ImageCarrier(Bitmap _bitmap)
         {
-            if (_image == null)
+            if (_bitmap == null)
             {
                 throw new StegosaurusException("Image can not be null.");
             }
 
-            image = new Bitmap(_image.Width, _image.Height, PixelFormat.Format24bppRgb);
+            // Create a clone of the bitmap and force 24-bit depth
+            image = new Bitmap(_bitmap.Width, _bitmap.Height, PixelFormat.Format24bppRgb);
             using (Graphics graphics = Graphics.FromImage(image))
             {
-                graphics.DrawImage(_image, new Rectangle(0, 0, _image.Width, _image.Height));
+                graphics.DrawImage(_bitmap, new Rectangle(0, 0, _bitmap.Width, _bitmap.Height));
             }
-            _image.Dispose();
+
+            // Dispose the old image
+            _bitmap.Dispose();
 
             Decode();
         }
@@ -61,11 +64,11 @@ namespace Stegosaurus.Carrier
         /// Load Image from a specified file.
         /// Alternative to Image.FromFile, which does not always release file handle.
         /// </summary>
-        private static Image LoadImageFromFile(string _filePath)
+        private static Bitmap LoadImageFromFile(string _filePath)
         {
             try
             {
-                return Image.FromStream(new MemoryStream(File.ReadAllBytes(_filePath)));
+                return (Bitmap) Image.FromStream(new MemoryStream(File.ReadAllBytes(_filePath)));
             }
             catch (ArgumentException)
             {
@@ -79,7 +82,7 @@ namespace Stegosaurus.Carrier
             BitmapData imageData = LockBitmap();
 
             // Calculate the bytelength of the pixels and allocate memory for it
-            int imageDataLength = (Image.GetPixelFormatSize(Image.PixelFormat) / 8) * Image.Width * Image.Height;
+            int imageDataLength = (Image.GetPixelFormatSize(image.PixelFormat) / 8) * image.Width * image.Height;
             ByteArray = new byte[imageDataLength];
 
             // Copy the pixel array from the innerImage to ByteArray
