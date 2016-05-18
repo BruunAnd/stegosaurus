@@ -2,15 +2,14 @@
 {
     public class Edge
     {
-        public Vertex[] Vertices = new Vertex[2];
+        public int[] Vertices; 
         public short Weight;
         public byte[] BestSwaps;
-        public Edge(Vertex _firstVertex, Vertex _secondVertex, short _weight, byte[] _bestSwaps)
+        public Edge(int _firstVertex, int _secondVertex, short _weight, byte[] _bestSwaps)
         {
-            Vertices[0] = _firstVertex;
-            Vertices[1] = _secondVertex;
+            Vertices = new int[] { _firstVertex, _secondVertex };
+            BestSwaps = new byte[] { _bestSwaps[0], _bestSwaps[1] };
             Weight = _weight;
-            BestSwaps = (byte[])_bestSwaps.Clone();
         }
 
         public override string ToString()

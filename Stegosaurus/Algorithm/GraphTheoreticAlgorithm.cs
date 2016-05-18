@@ -10,47 +10,73 @@ using Stegosaurus.Utility;
 using Stegosaurus.Forms;
 using System.ComponentModel;
 using System.Threading;
+using Stegosaurus.Exceptions;
 
 namespace Stegosaurus.Algorithm
 {
     public class GraphTheoreticAlgorithm : StegoAlgorithmBase
     {
-
         private static readonly byte[] GraphTheorySignature = { 0x12, 0x34, 0x56, 0x78 };
-        private byte samplesPerVertex = 2;
-        private byte messageBitsPerVertex = 2;
-        private ushort discriminationFactor = 1024;
 
+
+        private byte samplesPerVertex = 2;
         [Category("Algorithm"), Description("The number of samples collected in each vertex. Higher numbers means less bandwidth but more imperceptibility.(Default = 2, Max = 4.)")]
         public byte SamplesPerVertex
         {
             get { return samplesPerVertex; }
-            set { samplesPerVertex = (value <= 4)? value:(byte)4;  }
+            set { samplesPerVertex = (value <= 4) ? ((value >= 1) ? value : (byte)1) : (byte)4; }
         }
         
+        private byte messageBitsPerVertex = 2;
         [Category("Algorithm"), Description("The number of bits hidden in each vertex. Higher numbers means more bandwidth but less imperceptibility.(Default = 2, Max = 4.)")]
         public byte MessageBitsPerVertex
         {
             get { return messageBitsPerVertex; }
-            set { messageBitsPerVertex = (value <= 4) ? value : (byte)4; }
+            set
+            {
+                byte temp = (byte)(1 << ((int)Math.Log(value, 2)));
+                messageBitsPerVertex = (temp <= 4) ? ((temp >= 1) ? temp : (byte)1) : (byte)4;
+            }
         }
 
-        [Category("Algorithm"), Description("The maximum distance^2 between sample values for an edge to be valid. Higher numbers means less visual imperceptibility but more statistical imperceptibility. (Default = 1024, Max = 8192.)")]
-        public ushort DiscriminationFactor
+        private int distanceMax = 16;
+        [Category("Algorithm"), Description("The maximum distance between single samplevalues for an edge to be valid. Higher numbers means less visual imperceptibility but more statistical imperceptibility. Higher numbers might also decrease performance, depending on DistancePrecision. (Default = 32, Min-Max = 2-128.)")]
+        public int DistanceMax
         {
-            get { return discriminationFactor; }
-            set { discriminationFactor = (value <= 8192) ? value : (ushort)8192; }
+            get { return distanceMax; }
+            set { distanceMax = (value <= 128) ? ((value >= 2) ? value : 2) : 128; }
         }
 
-        private short modFactor;
-        private short bitwiseModFactor;
+        private int distancePrecision = 4;
+        [Category("Algorithm"), Description("The distance precision. Higher numbers significantly decreases performance with high DistanceMax. (Default = 8, Min-Max = 2-32.)")]
+        public int DistancePrecision
+        {
+            get { return distancePrecision; }
+            set { distancePrecision = (value <= 32) ? ((value >= 2) ? value : 2) : 32; }
+        }
 
-        private List<byte> messageHunks;
-        private List<Sample> samples = new List<Sample>();
-        private List<Vertex> vertices = new List<Vertex>();
-        private List<Vertex> reserveVertices = new List<Vertex>();
-        private List<Edge> edges = new List<Edge>();
+        private int verticesPerMatching = 150000;
+        [Category("Algorithm"), Description("The maximum number of vertices to find edges for at a time. Higher numbers means more memory usage but better imperceptibility. (Default = 150,000, Min = 10,000.)")]
+        public int VerticesPerMatching
+        {
+            get { return verticesPerMatching; }
+            set { verticesPerMatching = (value >= 10000) ? value : 10000; }
+        }
+
+        private int reserveMatching = 1;
+        [Category("Algorithm"), Description("The number of times to try matching leftover vertices with reserve samples. (Default = 2, Min-Max = 0-8.)")]
+        public int ReserveMatching
+        {
+            get { return reserveMatching; }
+            set { reserveMatching = (value <= 8) ? ((value >= 0) ? value : 0) : 8; }
+        }
+
+        private int progress = 0, progressCounter, progressUpdateInterval;
+        private byte modFactor;
+        private byte bitwiseModFactor;
+        private byte shiftFactor;
         
+
         public override string Name => "Graph Theoretic Algorithm";
         
         public override long ComputeBandwidth()
@@ -58,331 +84,460 @@ namespace Stegosaurus.Algorithm
             return ((((CarrierMedia.ByteArray.Length / CarrierMedia.BytesPerSample) / samplesPerVertex) * messageBitsPerVertex ) / 8) - GraphTheorySignature.Length;
         }
 
+        #region Embed
         public override void Embed(StegoMessage _message, IProgress<int> _progress, CancellationToken _ct)
         {
-            modFactor = (short)(1 << messageBitsPerVertex);
+            modFactor = (byte)(1 << messageBitsPerVertex);
             bitwiseModFactor = (byte)(modFactor - 1);
+            int logDistanceMax = (int)(Math.Ceiling(Math.Log(DistanceMax, 2))), logDistancePrecision = (int)(Math.Ceiling(Math.Log(distancePrecision, 2)));
+            shiftFactor = (logDistanceMax > logDistancePrecision) ? (byte)(logDistanceMax - logDistancePrecision) : (byte)0;
 
-            byte[] messageArray = _message.ToByteArray(CryptoProvider);
-            BitArray messageInBits = new BitArray(GraphTheorySignature.Concat(messageArray).ToArray());
-            messageHunks = new List<byte>();
-            int len = messageInBits.Length / messageBitsPerVertex;
-            int index = 0, a = 0;
-            byte messageHunk = 0;
-            GetMessageHunks(_message);
-            _progress.Report(5);
-            while (index < len)
+            progress = 0;
+            int bps = CarrierMedia.BytesPerSample;
+            if (CarrierMedia is AudioCarrier)
             {
-                messageHunk = new byte();
-                a = index++ * messageBitsPerVertex;
-                for (int i = 0; i < messageBitsPerVertex; i++)
-                {
-                    messageHunk += messageInBits[a + i] ? (byte)Math.Pow(2, i) : (byte)0;
-                }
-                messageHunks.Add(messageHunk);
+                //switch (bps)
+                //{
+                //    case 1:
+                //        DoEmbed(new byte[1], _message, _progress, _ct); break;
+                //    case 2:
+                //        DoEmbed(new ushort[1], _message, _progress, _ct); break;
+                //    case 4:
+                //        DoEmbed(new uint[1], _message, _progress, _ct); break;
+                //    default:
+                //        System.Windows.Forms.MessageBox.Show("Sample size not recognized for AudioCarrier."); break;
+                //}
+                System.Windows.Forms.MessageBox.Show("GraphTheoreticAlgorithm is not compatible with audio CarrierMedia.");
             }
-            _progress.Report(10);
+            else if (CarrierMedia is ImageCarrier)
+            {
+                switch (bps)
+                {
+                    case 3:
+                        /*DoEmbed(new byte[3], _message, _progress, _ct);*/ break;
+                    default:
+                        System.Windows.Forms.MessageBox.Show("Sample size not recognized for ImageCarrier."); break;
+                }
+            }
 
-            GetSamples();
-            _progress.Report(20);
+            List<byte> message = GetMessage(_message, _progress, _ct, 10);
 
-            // Generate random sequence of integers
-            //IEnumerable<int> numberList = new RandomNumberList(Seed, samples.Count);
+            List<Sample> samples = GetSamples( _progress, _ct, 10);
 
-            int dimSize = byte.MaxValue + 1;
+            //Generate random sequence of integers
+            RandomNumberList numberList = new RandomNumberList(Seed, samples.Count);
+
+            Tuple<List<Vertex>, List<Vertex>> verticesAndReserve = GetVertices(samples, message, _progress, _ct, numberList, 10);
+            List<Vertex> vertices = verticesAndReserve.Item1;
+            List<Vertex> reserveVertices = verticesAndReserve.Item2;
             
-            // TODO: make dynamic. Currently only compatible with 3 bytes per sample.
-            CountedVerticeList[,,,,] verticeArray = new CountedVerticeList[dimSize, dimSize, dimSize, modFactor, bitwiseModFactor];
-            _progress.Report(25);
+            List<Vertex> leftovers = FindEdgesAndSwap(vertices, _progress, _ct, 50);
+            
+            //DoReserveMatching();
 
-            GetVertices(messageInBits, verticeArray);
-            _progress.Report(45);
-
-            GetEdges(verticeArray);
-            _progress.Report(75);
-
-            Swap();
-            _progress.Report(95);
-
-            vertices.Clear();
-            reserveVertices.Clear();
-            edges.Clear();
+            DoAdjust(leftovers, _progress, _ct, 5);
+            
             _progress.Report(100);
-        }
 
-        public override StegoMessage Extract()
-        {
-            throw new NotImplementedException();
-        }
 
+        }
+        
         // Gets the encrypted message and seperates the bit pattern into chunks of size messageBitsPerVertex which are added to the messageHunk list.
-        private void GetMessageHunks(StegoMessage _message)
+        private List<byte> GetMessage(StegoMessage _message, IProgress<int> _progress, CancellationToken _ct, int _progressWeight)
         {
-            messageHunks = new List<byte>();
+            Console.WriteLine("Debug GetMessageHunks:");
+            List<byte> message = new List<byte>();
             byte[] messageArray = _message.ToByteArray(CryptoProvider);
             BitArray messageInBits = new BitArray(GraphTheorySignature.Concat(messageArray).ToArray());
-            int len = messageInBits.Length / messageBitsPerVertex;
-            int index = 0, indexOffset = 0;
-            byte messageHunk = 0;
-            while (index < len)
+            int numMessageParts = messageInBits.Length / messageBitsPerVertex;
+            byte messageValue;
+
+            progressUpdateInterval = numMessageParts / _progressWeight;
+            progressCounter = 0;
+            for (int index = 0, indexOffset = 0; index < numMessageParts; index++, indexOffset += messageBitsPerVertex, progressCounter++)
             {
-                messageHunk = new byte();
-                indexOffset = index++ * messageBitsPerVertex;
-                for (int i = 0; i < messageBitsPerVertex; i++)
+                _ct.ThrowIfCancellationRequested();
+                messageValue = new byte();
+                for (int byteIndex = 0; byteIndex < messageBitsPerVertex; byteIndex++)
                 {
-                    messageHunk += messageInBits[indexOffset + i] ? (byte)Math.Pow(2, i) : (byte)0;
+                    messageValue += messageInBits[indexOffset + byteIndex] ? (byte)Math.Pow(2, byteIndex) : (byte)0;
                 }
-                messageHunks.Add(messageHunk);
-            }
-        }
+                message.Add(messageValue);
 
-        private void GetSamples()
-        {
-            byte[] tempSampleBytes = new byte[CarrierMedia.BytesPerSample];
-            long numSamples = CarrierMedia.ByteArray.Length / CarrierMedia.BytesPerSample;
-            long len = CarrierMedia.ByteArray.Length;
-
-            Sample tempSample;
-            for (long i = 0; i < len; i += CarrierMedia.BytesPerSample)
-            {
-                for (int j = 0; j < CarrierMedia.BytesPerSample; j++)
+                if (progressCounter == progressUpdateInterval)
                 {
-                    tempSampleBytes[j] = CarrierMedia.ByteArray[i + j];
-                }
-                tempSample = new Sample(tempSampleBytes);
-                short value = 0;
-                foreach (byte item in tempSampleBytes)
-                {
-                    value += (short)item;
-                }
-                tempSample.Value = (short)(value & bitwiseModFactor);
-                samples.Add(tempSample);
-            }
-        }
-
-        private void GetVertices(BitArray _messageInBits, CountedVerticeList[,,,,] _verticeArray)
-        {
-
-            int len = samples.Count / samplesPerVertex;
-            int mlen = messageHunks.Count;
-
-            Vertex temp;
-            Sample[] vertexSamples;
-            short value = 0;
-            short deltaValue;
-            for (int i = 0; i < len; i++)
-            {
-                vertexSamples = new Sample[samplesPerVertex];
-                value = 0;
-
-                for (int index = 0; index < samplesPerVertex; index++)
-                {
-                    // linear, non-random sample pairing.
-                    vertexSamples[index] = samples[(i * 2) + index];
-
-                    // TODO: find better performing method of pseudo-random sample pairing.
-                    //vertexSamples.Add(samples[_numberList.First()]);
-
-                    value += vertexSamples[index].Value;
-                }
-
-                value = (short)(value & bitwiseModFactor);
-
-                temp = new Vertex(vertexSamples);
-                temp.Value = value;
-
-                
-                if (i >= mlen)
-                {
-                    foreach (Sample item in temp.Samples)
-                    {
-                        item.TargetValue = -1;
-                    }
-                    reserveVertices.Add(temp);
-                }
-                else if (temp.Value != messageHunks[i])
-                {
-                    deltaValue = (short)((modFactor + messageHunks[i] - temp.Value) & bitwiseModFactor);
-                    temp.ValueDif = deltaValue;
-                    foreach (Sample item in temp.Samples)
-                    {
-                        item.TargetValue = (short)((item.Value + deltaValue) & bitwiseModFactor);
-                        if (_verticeArray[item.Bytes[0], item.Bytes[1], item.Bytes[2], item.Value, deltaValue - 1] == null)
-                        {
-                            _verticeArray[item.Bytes[0], item.Bytes[1], item.Bytes[2], item.Value, deltaValue - 1] = new CountedVerticeList();
-                        }
-                        _verticeArray[item.Bytes[0], item.Bytes[1], item.Bytes[2], item.Value, deltaValue - 1].Add(temp);
-                    }
-                    vertices.Add(temp);
+                    progressCounter = 0;
+                    _progress.Report(++progress);
+                    Console.WriteLine($"... {index} of {numMessageParts} messageHunks handled.");
                 }
             }
-
-            
+            Console.WriteLine("GetMessageHunks: Succesful.");
+            return message;
         }
 
-        private void GetEdges(CountedVerticeList[,,,,] _verticeArray)
+        private List<Sample> GetSamples(IProgress<int> _progress, CancellationToken _ct, int _progressWeight)
         {
+            Console.WriteLine("Debug GetSamples:");
+            List<Sample> samples = new List<Sample>();
 
             int bps = CarrierMedia.BytesPerSample;
-            int numVertices = vertices.Count;
-            
-            short distance;
-            byte[] bestSwaps = new byte[2];
-            
-            Vertex outerVertex;
-            Sample sampleX;
-            Edge newEdge;
-            int dimSize = byte.MaxValue;
-            int[] sampleValues = new int[bps];
-            int[] maxValues = new int[bps];
-            int maxDelta = (int)Math.Log(discriminationFactor, 2);
-            short sampleModValue, sampleTargetValue, sampleValueDelta;
-            int numEdgeless = 0;
-            
-            for (int numVertex = 0; numVertex < numVertices; numVertex++)
+            int numSamples = CarrierMedia.ByteArray.Length / bps;
+
+            byte[] tempSampleBytes = new byte[bps];
+            short tempModValue ;
+            Sample tempSample;
+
+            progressUpdateInterval = numSamples / _progressWeight;
+            progressCounter = 1;
+            for (int i = 0, indexOffset = 0; i < numSamples; i++, indexOffset += bps, progressCounter++)
             {
-                outerVertex = vertices[numVertex];
-                for (int i = 0; i < samplesPerVertex; i++)
+                _ct.ThrowIfCancellationRequested();
+
+                tempModValue = 0;
+                for (int numByte = 0; numByte < bps; numByte++)
                 {
-                    sampleX = outerVertex.Samples[i];
-                    sampleModValue = sampleX.Value;
-                    sampleTargetValue = sampleX.TargetValue;
-                    sampleValueDelta = (short)(modFactor - outerVertex.ValueDif - 1);
-                    bestSwaps[0] = (byte)i;
-                    for (int j = 0; j < bps; j++)
+                    tempSampleBytes[numByte] = CarrierMedia.ByteArray[indexOffset + numByte];
+                    tempModValue += tempSampleBytes[numByte];
+                }
+                tempSample = new Sample(tempSampleBytes);
+                tempSample.ModValue = (byte)(tempModValue & bitwiseModFactor);
+                samples.Add(tempSample);
+
+                if (progressCounter == progressUpdateInterval)
+                {
+                    progressCounter = 1;
+                    _progress.Report(++progress);
+                    Console.WriteLine($"... {i} of {numSamples} samples created. {(decimal)i / numSamples:p}");
+                }
+            }
+
+            Console.WriteLine("GetSamples: Succesful.");
+            return samples;
+        }
+
+        private Tuple<List<Vertex>, List<Vertex>> GetVertices(List<Sample> _samples, List<byte> _messageValues, IProgress<int> _progress, CancellationToken _ct, RandomNumberList _numberList, int _progressWeight)
+        {
+            Console.WriteLine("Debug GetVertices:");
+            List<Vertex> vertices = new List<Vertex>();
+            List<Vertex> reserveVertices = new List<Vertex>();
+            int len = _samples.Count / samplesPerVertex;
+            int mlen = _messageValues.Count;
+            Sample[] vertexSamples;
+            Vertex tempVertex;
+            short tempValue;
+            byte deltaValue, tempModValue;
+            progressUpdateInterval = len / _progressWeight;
+            progressCounter = 1;
+
+            for (int numVertex = 0; numVertex < len; numVertex++, progressCounter++)
+            {
+                _ct.ThrowIfCancellationRequested();
+
+                tempValue = 0;
+                vertexSamples = new Sample[samplesPerVertex];
+                for (int index = 0; index < samplesPerVertex; index++)
+                {
+                    vertexSamples[index] = _samples[_numberList.Next];
+                    tempValue += vertexSamples[index].ModValue;
+                }
+                tempModValue = (byte)(tempValue & bitwiseModFactor);
+
+                if (numVertex >= mlen)
+                {
+                    tempVertex = new Vertex(vertexSamples);
+                    tempVertex.Value = modFactor;
+                    foreach (Sample sample in vertexSamples)
                     {
-                        sampleValues[j] = sampleX.Bytes[j];
-                        maxValues[j] = sampleValues[j] + maxDelta;
-                        maxValues[j] = maxValues[j] > dimSize ? dimSize : maxValues[j];
+                        sample.TargetValue = (byte)modFactor;
                     }
-                    
-                    for (int x = sampleValues[0], xDelta = 0 ;x < maxValues[0]; x++, xDelta++)
+                    reserveVertices.Add(tempVertex);
+                }
+                else if (tempModValue != _messageValues[numVertex])
+                {
+                    tempVertex = new Vertex(vertexSamples);
+                    tempVertex.Value = tempModValue;
+                    deltaValue = (byte)((modFactor + _messageValues[numVertex] - tempModValue) & bitwiseModFactor);
+                    foreach (Sample sample in vertexSamples)
                     {
-                        for (int y = sampleValues[1], yDelta = 0; y < maxValues[1]; y++, yDelta++)
+                        sample.TargetValue = (byte)((sample.ModValue + deltaValue) & bitwiseModFactor);
+                    }
+                    vertices.Add(tempVertex);
+                }
+
+                if (progressCounter == progressUpdateInterval)
+                {
+                    progressCounter = 1;
+                    _progress.Report(++progress);
+                    Console.WriteLine($"... {numVertex} of {len} vertices created. {(decimal)numVertex / len:p}");
+                }
+            }
+            Console.WriteLine("GetVertices: Succesful.");
+            return Tuple.Create(vertices, reserveVertices);
+        }
+
+        private List<Vertex> FindEdgesAndSwap(List<Vertex> _vertices, IProgress<int> _progress, CancellationToken _ct, int _progressWeight)
+        {
+            List<Vertex> leftovers = new List<Vertex>(), tempLeftovers = new List<Vertex>(), tempVertices = new List<Vertex>();
+            List<Edge> edges = new List<Edge>();
+            int numRuns = (int)Math.Ceiling((decimal)_vertices.Count / verticesPerMatching);
+            int verticesPerRun = _vertices.Count / numRuns;
+            int indexOffset = 0;
+            int maxLeftovers = (VerticesPerMatching >> 2);
+            int numToTrim;
+            int curProgress = progress, weight = ((_progressWeight >> 1) / numRuns) > 0 ? ((_progressWeight >> 1) / numRuns) : 1;
+            for (int i = 0; i < numRuns; i++)
+            {
+                _ct.ThrowIfCancellationRequested();
+                tempVertices.Clear();
+                if (tempLeftovers.Count > maxLeftovers)
+                {
+                    numToTrim = tempLeftovers.Count - maxLeftovers;
+                    leftovers.AddRange(tempLeftovers.GetRange(0, numToTrim));
+                    tempLeftovers = tempLeftovers.GetRange(numToTrim, maxLeftovers);
+                }
+                tempVertices.AddRange(tempLeftovers);
+                tempVertices.AddRange(_vertices.GetRange(indexOffset, (i < (numRuns - 1) ? verticesPerRun : (_vertices.Count - indexOffset))));
+                GetEdges(tempVertices, _progress, _ct, weight);
+                tempLeftovers = DoSwap(tempVertices, _progress, _ct, weight);
+                ClearVertexEdges(tempVertices);
+                indexOffset += verticesPerRun;
+            }
+            progress = curProgress + _progressWeight;
+            _progress.Report(progress);
+
+            ClearVertexEdges(tempVertices);
+            return leftovers;
+        }
+
+        private List<Tuple<int, byte>>[,,,,] GetArray(List<Vertex> _vertices, int _dimensionSize, CancellationToken _ct)
+        {
+            List<Tuple<int, byte>>[,,,,] array = new List<Tuple<int, byte>>[_dimensionSize, _dimensionSize, _dimensionSize, modFactor, modFactor];
+            Tuple<int, byte> vertexRef;
+            List<Tuple<int, byte>> vertexRefs; 
+            Sample sample;
+            int numVertices = _vertices.Count;
+            for (int vertexIndex = 0; vertexIndex < numVertices; vertexIndex++)
+            {
+                for (byte sampleIndex = 0; sampleIndex < samplesPerVertex; sampleIndex++)
+                {
+                    vertexRef = Tuple.Create(vertexIndex, sampleIndex);
+                    sample = _vertices[vertexIndex].Samples[sampleIndex];
+                    vertexRefs = array[sample.Values[0] >> shiftFactor, sample.Values[1] >> shiftFactor, sample.Values[2] >> shiftFactor, sample.ModValue, sample.TargetValue];
+                    if (vertexRefs != null)
+                    {
+                        vertexRefs.Add(vertexRef);
+                    }
+                    else
+                    {
+                        array[sample.Values[0] >> shiftFactor, sample.Values[1] >> shiftFactor, sample.Values[2] >> shiftFactor, sample.ModValue, sample.TargetValue] = new List<Tuple<int, byte>>();
+                        array[sample.Values[0] >> shiftFactor, sample.Values[1] >> shiftFactor, sample.Values[2] >> shiftFactor, sample.ModValue, sample.TargetValue].Add(vertexRef);
+                    }
+                }
+            }
+            return array;
+        }
+
+        private void GetEdges(List<Vertex> _vertexList, IProgress<int> _progress, CancellationToken _ct, int _progressWeight)
+        {
+            Console.WriteLine("Debug GetEdges:");
+            int numVertices = _vertexList.Count;
+            List<Edge> edges = new List<Edge>();
+            List<Tuple<int, byte>> vertexRefs;
+            Vertex vertex;
+            Sample sample;
+            byte dimMax = (byte)(byte.MaxValue >> shiftFactor), maxDelta = (byte)(distanceMax >> shiftFactor);
+            List<Tuple<int, byte>>[,,,,] array = GetArray(_vertexList, dimMax + 1, _ct); //dimMax + 1 to account for 0 based indexes.
+            int bytesPerSample = CarrierMedia.BytesPerSample;
+            Edge newEdge;
+            byte[] outerSampleValues, innerSampleValues;
+            byte[] sampleDeltaValues = new byte[bytesPerSample];
+            short distance;
+            int temp;
+            int[] minValues = new int[bytesPerSample], maxValues = new int[bytesPerSample];
+            byte sampleTargetValue, sampleModValue;
+            byte[] bestSwaps = new byte[2];
+            //Dictionary<Tuple<byte, byte, byte, byte, byte>, List<Tuple<int, byte>>> locationDictionary = GetDictionary(_vertexList, _ct);
+            //Tuple<byte, byte, byte, byte, byte> location;
+            progressCounter = 1;
+            progressUpdateInterval = numVertices / _progressWeight;
+ 
+            bool firstXY, isHere;
+
+
+            for (int numVertex = 0; numVertex < numVertices; numVertex++, progressCounter++)
+            {
+                _ct.ThrowIfCancellationRequested();
+                vertex = _vertexList[numVertex];
+                
+                for (byte sampleIndex = 0; sampleIndex < samplesPerVertex; sampleIndex++)
+                {
+                    sample = vertex.Samples[sampleIndex];
+                    outerSampleValues = sample.Values;
+                    sampleTargetValue = sample.TargetValue;
+                    sampleModValue = sample.ModValue;
+                    bestSwaps[0] = sampleIndex;
+                    
+                    for (int byteIndex = 0; byteIndex < bytesPerSample; byteIndex++)
+                    {
+                        temp = (outerSampleValues[byteIndex] >> shiftFactor);
+                        minValues[byteIndex] = temp;
+                        maxValues[byteIndex] = ((temp + maxDelta) > dimMax) ? dimMax : (temp + maxDelta);
+                    }
+                    firstXY = true;
+                    isHere = true;
+                    for (int x = minValues[0]; x <= maxValues[0]; x++)
+                    {
+                        for (int y = minValues[1]; y <= maxValues[1]; y++)
                         {
-                            for (int z = sampleValues[2], zDelta = 0; z < maxValues[2]; z++, zDelta++)
+                            for (int z = minValues[2]; z <= maxValues[2]; z++)
                             {
-                                if (_verticeArray[x,y,z,sampleTargetValue,sampleValueDelta] != null)
+                                vertexRefs = array[x, y, z, sampleTargetValue, sampleModValue];
+                                if (vertexRefs != null)
                                 {
-                                    distance = (short)((xDelta * xDelta) + (yDelta * yDelta) + (zDelta * zDelta));
-                                    foreach (Vertex innerVertex in _verticeArray[x, y, z, sampleTargetValue, sampleValueDelta].vertices)
+                                    foreach (Tuple<int, byte> vertexRef in vertexRefs)
                                     {
-                                        bestSwaps[1] = (innerVertex.Samples[0].Bytes ==  new byte[]{ (byte)x, (byte)y, (byte)z }) ? (byte)0 : (byte)1;
-                                        newEdge = new Edge(outerVertex, innerVertex, distance, bestSwaps);
-                                        foreach (Vertex vertex in newEdge.Vertices)
+                                        if (isHere && vertexRef.Item1 <= numVertex)
                                         {
-                                            vertex.Edges.Add(newEdge);
-                                            vertex.numEdges++;
+                                            continue;
+                                        }
+                                        innerSampleValues = _vertexList[vertexRef.Item1].Samples[vertexRef.Item2].Values;
+                                        bestSwaps[1] = vertexRef.Item2;
+
+                                        distance = 0;
+                                        for (int valueIndex = 0; valueIndex < bytesPerSample; valueIndex++)
+                                        {
+                                            temp = outerSampleValues[valueIndex] - innerSampleValues[valueIndex];
+                                            distance += (short)(temp * temp);
+                                        }
+                                        newEdge = new Edge(numVertex, vertexRef.Item1, distance, bestSwaps);
+                                        foreach (int vertexId in newEdge.Vertices)
+                                        {
+                                            _vertexList[vertexId].Edges.Add(newEdge);
                                         }
                                     }
                                 }
+                                //location = Tuple.Create((byte)x, (byte)y, (byte)z, sampleTargetValue, sampleModValue);
+                                //if (locationDictionary.TryGetValue(location, out vertexRefs))
+                                //{
+                                //    foreach (Tuple<int, byte> vertexRef in vertexRefs)
+                                //    {
+                                //        if (isHere && vertexRef.Item1 <= numVertex)
+                                //        {
+                                //            continue;
+                                //        }
+                                //        innerVertex = _vertexList[vertexRef.Item1];
+                                //        innerSampleValues = innerVertex.Samples[vertexRef.Item2].Values;
+                                //        bestSwaps[1] = vertexRef.Item2;
+
+                                //        distance = 0;
+                                //        deltaValue = 0;
+                                //        for (int valueIndex = 0; valueIndex < bps; valueIndex++)
+                                //        {
+                                //            deltaValue = outerSampleValues[valueIndex] - innerSampleValues[valueIndex];
+                                //            distance += (short)(deltaValue * deltaValue);
+                                //        }
+
+                                //        newEdge = new Edge(outerVertex, _vertexList[vertexRef.Item1], distance, bestSwaps);
+                                //        foreach (Vertex vertex in newEdge.Vertices)
+                                //        {
+                                //            vertex.Edges.Add(newEdge);
+                                //            vertex.numEdges++;
+                                //        }
+                                //        edges.Add(newEdge);
+                                //    }
+                                //}
+                                isHere = false;
+                            }
+                            if (firstXY)
+                            {
+                                minValues[1] = (outerSampleValues[1] > distanceMax) ? (byte)((outerSampleValues[1] - distanceMax) >> shiftFactor) : (byte)0;
+                                minValues[2] = (outerSampleValues[2] > distanceMax) ? (byte)((outerSampleValues[2] - distanceMax) >> shiftFactor) : (byte)0;
+                                firstXY = false;
                             }
                         }
                     }
                 }
-                if (outerVertex.numEdges == 0)
+                if (progressCounter == progressUpdateInterval)
                 {
-                    numEdgeless++;
-                }
-                if ((numVertex & 255) == 0)
-                {
-                    Console.WriteLine($"{numVertex} of {numVertices} handled. {(decimal)numVertex / numVertices :p}");
+                    progressCounter = 1;
+                    _progress.Report(++progress);
+                    Console.WriteLine($"... {numVertex} of {numVertices} handled. {(decimal)numVertex / numVertices :p}");
                 }
             }
-            Console.WriteLine($"{numEdgeless} of {numVertices} vertices had 0 edges. {(decimal)numEdgeless / numVertices:p}");
-
-            //for (int i = 0; i < (numVertices - 1); i++)
-            //{
-            //    vertexA = vertices[i];
-            //    valueDifA = vertexA.ValueDif;
-            //    for (int j = i + 1 ; j < numVertices; j++)
-            //    {
-
-            //        vertexB = vertices[j];
-            //        if (valueDifA != modFactor - vertexB.ValueDif)
-            //        {
-            //            debug++;
-            //            continue;
-            //        }
-            //        minDistance = (short)(discriminationFactor + 1);
-            //        distance = 1;
-            //        isValidEdge = false;
-            //        for (int k = 0; (k < samplesPerVertex) && (distance != 0) ; k++)
-            //        {
-            //            sampleA = vertexA.Samples[k];
-            //            for (int l = 0; l < samplesPerVertex; l++)
-            //            {
-            //                sampleB = vertexB.Samples[l];
-            //                if ((sampleA.TargetValue == sampleB.Value) && (sampleA.Value == sampleB.TargetValue))
-            //                {
-            //                    distance = 0;
-            //                    for (int m = 0; m < bps; m++)
-            //                    {
-            //                        tempDistance = Math.Abs(((int)sampleA.Bytes[m] - (int)sampleB.Bytes[m]));
-            //                        distance += tempDistance * tempDistance;
-            //                    }
-            //                    if (distance < minDistance)
-            //                    {
-            //                        minDistance = (short)distance;
-            //                        isValidEdge = true;
-            //                        bestSwaps[0] = (byte)k;
-            //                        bestSwaps[1] = (byte)l;
-            //                        if (distance == 1)
-            //                        {
-            //                            debug2++;
-            //                            break;
-            //                        }
-
-            //                    }
-            //                }
-            //            }
-            //        }
-            //        if (isValidEdge)
-            //        {
-            //            newEdge = new Edge(vertexA, vertexB, minDistance, bestSwaps);
-
-            //            vertexA.Edges.Add(newEdge);
-            //            vertexB.Edges.Add(newEdge);
-            //            vertexA.numEdges++;
-            //            vertexB.numEdges++;
-            //        }
-            //    }
-
-            //}
-
+            Console.WriteLine("GetEdges: Succesfull.");
+            return;
         }
         
-        private void Swap()
+        // returns a dictionary of lists of Tuple vertex references, with keys containing the sample Values, ModValue and TargetValue.
+        private Dictionary<Tuple<byte, byte, byte, byte, byte>, List<Tuple<int, byte>>> GetDictionary(List<Vertex> _vertices, CancellationToken _ct)
         {
-            Console.WriteLine("Sorting.");
-            vertices.Sort((v1, v2) => v1.numEdges - v2.numEdges);
+            Dictionary<Tuple<byte, byte, byte, byte, byte>, List<Tuple<int, byte>>> locationDictionary = new Dictionary<Tuple<byte, byte, byte, byte, byte>, List<Tuple<int, byte>>>();
 
-            int numVertices = vertices.Count;
+            Sample vertexSample;
+            List<Tuple<int, byte>> vertexReferenceList;
+            Tuple <int, byte> vertexRef;
+            Tuple<byte, byte, byte, byte, byte> location;
+            int numVertices = _vertices.Count;
+            for (int vertexIndex = 0; vertexIndex < numVertices; vertexIndex++)
+            {
+                _ct.ThrowIfCancellationRequested();
+                for (byte sampleIndex = 0; sampleIndex < samplesPerVertex; sampleIndex++)
+                {
+                    vertexSample = _vertices[vertexIndex].Samples[sampleIndex];
+                    vertexRef = Tuple.Create(vertexIndex, sampleIndex);
+                    location = Tuple.Create((byte)(vertexSample.Values[0] >> shiftFactor), (byte)(vertexSample.Values[1] >> shiftFactor), (byte)(vertexSample.Values[2] >> shiftFactor), vertexSample.ModValue, vertexSample.TargetValue);
+
+                    if (locationDictionary.TryGetValue(location, out vertexReferenceList))
+                    {
+                        vertexReferenceList.Add(vertexRef);
+                    }
+                    else
+                    {
+                        vertexReferenceList = new List<Tuple<int, byte>>();
+                        vertexReferenceList.Add(vertexRef);
+                        locationDictionary.Add(location, vertexReferenceList);
+                    }
+                }
+            }
+            return locationDictionary;
+        }
+        
+        // receives a list of vertices, sorts them, performs swaps starting with the vertice with least edges and returns a list of the vertices that couldnt be swapped.
+        private List<Vertex> DoSwap(List<Vertex> _vertices, IProgress<int> _progress, CancellationToken _ct, int _progressWeight)
+        {
+            Console.WriteLine("Debug DoSwap:");
+            List<Vertex> leftoverVertices = new List<Vertex>();
+            bool swapped;
+            int numVertices = _vertices.Count;
             byte[] tempSampleBytes;
             Vertex vertex;
-            List<Vertex> lsbVertices = new List<Vertex>();
-            bool swapped;
-            int progressMessageInterval = 8191;
-            int i = 0, j = 0;
-            do
+            
+            Console.WriteLine("... Sorting for edges");
+            _vertices.Sort((v1, v2) => v1.Edges.Count - v2.Edges.Count);
+            Console.WriteLine("... Sorted.");
+
+            progressUpdateInterval = numVertices / _progressWeight;
+            progressCounter = 1;
+            for (int i = 0; i < numVertices; i++, progressCounter++)
             {
-                vertex = vertices[j++];
+
+                _ct.ThrowIfCancellationRequested();
+                vertex = _vertices[i];
                 if (vertex.IsValid)
                 {
                     swapped = false;
                     vertex.Edges.Sort((e1, e2) => e1.Weight - e2.Weight);
                     foreach (Edge edge in vertex.Edges)
                     {
-                        if (edge.Vertices[0].IsValid && edge.Vertices[1].IsValid)
+                        if (_vertices[edge.Vertices[0]].IsValid && _vertices[edge.Vertices[1]].IsValid && edge.Vertices[0] != edge.Vertices[1])
                         {
                             //swap sample bytes.
-                            tempSampleBytes = edge.Vertices[0].Samples[edge.BestSwaps[0]].Bytes;
-                            edge.Vertices[0].Samples[edge.BestSwaps[0]].Bytes = edge.Vertices[1].Samples[edge.BestSwaps[1]].Bytes;
-                            edge.Vertices[1].Samples[edge.BestSwaps[1]].Bytes = tempSampleBytes;
-                            foreach (Vertex vertice in edge.Vertices)
+                            tempSampleBytes = _vertices[edge.Vertices[0]].Samples[edge.BestSwaps[0]].Values;
+                            _vertices[edge.Vertices[0]].Samples[edge.BestSwaps[0]].Values = _vertices[edge.Vertices[1]].Samples[edge.BestSwaps[1]].Values;
+                            _vertices[edge.Vertices[1]].Samples[edge.BestSwaps[1]].Values = tempSampleBytes;
+                            foreach (int edgeVertexId in edge.Vertices)
                             {
-                                vertice.IsValid = false;
-                                i++;
+                                _vertices[edgeVertexId].IsValid = false;
                             }
                             swapped = true;
                             break;
@@ -390,20 +545,138 @@ namespace Stegosaurus.Algorithm
                     }
                     if (!swapped)
                     {
-                        lsbVertices.Add(vertex);
-                        i++;
+                        leftoverVertices.Add(vertex);
                     }
                 }
-                if ((j & progressMessageInterval) == 0)
+                if (progressCounter == progressUpdateInterval)
                 {
-                    Console.WriteLine($"{i} of {numVertices} vertices vertices handled. {(decimal)i / numVertices:p}");
+                    progressCounter = 1;
+                    _progress.Report(++progress);
+                    Console.WriteLine($"... {i} of {numVertices} vertices handled. {(decimal)i / numVertices:p}");
                 }
-            } while (i < numVertices);
-            
-            
-            Console.WriteLine($"{lsbVertices.Count} of {numVertices} vertices needed LSB alteration. {(decimal)lsbVertices.Count / numVertices :p}");
+            }
+            Console.WriteLine($"{leftoverVertices.Count} of {numVertices} vertices were unable to be swapped. {(decimal)leftoverVertices.Count / numVertices :p}");
 
-            System.Windows.Forms.MessageBox.Show("LSBSwap() not implemented yet.");
+            Console.WriteLine("DoSwap: Succesful.");
+            return leftoverVertices;
         }
+
+        // Iterates through the remainder vertices and adjusts their values to the desired values.
+        private void DoAdjust(List<Vertex> _leftoverVertices, IProgress<int> _progress, CancellationToken _ct, int _progressWeight)
+        {
+            Console.WriteLine("Debug LsbSwap:");
+            byte bps = (byte)CarrierMedia.BytesPerSample;
+            int maxValue = byte.MaxValue;
+            int numVertices = _leftoverVertices.Count;
+            int sampleIndex = 0, byteIndex = 0;
+            byte valueDif;
+            byte sampleValue;
+            Vertex vertex;
+            progressCounter = 1;
+            progressUpdateInterval = numVertices / _progressWeight;
+            for (int vertexIndex = 0; vertexIndex < numVertices; vertexIndex++, progressCounter++)
+            {
+                _ct.ThrowIfCancellationRequested();
+
+                vertex = _leftoverVertices[vertexIndex];
+
+                //ensures that it varies which sampe of a vertesx, and which byte of the sample that is adjusted varies.
+                sampleIndex = (sampleIndex > 0) ? (sampleIndex - 1) : (SamplesPerVertex - 1);
+                byteIndex = (byteIndex > 0) ? (byteIndex - 1) : (bps - 1);
+
+                valueDif = (byte)((modFactor + vertex.Samples[0].ModValue - vertex.Samples[0].TargetValue) & bitwiseModFactor);
+                sampleValue = vertex.Samples[sampleIndex].Values[byteIndex];
+                if ((sampleValue + valueDif) <= maxValue)
+                {
+                    vertex.Samples[sampleIndex].Values[byteIndex] += valueDif;
+                }
+                else
+                {
+                    vertex.Samples[sampleIndex].Values[byteIndex] -= (byte)(modFactor - valueDif);
+                }
+
+                if (progressCounter == progressUpdateInterval)
+                {
+                    progressCounter = 1;
+                    _progress.Report(++progress);
+                    Console.WriteLine($"... {vertexIndex} of {numVertices} adjusted. {(decimal)vertexIndex / numVertices :p}");
+                }
+            }
+            Console.WriteLine("LsbSwap: Succesful");
+        }
+        #endregion
+
+        #region Extract
+        public override StegoMessage Extract()
+        {
+            modFactor = (byte)(1 << messageBitsPerVertex);
+            bitwiseModFactor = (byte)(modFactor - 1);
+
+            int numSamples = CarrierMedia.ByteArray.Length / CarrierMedia.BytesPerSample;
+            // Generate random numbers
+            RandomNumberList randomNumbers = new RandomNumberList(Seed, numSamples);
+
+            // Read bytes and verify GraphTheorySignature
+            if (!ReadBytes(randomNumbers, GraphTheorySignature.Length).SequenceEqual(GraphTheorySignature))
+            {
+                throw new StegoAlgorithmException("Signature is invalid, possibly using a wrong key.");
+            }
+
+            // Read length
+            int length = BitConverter.ToInt32(ReadBytes(randomNumbers, 4), 0);
+
+            // Read data and return StegoMessage instance
+            return new StegoMessage(ReadBytes(randomNumbers, length), CryptoProvider);
+        }
+        
+        private byte[] ReadBytes(RandomNumberList _numberList, int _count)
+        {
+            BitArray tempBitArray = new BitArray(_count * 8);
+            int bps = CarrierMedia.BytesPerSample;
+            int bytesPerVertex = bps * SamplesPerVertex;
+            int numVertices = (_count * 8) / messageBitsPerVertex;
+            int tempValue = 0;
+            int byteIndexOffset, bitIndexOffset;
+
+            for (int vertexIndex = 0; vertexIndex < numVertices; vertexIndex++)
+            {
+                bitIndexOffset = vertexIndex * messageBitsPerVertex;
+                tempValue = 0;
+                for (int sampleIndex = 0; sampleIndex < samplesPerVertex; sampleIndex++)
+                {
+                    byteIndexOffset = _numberList.Next * bps;
+                    for (int byteIndex = 0; byteIndex < bps; byteIndex++)
+                    {
+                        tempValue += CarrierMedia.ByteArray[byteIndexOffset + byteIndex];
+                    }
+                }
+                tempValue = tempValue & bitwiseModFactor;
+                for (int bitIndex = 0; bitIndex < messageBitsPerVertex; bitIndex++)
+                {
+                    tempBitArray[bitIndexOffset + bitIndex] = ((tempValue & (1 << bitIndex)) != 0);
+                }
+            }
+
+            // Copy bitArray to new byteArray
+            byte[] tempByteArray = new byte[_count];
+            tempBitArray.CopyTo(tempByteArray, 0);
+
+            return tempByteArray;
+        }
+        #endregion
+
+        //Clears the vertices for references to edges and vice-versa, and then clears the lists.
+        private void ClearVertexEdges(List<Vertex> _vertices)
+        {
+            Console.WriteLine("Debug ClearVertexEdges:");
+            foreach (Vertex vertex in _vertices)
+            {
+                vertex.Edges.Clear();
+            }
+            Console.WriteLine("... vertices cleared for edges.");
+
+            Console.WriteLine("ClearVertexEdges: Succesful.");
+        }
+
     }
 }
