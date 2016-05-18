@@ -16,7 +16,7 @@ namespace Stegosaurus.Algorithm
 {
     public class GraphTheoreticAlgorithm : StegoAlgorithmBase
     {
-        private static readonly byte[] GraphTheorySignature = { 0x12, 0x34, 0x56, 0x78 };
+        private static readonly byte[] GraphTheorySignature = { 0x47, 0x54, 0x41, 0x6C };
 
 
         private byte samplesPerVertex = 2;
@@ -63,13 +63,13 @@ namespace Stegosaurus.Algorithm
             set { verticesPerMatching = (value >= 10000) ? value : 10000; }
         }
 
-        private int reserveMatching = 1;
-        [Category("Algorithm"), Description("The number of times to try matching leftover vertices with reserve samples. (Default = 2, Min-Max = 0-8.)")]
-        public int ReserveMatching
-        {
-            get { return reserveMatching; }
-            set { reserveMatching = (value <= 8) ? ((value >= 0) ? value : 0) : 8; }
-        }
+        //private int reserveMatching = 1;
+        //[Category("Algorithm"), Description("The number of times to try matching leftover vertices with reserve samples. (Default = 2, Min-Max = 0-8.)")]
+        //public int ReserveMatching
+        //{
+        //    get { return reserveMatching; }
+        //    set { reserveMatching = (value <= 8) ? ((value >= 0) ? value : 0) : 8; }
+        //}
 
         private int progress = 0, progressCounter, progressUpdateInterval;
         private byte modFactor;
@@ -145,10 +145,10 @@ namespace Stegosaurus.Algorithm
             //DoReserveMatching();
 
             DoAdjust(leftovers, _progress, _ct, 5);
-            
+
+            DoEncode(samples);
+
             _progress.Report(100);
-
-
         }
         
         // Gets the encrypted message and seperates the bit pattern into chunks of size messageBitsPerVertex which are added to the messageHunk list.
@@ -612,6 +612,21 @@ namespace Stegosaurus.Algorithm
                 }
             }
             Console.WriteLine("LsbSwap: Succesful");
+        }
+
+        private void DoEncode(List<Sample> _samples)
+        {
+            int numSamples = _samples.Count;
+            int bytesPerSample = CarrierMedia.BytesPerSample;
+            int byteIndexOffset;
+            for (int sampleIndex = 0; sampleIndex < numSamples; sampleIndex++)
+            {
+                byteIndexOffset = sampleIndex * bytesPerSample;
+                for (int byteIndex = 0; byteIndex < bytesPerSample; byteIndex++)
+                {
+                    CarrierMedia.ByteArray[byteIndexOffset + byteIndex] = _samples[sampleIndex].Values[byteIndex];
+                }
+            }
         }
         #endregion
 
