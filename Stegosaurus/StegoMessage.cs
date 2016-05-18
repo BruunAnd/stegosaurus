@@ -59,7 +59,7 @@ namespace Stegosaurus
         /// <summary>
         /// Empty constructor.
         /// </summary>
-        public StegoMessage ()
+        public StegoMessage()
         {
         }
 
@@ -82,7 +82,6 @@ namespace Stegosaurus
 
                 // Read encoded data.
                 byte[] encodedData = inputStream.ReadBytes();
-                File.WriteAllBytes("input.bin", encodedData);
                 byte[] hash = inputStream.ReadBytes();
 
                 // Verify hash of encoded data.
@@ -223,7 +222,6 @@ namespace Stegosaurus
                 tempStream.Seek(sizeof(int) + sizeof(byte), SeekOrigin.Begin);
 
                 // Write encoded data
-                File.WriteAllBytes("encoded.bin", encodedData);
                 tempStream.Write(encodedData, true);
 
                 // Write hash of encoded data
