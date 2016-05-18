@@ -498,7 +498,6 @@ namespace Stegosaurus.Forms
         private void UpdateInterface()
         {
             long size = stegoMessage.GetCompressedSize() + cryptoProvider?.HeaderSize ?? 0;
-            Console.WriteLine("Size: {0}", cryptoProvider.HeaderSize);
             if (carrierMedia == null)
             {
                 progressBarCapacity.Value = progressBarCapacity.Maximum;
