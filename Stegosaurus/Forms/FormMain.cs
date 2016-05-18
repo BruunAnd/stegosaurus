@@ -14,6 +14,7 @@ using Stegosaurus.Cryptography;
 using System.Threading.Tasks;
 using Stegosaurus.Algorithm.CommonSample;
 using System.Linq;
+using System.Net;
 using System.Reflection;
 using Microsoft.VisualBasic;
 
@@ -675,9 +676,36 @@ namespace Stegosaurus.Forms
             UpdateInterface();
         }
 
-        private void dumpCarrierMediaToolStripMenuItem_Click(object sender, EventArgs e)
+        private void importFromURLToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            File.WriteAllBytes("dump.bin", carrierMedia.ByteArray);
+            string requestedUrl = Interaction.InputBox("Which URL to import image from?", "Import", "");
+            if (string.IsNullOrWhiteSpace(requestedUrl))
+            {
+                return;
+            }
+
+            // Download image with webclient
+            WebClient webClient = new WebClient();
+            string tempLocation = Path.GetTempFileName();
+            try
+            {
+                webClient.DownloadFile(requestedUrl, tempLocation);
+
+                HandleInput(new CarrierType(tempLocation));
+            }
+            catch (WebException)
+            {
+                ShowError("An error occurred while downloading the file.");
+            }
+            catch (InvalidImageFileException)
+            {
+                ShowError("The selected URL is not an image.");
+            }
+            finally
+            {
+                File.Delete(tempLocation);
+            }
         }
+
     }
 }
