@@ -8,39 +8,38 @@ namespace Stegosaurus.Algorithm.CommonSample
 {
     public class Sample : IEquatable<Sample>, ICloneable
     {
-        private byte[] backingValuesField;
-
-        public byte[] Values
-        {
-            get
-            {
-                return backingValuesField;
-            }
-            set
-            {
-                backingValuesField = value;
-                UpdateModValue();
-            }
-        }
+        public byte[] Values { get; set; }
 
         public int LastDistance { get; set; }
 
-        public int ModValue { get; set; }
+        public byte ModValue { get; set; }
+
+        public byte TargetModValue { get; set; }
 
         public Sample(params byte[] _values)
         {
             Values = _values;
+
         }
 
-        public void ForceChanges()
+        public void ForceChanges(byte _modFactor)
         {
             Values[Values.Length - 1] ^= 0x1;
-            UpdateModValue();
         }
 
-        public void UpdateModValue()
+        public void UpdateModValue(byte _modFactor)
         {
-            ModValue = Values.Sum(val => val) % 2;
+            ModValue = (byte) (Values.Sum(val => val) & _modFactor);
+        }
+
+        public void Swap(Sample _otherSample)
+        {
+            for (int i = 0; i < Values.Length; i++)
+            {
+                byte temp = Values[i];
+                Values[i] = _otherSample.Values[i];
+                _otherSample.Values[i] = temp;
+            }
         }
 
         public int DistanceTo(Sample _otherSample)
@@ -69,13 +68,13 @@ namespace Stegosaurus.Algorithm.CommonSample
 
         public object Clone()
         {
-            return new Sample((byte[]) Values.Clone());
+            return new Sample((byte[]) Values.Clone()) {ModValue = ModValue};
         }
 
         /// <summary>
         /// Returns a list of all samples in the CarrierMedia.
         /// </summary>
-        public static List<Sample> GetSampleListFrom(ICarrierMedia _carrierMedia)
+        public static List<Sample> GetSampleListFrom(ICarrierMedia _carrierMedia, byte _modFactor)
         {
             List<Sample> sampleList = new List<Sample>(_carrierMedia.ByteArray.Length / _carrierMedia.BytesPerSample);
 
@@ -89,7 +88,9 @@ namespace Stegosaurus.Algorithm.CommonSample
                     sampleValues[i] = _carrierMedia.ByteArray[currentSample++];
                 }
 
-                sampleList.Add(new Sample(sampleValues));
+                Sample sample = new Sample(sampleValues);
+                sample.UpdateModValue(_modFactor);
+                sampleList.Add(sample);
             }
 
             return sampleList;

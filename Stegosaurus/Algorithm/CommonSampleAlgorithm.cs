@@ -16,6 +16,8 @@ namespace Stegosaurus.Algorithm
 
         protected override byte[] Signature => new byte[] { 0x0C, 0xB3, 0x11, 0x84 };
 
+        private byte modFactor = 0x1;
+
         /// <summary>
         /// Get or set the maximum distance.
         /// </summary>
@@ -33,7 +35,7 @@ namespace Stegosaurus.Algorithm
             var messageBits = new BitArray(Signature.Concat(_message.ToByteArray(CryptoProvider)).ToArray());
 
             // Get all samples.
-            List<Sample> samples = Sample.GetSampleListFrom(CarrierMedia);
+            List<Sample> samples = Sample.GetSampleListFrom(CarrierMedia, modFactor);
 
             // Find color frequencies.
             // The Samples are clones so their values are not changed by mistake.
@@ -74,9 +76,12 @@ namespace Stegosaurus.Algorithm
                 }
                 else
                 {
-                    currentSample.ForceChanges();
+                    currentSample.ForceChanges(modFactor);
                     numForced++;
                 }
+
+                // Update mod value
+                currentSample.UpdateModValue(modFactor);
 
                 // Report progress.
                 if (i % 500 != 0)
@@ -100,7 +105,7 @@ namespace Stegosaurus.Algorithm
         public override StegoMessage Extract()
         {
             // Get all samples.
-            List<Sample> samples = Sample.GetSampleListFrom(CarrierMedia);
+            List<Sample> samples = Sample.GetSampleListFrom(CarrierMedia, modFactor);
 
             // Generate random numbers.
             RandomNumberList randomNumbers = new RandomNumberList(Seed, samples.Count);

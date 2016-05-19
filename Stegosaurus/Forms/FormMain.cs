@@ -42,6 +42,7 @@ namespace Stegosaurus.Forms
             cryptoProvider = new AESProvider();
 
             // Add algorithms
+            AddAlgorithm(typeof(GTARewrite));
             AddAlgorithm(typeof(LSBAlgorithm));
             AddAlgorithm(typeof(GraphTheoreticAlgorithm));
             AddAlgorithm(typeof(CommonSampleAlgorithm));
@@ -605,7 +606,7 @@ namespace Stegosaurus.Forms
             // Wait for unique sample count
             int numUniqueSamples = await Task.Run(() =>
             {
-                return Sample.GetSampleListFrom(carrierMedia).GroupBy(v => v).Count();
+                return Sample.GetSampleListFrom(carrierMedia, 0).GroupBy(v => v).Count();
             });
             MessageBox.Show($"There are {numUniqueSamples} unique samples.", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
 

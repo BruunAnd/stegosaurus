@@ -70,13 +70,13 @@ namespace StegosaurusTest
         [TestMethod]
         public void GTA_AES_ExpectedOutput()
         {
-            TestSpecifiedAlgorithms(new AESProvider(), new GraphTheoreticAlgorithm(), 16);
+            TestSpecifiedAlgorithms(new AESProvider(), new GTARewrite(), 4);
         }
 
         [TestMethod]
         public void GTA_RSA_ExpectedOutput()
         {
-            TestSpecifiedAlgorithms(new RSAProvider(), new GraphTheoreticAlgorithm(), 16);
+            TestSpecifiedAlgorithms(new RSAProvider(), new GTARewrite(), 4);
         }
 
         [TestMethod]

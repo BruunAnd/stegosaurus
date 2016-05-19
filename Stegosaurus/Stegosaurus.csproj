@@ -65,6 +65,7 @@
     <Compile Include="Algorithm\GraphTheory\Edge.cs" />
     <Compile Include="Algorithm\GraphTheory\Sample.cs" />
     <Compile Include="Algorithm\GraphTheory\Vertex.cs" />
+    <Compile Include="Algorithm\GTARewrite.cs" />
     <Compile Include="Algorithm\LSBAlgorithm.cs" />
     <Compile Include="Algorithm\StegoAlgorithmBase.cs" />
     <Compile Include="Carrier\AudioCarrier.cs" />
