@@ -117,6 +117,7 @@ namespace Stegosaurus.Algorithm
                 //        System.Windows.Forms.MessageBox.Show("Sample size not recognized for AudioCarrier."); break;
                 //}
                 System.Windows.Forms.MessageBox.Show("GraphTheoreticAlgorithm is not compatible with audio CarrierMedia.");
+                return;
             }
             else if (CarrierMedia is ImageCarrier)
             {
@@ -125,14 +126,15 @@ namespace Stegosaurus.Algorithm
                     case 3:
                         /*DoEmbed(new byte[3], _message, _progress, _ct);*/ break;
                     default:
-                        System.Windows.Forms.MessageBox.Show("Sample size not recognized for ImageCarrier."); break;
+                        System.Windows.Forms.MessageBox.Show("Sample size not recognized for ImageCarrier.");
+                        return;
                 }
             }
 
             List<byte> message = GetMessage(_message, _progress, _ct, 10);
 
             List<Sample> samples = GetSamples( _progress, _ct, 10);
-            PrintMessage("GetSamples:", samples, message);
+            //PrintDebug("GetSamples:", samples, message);
             //Generate random sequence of integers
             RandomNumberList numberList = new RandomNumberList(Seed, samples.Count);
 
@@ -140,17 +142,20 @@ namespace Stegosaurus.Algorithm
             //PrintMessage("GetVertices:", samples, message);
             List<Vertex> vertices = verticesAndReserve.Item1;
             List<Vertex> reserveVertices = verticesAndReserve.Item2;
-            
-            //List<Vertex> leftovers = FindEdgesAndSwap(vertices, _progress, _ct, 50, samples, message);
+
+            //GetEdges(vertices, _progress, _ct, 40);
+            //List<Vertex> leftovers = DoSwap(vertices, _progress, _ct, 10);
+
+            List<Vertex> leftovers = FindEdgesAndSwap(vertices, _progress, _ct, 50, samples, message);
             //PrintMessage("FindEdgesAndSwap:", samples, message);
 
             //DoReserveMatching();
 
-            DoAdjust(vertices, _progress, _ct, 5);
-            PrintMessage("DoAdjust:", samples, message);
+            DoAdjust(leftovers, _progress, _ct, 5);
+            //PrintDebug("DoAdjust:", samples, message);
 
             DoEncode(samples);
-            PrintMessage("DoEncode:", samples, message);
+            //PrintDebug("DoEncode:", samples, message);
 
             _progress.Report(100);
         }
@@ -158,7 +163,7 @@ namespace Stegosaurus.Algorithm
         // Gets the encrypted message and seperates the bit pattern into chunks of size messageBitsPerVertex which are added to the messageHunk list.
         private List<byte> GetMessage(StegoMessage _message, IProgress<int> _progress, CancellationToken _ct, int _progressWeight)
         {
-            //Console.WriteLine("Debug GetMessageHunks:");
+            Console.WriteLine("Debug GetMessageHunks:");
             List<byte> message = new List<byte>();
             byte[] messageArray = _message.ToByteArray(CryptoProvider);
             BitArray messageInBits = new BitArray(GraphTheorySignature.Concat(messageArray).ToArray());
@@ -182,17 +187,17 @@ namespace Stegosaurus.Algorithm
                 {
                     progressCounter = 0;
                     _progress.Report(++progress);
-                    //Console.WriteLine($"... {index} of {numMessageParts} messageHunks handled.");
+                    Console.WriteLine($"... {index} of {numMessageParts} messageHunks handled.");
                 }
             }
 
-            //Console.WriteLine("GetMessageHunks: Succesful.");
+            Console.WriteLine("GetMessageHunks: Succesful.");
             return message;
         }
 
         private List<Sample> GetSamples(IProgress<int> _progress, CancellationToken _ct, int _progressWeight)
         {
-            //Console.WriteLine("Debug GetSamples:");
+            Console.WriteLine("Debug GetSamples:");
             List<Sample> samples = new List<Sample>();
 
             int bps = CarrierMedia.BytesPerSample;
@@ -222,17 +227,17 @@ namespace Stegosaurus.Algorithm
                 {
                     progressCounter = 1;
                     _progress.Report(++progress);
-                    //Console.WriteLine($"... {i} of {numSamples} samples created. {(decimal)i / numSamples:p}");
+                    Console.WriteLine($"... {i} of {numSamples} samples created. {(decimal)i / numSamples:p}");
                 }
             }
 
-            //Console.WriteLine("GetSamples: Succesful.");
+            Console.WriteLine("GetSamples: Succesful.");
             return samples;
         }
 
         private Tuple<List<Vertex>, List<Vertex>> GetVertices(List<Sample> _samples, List<byte> _messageValues, IProgress<int> _progress, CancellationToken _ct, RandomNumberList _numberList, int _progressWeight)
         {
-            //Console.WriteLine("Debug GetVertices:");
+            Console.WriteLine("Debug GetVertices:");
             List<Vertex> vertices = new List<Vertex>();
             List<Vertex> reserveVertices = new List<Vertex>();
             int len = _samples.Count / samplesPerVertex;
@@ -285,15 +290,16 @@ namespace Stegosaurus.Algorithm
                 {
                     progressCounter = 1;
                     _progress.Report(++progress);
-                    //Console.WriteLine($"... {numVertex} of {len} vertices created. {(decimal)numVertex / len:p}");
+                    Console.WriteLine($"... {numVertex} of {len} vertices created. {(decimal)numVertex / len:p}");
                 }
             }
-            //Console.WriteLine("GetVertices: Succesful.");
+            Console.WriteLine("GetVertices: Succesful.");
             return Tuple.Create(vertices, reserveVertices);
         }
 
         private List<Vertex> FindEdgesAndSwap(List<Vertex> _vertices, IProgress<int> _progress, CancellationToken _ct, int _progressWeight, List<Sample> _samples, List<byte> _message)
         {
+            Console.WriteLine("Debug FindEdgesAndSwap:");
             List<Vertex> leftovers = new List<Vertex>(), tempLeftovers = new List<Vertex>(), tempVertices = new List<Vertex>();
             List<Edge> edges = new List<Edge>();
             int numRuns = (int)Math.Ceiling((decimal)_vertices.Count / verticesPerMatching);
@@ -304,6 +310,7 @@ namespace Stegosaurus.Algorithm
             int curProgress = progress, weight = ((_progressWeight >> 1) / numRuns) > 0 ? ((_progressWeight >> 1) / numRuns) : 1;
             for (int i = 0; i < numRuns; i++)
             {
+                Console.WriteLine($"FEAS Iteration {i} of {numRuns}.");
                 _ct.ThrowIfCancellationRequested();
                 tempVertices.Clear();
                 if (tempLeftovers.Count > maxLeftovers)
@@ -316,14 +323,17 @@ namespace Stegosaurus.Algorithm
                 tempVertices.AddRange(_vertices.GetRange(indexOffset, (i < (numRuns - 1) ? verticesPerRun : (_vertices.Count - indexOffset))));
                 GetEdges(tempVertices, _progress, _ct, weight);
                 tempLeftovers = DoSwap(tempVertices, _progress, _ct, weight);
-                PrintMessage("DoSwap:", _samples, _message);
+                //PrintDebug("DoSwap:", _samples, _message);
                 ClearVertexEdges(tempVertices);
                 indexOffset += verticesPerRun;
             }
+            leftovers.AddRange(tempLeftovers);
+            Console.WriteLine($"Total of {leftovers.Count} vertices not swapped.");
             progress = curProgress + _progressWeight;
             _progress.Report(progress);
 
             ClearVertexEdges(tempVertices);
+            Console.WriteLine("FindEdgesAndSwap: Succesful.");
             return leftovers;
         }
 
@@ -357,13 +367,14 @@ namespace Stegosaurus.Algorithm
 
         private void GetEdges(List<Vertex> _vertexList, IProgress<int> _progress, CancellationToken _ct, int _progressWeight)
         {
-            //Console.WriteLine("Debug GetEdges:");
+            Console.WriteLine("Debug GetEdges:");
             int numVertices = _vertexList.Count;
             List<Edge> edges = new List<Edge>();
             List<Tuple<int, byte>> vertexRefs;
             Vertex vertex;
             Sample sample;
             byte dimMax = (byte)(byte.MaxValue >> shiftFactor), maxDelta = (byte)(distanceMax >> shiftFactor);
+            Console.WriteLine($"Debug GetEdges: maxDelta {maxDelta} , dimMax {dimMax}");
             List<Tuple<int, byte>>[,,,,] array = GetArray(_vertexList, dimMax + 1, _ct); //dimMax + 1 to account for 0 based indexes.
             int bytesPerSample = CarrierMedia.BytesPerSample;
             Edge newEdge;
@@ -427,11 +438,9 @@ namespace Stegosaurus.Algorithm
                                             temp = outerSampleValues[valueIndex] - innerSampleValues[valueIndex];
                                             distance += (short)(temp * temp);
                                         }
+
                                         newEdge = new Edge(numVertex, vertexRef.Item1, distance, bestSwaps);
-                                        if ((_vertexList[numVertex].Samples[bestSwaps[0]].ModValue != _vertexList[vertexRef.Item1].Samples[bestSwaps[1]].TargetValue) || (_vertexList[numVertex].Samples[bestSwaps[0]].TargetValue != _vertexList[vertexRef.Item1].Samples[bestSwaps[1]].ModValue))
-                                        {
-                                            Console.Write("ERROR.");
-                                        }
+
                                         foreach (int vertexId in newEdge.Vertices)
                                         {
                                             _vertexList[vertexId].Edges.Add(newEdge);
@@ -483,10 +492,10 @@ namespace Stegosaurus.Algorithm
                 {
                     progressCounter = 1;
                     _progress.Report(++progress);
-                    //Console.WriteLine($"... {numVertex} of {numVertices} handled. {(decimal)numVertex / numVertices :p}");
+                    Console.WriteLine($"... {numVertex} of {numVertices} handled. {(decimal)numVertex / numVertices :p}");
                 }
             }
-            //Console.WriteLine("GetEdges: Succesfull.");
+            Console.WriteLine("GetEdges: Succesfull.");
 
             return;
         }
@@ -528,16 +537,17 @@ namespace Stegosaurus.Algorithm
         // receives a list of vertices, sorts them, performs swaps starting with the vertice with least edges and returns a list of the vertices that couldnt be swapped.
         private List<Vertex> DoSwap(List<Vertex> _vertices, IProgress<int> _progress, CancellationToken _ct, int _progressWeight)
         {
-            //Console.WriteLine("Debug DoSwap:");
+            Console.WriteLine("Debug DoSwap:");
             List<Vertex> leftoverVertices = new List<Vertex>();
+            List<Vertex> sortedVertices = _vertices.GetRange(0, _vertices.Count);
+            //Console.WriteLine("... Sorting for edges");
+            sortedVertices.Sort((v1, v2) => v1.Edges.Count - v2.Edges.Count);
+            //Console.WriteLine("... Sorted.");
             bool swapped;
             int numVertices = _vertices.Count;
             Vertex vertex;
             int bytesPerSample = CarrierMedia.BytesPerSample;
             byte[] tempSampleBytes = new byte[bytesPerSample];
-            //Console.WriteLine("... Sorting for edges");
-            _vertices.Sort((v1, v2) => v1.Edges.Count - v2.Edges.Count);
-            //Console.WriteLine("... Sorted.");
 
             byte[] iValues, oValues;
 
@@ -546,14 +556,14 @@ namespace Stegosaurus.Algorithm
             for (int i = 0; i < numVertices; i++, progressCounter++)
             {
                 _ct.ThrowIfCancellationRequested();
-                vertex = _vertices[i];
+                vertex = sortedVertices[i];
                 if (vertex.IsValid)
                 {
                     swapped = false;
                     vertex.Edges.Sort((e1, e2) => e1.Weight - e2.Weight);
                     foreach (Edge edge in vertex.Edges)
                     {
-                        if (_vertices[edge.Vertices[0]].IsValid && _vertices[edge.Vertices[1]].IsValid && edge.Vertices[0] != edge.Vertices[1])
+                        if ((_vertices[edge.Vertices[0]].IsValid && _vertices[edge.Vertices[1]].IsValid) && (edge.Vertices[0] != edge.Vertices[1]))
                         {
                             ////swap sample bytes.
                             //tempSampleBytes = _vertices[edge.Vertices[0]].Samples[edge.BestSwaps[0]].Values;
@@ -579,6 +589,7 @@ namespace Stegosaurus.Algorithm
                     }
                     if (!swapped)
                     {
+                        vertex.IsValid = false;
                         leftoverVertices.Add(vertex);
                     }
                 }
@@ -586,19 +597,19 @@ namespace Stegosaurus.Algorithm
                 {
                     progressCounter = 1;
                     _progress.Report(++progress);
-                    //Console.WriteLine($"... {i} of {numVertices} vertices handled. {(decimal)i / numVertices:p}");
+                    Console.WriteLine($"... {i} of {numVertices} vertices handled. {(decimal)i / numVertices:p}");
                 }
             }
-            //Console.WriteLine($"{leftoverVertices.Count} of {numVertices} vertices were unable to be swapped. {(decimal)leftoverVertices.Count / numVertices :p}");
+            Console.WriteLine($"{leftoverVertices.Count} of {numVertices} vertices were unable to be swapped. {(decimal)leftoverVertices.Count / numVertices :p}");
 
-            //Console.WriteLine("DoSwap: Succesful.");
+            Console.WriteLine("DoSwap: Succesful.");
             return leftoverVertices;
         }
 
         // Iterates through the remainder vertices and adjusts their values to the desired values.
         private void DoAdjust(List<Vertex> _leftoverVertices, IProgress<int> _progress, CancellationToken _ct, int _progressWeight)
         {
-            //Console.WriteLine("Debug DoAdjust:");
+            Console.WriteLine("Debug DoAdjust:");
             byte bps = (byte)CarrierMedia.BytesPerSample;
             int maxValue = byte.MaxValue;
             int numVertices = _leftoverVertices.Count;
@@ -633,10 +644,10 @@ namespace Stegosaurus.Algorithm
                 {
                     progressCounter = 1;
                     _progress.Report(++progress);
-                    //Console.WriteLine($"... {vertexIndex} of {numVertices} adjusted. {(decimal)vertexIndex / numVertices :p}");
+                    Console.WriteLine($"... {vertexIndex} of {numVertices} adjusted. {(decimal)vertexIndex / numVertices :p}");
                 }
             }
-            //Console.WriteLine("DoAdjust: Succesful");
+            Console.WriteLine("DoAdjust: Succesful");
         }
 
         private void DoEncode(List<Sample> _samples)
@@ -714,7 +725,7 @@ namespace Stegosaurus.Algorithm
         }
         #endregion
 
-        //Clears the vertices for references to edges and vice-versa, and then clears the lists.
+        //Clears the vertices for references to edges.
         private void ClearVertexEdges(List<Vertex> _vertices)
         {
             //Console.WriteLine("Debug ClearVertexEdges:");
@@ -727,15 +738,8 @@ namespace Stegosaurus.Algorithm
             //Console.WriteLine("ClearVertexEdges: Succesful.");
         }
 
-        private void CheckVertices(List<Vertex> _vertices)
-        {
-            foreach (Vertex item in _vertices)
-            {
-                int temp;
-            }
-        }
 
-        private void PrintMessage(string _message, List<Sample> _samples, List<byte> _messageBytes)
+        private void PrintDebug(string _message, List<Sample> _samples, List<byte> _messageBytes)
         {
             Console.WriteLine(_message);
             RandomNumberList rnl = new RandomNumberList(Seed, _samples.Count);
