@@ -54,7 +54,7 @@
             // 
             // buttonCancel
             // 
-            this.buttonCancel.Image = ((System.Drawing.Image)(resources.GetObject("buttonCancel.Image")));
+            this.buttonCancel.Image = ((System.Drawing.Image)(resources.GetObject("buttonCancel.InnerImage")));
             this.buttonCancel.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.buttonCancel.Location = new System.Drawing.Point(12, 64);
             this.buttonCancel.Name = "buttonCancel";
@@ -68,7 +68,7 @@
             // buttonSaveAs
             // 
             this.buttonSaveAs.Enabled = false;
-            this.buttonSaveAs.Image = ((System.Drawing.Image)(resources.GetObject("buttonSaveAs.Image")));
+            this.buttonSaveAs.Image = ((System.Drawing.Image)(resources.GetObject("buttonSaveAs.InnerImage")));
             this.buttonSaveAs.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.buttonSaveAs.Location = new System.Drawing.Point(95, 64);
             this.buttonSaveAs.Name = "buttonSaveAs";

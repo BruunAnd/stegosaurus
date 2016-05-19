@@ -33,7 +33,7 @@ namespace StegosaurusTest
             }
 
             // Test requires a cover file
-            Image testImage = new Bitmap(500, 500);
+            Bitmap testImage = new Bitmap(500, 500);
 
             // Setup algorithm
             _algorithm.CarrierMedia = new ImageCarrier(testImage);
@@ -65,6 +65,18 @@ namespace StegosaurusTest
             InputFile outputFile = outMessage.InputFiles[0];
             Assert.AreEqual(outputFile.Name, testFileName);
             Assert.IsTrue(outputFile.Content.SequenceEqual(testFileBuffer));
+        }
+
+        [TestMethod]
+        public void GTA_AES_ExpectedOutput()
+        {
+            TestSpecifiedAlgorithms(new AESProvider(), new GraphTheoreticAlgorithm(), 16);
+        }
+
+        [TestMethod]
+        public void GTA_RSA_ExpectedOutput()
+        {
+            TestSpecifiedAlgorithms(new RSAProvider(), new GraphTheoreticAlgorithm(), 16);
         }
 
         [TestMethod]

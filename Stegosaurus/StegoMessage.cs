@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using Stegosaurus.Utility.Extensions;
 using Stegosaurus.Cryptography;
@@ -55,12 +56,10 @@ namespace Stegosaurus
 
         public StegoMessageFlags Flags;
 
-        
-
         /// <summary>
         /// Empty constructor.
         /// </summary>
-        public StegoMessage ()
+        public StegoMessage()
         {
         }
 

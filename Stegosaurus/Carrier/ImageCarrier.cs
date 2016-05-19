@@ -3,7 +3,8 @@ using System;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
-using System.Runtime.InteropServices;
+using System.Linq;
+using System.Windows.Forms;
 
 namespace Stegosaurus.Carrier
 {
@@ -18,32 +19,34 @@ namespace Stegosaurus.Carrier
         /// <summary>
         /// Returns the inner instance of Image.
         /// </summary>
-        public Image Image => image;
+        public Image InnerImage => image;
 
         /// <summary>
         /// Construct ImageCarrier from an instance of Image.
         /// </summary>
-        public ImageCarrier(Image _image)
+        public ImageCarrier(Bitmap _image)
         {
             if (_image == null)
             {
                 throw new StegosaurusException("Image can not be null.");
             }
 
-            // Clone image or convert to PNG
-            if (_image.RawFormat.Equals(ImageFormat.Png) && _image.PixelFormat == PixelFormat.Format24bppRgb)
+            // Use original image if it meets standards, otherwise convert it to 24 bpp
+            if (Equals(_image.RawFormat, ImageFormat.Png) && _image.PixelFormat == PixelFormat.Format24bppRgb)
             {
-                image = (Bitmap) _image.Clone();
+                image = _image;
             }
             else
             {
-                image = new Bitmap(_image.Width, _image.Height, PixelFormat.Format24bppRgb);
-                using (Graphics graphics = Graphics.FromImage(image))
+                // Copy image
+                Bitmap newImage = new Bitmap(_image.Width, _image.Height, PixelFormat.Format24bppRgb);
+                using (Graphics graphics = Graphics.FromImage(newImage))
                 {
                     graphics.DrawImage(_image, new Rectangle(0, 0, _image.Width, _image.Height));
                 }
+
+                image = newImage;
             }
-            _image.Dispose();
 
             Decode();
         }
@@ -61,19 +64,18 @@ namespace Stegosaurus.Carrier
         /// </summary>
         private BitmapData LockBitmap()
         {
-            Rectangle imageRectangle = new Rectangle(new Point(0, 0), image.Size);
-            return image.LockBits(imageRectangle, ImageLockMode.ReadWrite, image.PixelFormat);
+            return image.LockBits(new Rectangle(new Point(0, 0), image.Size), ImageLockMode.ReadWrite, image.PixelFormat);
         }
 
         /// <summary>
         /// Load Image from a specified file.
         /// Alternative to Image.FromFile, which does not always release file handle.
         /// </summary>
-        private static Image LoadImageFromFile(string _filePath)
+        private static Bitmap LoadImageFromFile(string _filePath)
         {
             try
             {
-                return Image.FromStream(new MemoryStream(File.ReadAllBytes(_filePath)));
+                return (Bitmap) Image.FromStream(new MemoryStream(File.ReadAllBytes(_filePath)));
             }
             catch (ArgumentException)
             {
@@ -81,17 +83,32 @@ namespace Stegosaurus.Carrier
             }
         }
 
-        public void Decode()
+        public unsafe void Decode()
         {
             // Lock bits
             BitmapData imageData = LockBitmap();
 
             // Calculate the bytelength of the pixels and allocate memory for it
-            int imageDataLength = Image.GetPixelFormatSize(Image.PixelFormat) / 8 * Image.Width * Image.Height;
+            int imageDataLength = imageData.Width * imageData.Height * BytesPerSample;
             ByteArray = new byte[imageDataLength];
 
-            // Copy the pixel array from the innerImage to ByteArray
-            Marshal.Copy(imageData.Scan0, ByteArray, 0, imageDataLength);
+            // Get scan0 pointer
+            byte[] rgbValues = new byte[imageDataLength];
+            byte* scanPtr = (byte*)imageData.Scan0.ToPointer();
+
+            // Iterate through pixels
+            int dstPosition = 0;
+            for (int i = 0; i < image.Width; i++)
+            {
+                for (int j = 0; j < image.Height; j++)
+                {
+                    // We have to 'reverse' each pixel as they are in BGR format (we want RGB)
+                    int basePosition = j * imageData.Stride + i * BytesPerSample;
+                    ByteArray[dstPosition++] = scanPtr[basePosition + 2];
+                    ByteArray[dstPosition++] = scanPtr[basePosition + 1];
+                    ByteArray[dstPosition++] = scanPtr[basePosition + 0];
+                }
+            }
 
             // Unlock bits
             image.UnlockBits(imageData);
@@ -100,13 +117,29 @@ namespace Stegosaurus.Carrier
         /// <summary>
         /// Moves data from ByteArray into innerImage.
         /// </summary>
-        public void Encode()
+        public unsafe void Encode()
         {
             // Lock bits
             BitmapData imageData = LockBitmap();
 
             // Copy the pixel array from ByteArray to the innerImage
-            Marshal.Copy(ByteArray, 0, imageData.Scan0, ByteArray.Length);
+            // Marshal.Copy(ByteArray, 0, imageData.Scan0, ByteArray.Length);
+            // Get scan0 pointer
+            byte* scanPtr = (byte*)imageData.Scan0.ToPointer();
+
+            // Copy the pixel array from ByteArray to the innerImage
+            int srcPosition = 0;
+            for (int x = 0; x < image.Width; x++)
+            {
+                for (int y = 0; y < image.Height; y++)
+                {
+                    // We now have to turn RGB into BGR
+                    int basePosition = y * imageData.Stride + x * BytesPerSample;
+                    scanPtr[basePosition + 2] = ByteArray[srcPosition++];
+                    scanPtr[basePosition + 1] = ByteArray[srcPosition++];
+                    scanPtr[basePosition + 0] = ByteArray[srcPosition++];
+                }
+            }
 
             // Unlock bits
             image.UnlockBits(imageData);
@@ -117,8 +150,16 @@ namespace Stegosaurus.Carrier
         /// </summary>
         public void SaveToFile(string _destination)
         {
+            var old = ByteArray;
             Encode();
             image.Save(_destination, ImageFormat.Png);
+
+            // todo remove this when sure that bug is gone
+            ImageCarrier car = new ImageCarrier(_destination);
+            if (!old.SequenceEqual(car.ByteArray))
+            {
+                throw new StegosaurusException("ImageCarrier is possibly bugged.");
+            }
         }
     }
 }

@@ -14,6 +14,7 @@ using Stegosaurus.Cryptography;
 using System.Threading.Tasks;
 using Stegosaurus.Algorithm.CommonSample;
 using System.Linq;
+using System.Net;
 using System.Reflection;
 using Microsoft.VisualBasic;
 
@@ -51,7 +52,7 @@ namespace Stegosaurus.Forms
             AddCryptoProvider(typeof(RSAProvider));
 
             // Set default values
-            comboBoxAlgorithmSelection.SelectedIndex = 1;
+            comboBoxAlgorithmSelection.SelectedIndex = 0;
             comboBoxCryptoProviderSelection.SelectedIndex = 0;
         }
         
@@ -483,7 +484,7 @@ namespace Stegosaurus.Forms
                 else
                 {
                     carrierMedia = new ImageCarrier(_input.FilePath);
-                    pictureBoxCarrier.Image = ((ImageCarrier) carrierMedia).Image;
+                    pictureBoxCarrier.Image = ((ImageCarrier) carrierMedia).InnerImage;
                     carrierExtension = ".png";
                 }
                 carrierName = fileInfo.Name.Remove(fileInfo.Name.LastIndexOf('.'));
@@ -498,7 +499,6 @@ namespace Stegosaurus.Forms
         private void UpdateInterface()
         {
             long size = stegoMessage.GetCompressedSize() + cryptoProvider?.HeaderSize ?? 0;
-            Console.WriteLine("Size: {0}", cryptoProvider.HeaderSize);
             if (carrierMedia == null)
             {
                 progressBarCapacity.Value = progressBarCapacity.Maximum;
@@ -570,7 +570,7 @@ namespace Stegosaurus.Forms
             OpenFileDialog ofd = new OpenFileDialog
             {
                 Multiselect = false,
-                Filter = @"Image files (*.jpg, *.jpeg, *.jpe, *.jfif, *.png, *.gif, *.bmp) | *.jpg; *.jpeg; *.jpe; *.jfif; *.png; *.gif; *.bmp|Audio files (*.wav)|*.wav"
+                Filter = @"InnerImage files (*.jpg, *.jpeg, *.jpe, *.jfif, *.png, *.gif, *.bmp) | *.jpg; *.jpeg; *.jpe; *.jfif; *.png; *.gif; *.bmp|Audio files (*.wav)|*.wav"
             };
 
             if (ofd.ShowDialog() != DialogResult.OK)
@@ -675,5 +675,37 @@ namespace Stegosaurus.Forms
 
             UpdateInterface();
         }
+
+        private void importFromURLToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            string requestedUrl = Interaction.InputBox("Which URL to import image from?", "Import", "");
+            if (string.IsNullOrWhiteSpace(requestedUrl))
+            {
+                return;
+            }
+
+            // Download image with webclient
+            WebClient webClient = new WebClient();
+            string tempLocation = Path.GetTempFileName();
+            try
+            {
+                webClient.DownloadFile(requestedUrl, tempLocation);
+
+                HandleInput(new CarrierType(tempLocation));
+            }
+            catch (WebException)
+            {
+                ShowError("An error occurred while downloading the file.");
+            }
+            catch (InvalidImageFileException)
+            {
+                ShowError("The selected URL is not an image.");
+            }
+            finally
+            {
+                File.Delete(tempLocation);
+            }
+        }
+
     }
 }
