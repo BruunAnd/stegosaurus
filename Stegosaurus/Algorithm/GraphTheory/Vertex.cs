@@ -23,7 +23,7 @@ namespace Stegosaurus.Algorithm.GraphTheory
             string message = $"E:{Edges.Count ,4}";
             foreach (Sample sample in Samples)
             {
-                message += $"V:{sample.ModValue}, T:{sample.TargetValue}|";
+                message += $"V:{sample.ModValue}, T:{sample.TargetModValue}|";
             }
 
             return message;

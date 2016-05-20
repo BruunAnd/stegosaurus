@@ -42,9 +42,9 @@ namespace Stegosaurus.Forms
             cryptoProvider = new AESProvider();
 
             // Add algorithms
+            AddAlgorithm(typeof(GraphTheoreticAlgorithm));
             AddAlgorithm(typeof(GTARewrite));
             AddAlgorithm(typeof(LSBAlgorithm));
-            AddAlgorithm(typeof(GraphTheoreticAlgorithm));
             AddAlgorithm(typeof(CommonSampleAlgorithm));
 
             // Add crypto providers

@@ -75,6 +75,7 @@ namespace Stegosaurus.Algorithm
                 // Todo: move ModSdum somewhere else so no object is created if not needed.
                 NewVertex vertex = new NewVertex(tmpSampleArray);
                 vertex.Value = vertex.ModSum(bitwiseModFactor);
+                vertex.Target = _messageChunks[i];
 
                 // If index is more or equal to amount of message, add to reserves.
                 // Otherwise - if vertex has a wrong value - add it to message vertices.
@@ -82,21 +83,28 @@ namespace Stegosaurus.Algorithm
                 {
                     reserveVertices.Add(vertex);
                 }
-                else if (vertex.Value != _messageChunks[i])
+                else if (vertex.Value != vertex.Target)
                 {
                     messageVertices.Add(vertex);
 
-                    // Calculate delta value (todo: forklar mig).
-                    byte deltaValue = (byte)((modFactor - _messageChunks[i] + vertex.Value) & bitwiseModFactor);
+                    // Calculate delta value.
+                    byte deltaValue = (byte) ((modFactor +_messageChunks[i] - vertex.Value) & bitwiseModFactor);
 
-                    // Set target value for every sample.
+                    // Set target values.
                     foreach (Sample sample in vertex.Samples)
                     {
-                        sample.TargetModValue = (byte)((sample.ModValue + deltaValue) & bitwiseModFactor);
+                        sample.TargetModValue = (byte) ((sample.ModValue + deltaValue) & bitwiseModFactor);
                     }
 
-                    // Set vertex target value.
-                    vertex.Target = _messageChunks[i];
+                    var sum = 0;
+                    sum += vertex.Samples[0].ModValue;
+                    sum += vertex.Samples[1].ModValue;
+                    sum += vertex.Samples[2].TargetModValue;
+
+                    if (vertex.Target != (byte)(sum & bitwiseModFactor))
+                    {
+                        throw new Exception("something is not right");
+                    }
                 }
             }
 
@@ -147,7 +155,7 @@ namespace Stegosaurus.Algorithm
                 int sampleIndex = rand.Next(SamplesPerVertex), byteIndex = rand.Next(CarrierMedia.BytesPerSample);
 
                 // Calculate difference.
-                byte valueDifference = (byte)((modFactor + vertex.Samples[sampleIndex].ModValue - vertex.Samples[sampleIndex].TargetModValue) & bitwiseModFactor);
+                byte valueDifference = (byte)((modFactor - vertex.Samples[sampleIndex].ModValue + vertex.Samples[sampleIndex].TargetModValue) & bitwiseModFactor);
 
                 // Adjust value.
                 byte currentValue = vertex.Samples[sampleIndex].Values[byteIndex];
@@ -158,6 +166,22 @@ namespace Stegosaurus.Algorithm
                 else
                 {
                     vertex.Samples[sampleIndex].Values[byteIndex] -= (byte)(modFactor - valueDifference);
+                }
+
+                vertex.Samples[sampleIndex].UpdateModValue(bitwiseModFactor);
+
+                if (vertex.Samples[sampleIndex].ModValue != vertex.Samples[sampleIndex].TargetModValue)
+                    throw new Exception("Not working");
+
+                var sum = 0;
+                for (int i = 0; i < SamplesPerVertex; i++)
+                {
+                    sum += vertex.Samples[i].ModValue;
+                }
+
+                if (vertex.Target != (byte) ( sum & bitwiseModFactor ))
+                {
+                    throw new Exception("broken");
                 }
             }
         }
@@ -239,7 +263,7 @@ namespace Stegosaurus.Algorithm
             // Swap edges
 
             // Adjust unexposed vertices
-            Console.WriteLine("adjust {0}", unexposed.Count);
+            //Console.WriteLine("adjust {0}", unexposed.Count);
             Adjust(unexposed);
 
             // Encode samples back into carrier.
