@@ -48,11 +48,11 @@ namespace Stegosaurus.Algorithm
         [Category("Algorithm"), Description("The distance precision. Higher numbers significantly decreases performance with high DistanceMax. (Default = 8, Min-Max = 2-32.)")]
         public int DistancePrecision
         {
-            get { return distancePrecision; }
-            set { distancePrecision = (value <= 32) ? ((value >= 2) ? value : 2) : 32; }
+            get { return 1 << distancePrecision; }
+            set { distancePrecision = (value <= 32) ? ((value >= 0) ? (int)Math.Log(value, 2) : 0) : 32; }
         }
 
-        private int verticesPerMatching = 500000;
+        private int verticesPerMatching = 100000;
         [Category("Algorithm"), Description("The maximum number of vertices to find edges for at a time. Higher numbers means more memory usage but better imperceptibility. (Default = 150,000, Min = 10,000.)")]
         public int VerticesPerMatching
         {
@@ -71,15 +71,18 @@ namespace Stegosaurus.Algorithm
         private int progress, progressCounter, progressUpdateInterval;
         private byte modFactor;
         private byte bitwiseModFactor;
-        private byte shiftFactor;
+        private byte distancePrecision;
+        
+        public override long ComputeBandwidth()
+        {
+            return ((((CarrierMedia.ByteArray.Length / CarrierMedia.BytesPerSample) / samplesPerVertex) * messageBitsPerVertex ) / 8) - Signature.Length;
+        }
 
         #region Embed
         public override void Embed(StegoMessage _message, IProgress<int> _progress, CancellationToken _ct)
         {
             modFactor = (byte)(1 << messageBitsPerVertex);
             bitwiseModFactor = (byte)(modFactor - 1);
-            int logDistanceMax = (int)(Math.Ceiling(Math.Log(DistanceMax, 2))), logDistancePrecision = (int)(Math.Ceiling(Math.Log(distancePrecision, 2)));
-            shiftFactor = (logDistanceMax > logDistancePrecision) ? (byte)(logDistanceMax - logDistancePrecision) : (byte)0;
 
             // Verify that the carrier is supported by the algorithm.
             if (CarrierMedia.BytesPerSample != 3)
@@ -247,15 +250,15 @@ namespace Stegosaurus.Algorithm
                 {
                     vertexRef = Tuple.Create(vertexIndex, sampleIndex);
                     sample = _vertices[vertexIndex].Samples[sampleIndex];
-                    vertexRefs = array[sample.Values[0] >> shiftFactor, sample.Values[1] >> shiftFactor, sample.Values[2] >> shiftFactor, sample.ModValue, sample.TargetModValue];
+                    vertexRefs = array[sample.Values[0] >> distancePrecision, sample.Values[1] >> distancePrecision, sample.Values[2] >> distancePrecision, sample.ModValue, sample.TargetModValue];
                     if (vertexRefs != null)
                     {
                         vertexRefs.Add(vertexRef);
                     }
                     else
                     {
-                        array[sample.Values[0] >> shiftFactor, sample.Values[1] >> shiftFactor, sample.Values[2] >> shiftFactor, sample.ModValue, sample.TargetModValue] = new List<Tuple<int, byte>>();
-                        array[sample.Values[0] >> shiftFactor, sample.Values[1] >> shiftFactor, sample.Values[2] >> shiftFactor, sample.ModValue, sample.TargetModValue].Add(vertexRef);
+                        array[sample.Values[0] >> distancePrecision, sample.Values[1] >> distancePrecision, sample.Values[2] >> distancePrecision, sample.ModValue, sample.TargetModValue] = new List<Tuple<int, byte>>();
+                        array[sample.Values[0] >> distancePrecision, sample.Values[1] >> distancePrecision, sample.Values[2] >> distancePrecision, sample.ModValue, sample.TargetModValue].Add(vertexRef);
                     }
                 }
             }
@@ -270,7 +273,7 @@ namespace Stegosaurus.Algorithm
             List<Tuple<int, byte>> vertexRefs;
             Vertex vertex;
             Sample sample;
-            byte dimMax = (byte)(byte.MaxValue >> shiftFactor), maxDelta = (byte)(distanceMax >> shiftFactor);
+            byte dimMax = (byte)(byte.MaxValue >> distancePrecision), maxDelta = (byte)(distanceMax >> distancePrecision);
             Console.WriteLine($"Debug GetEdges: maxDelta {maxDelta} , dimMax {dimMax}");
             List<Tuple<int, byte>>[,,,,] array = GetArray(_vertexList, dimMax + 1, _ct); //dimMax + 1 to account for 0 based indexes.
             int bytesPerSample = CarrierMedia.BytesPerSample;
@@ -305,7 +308,7 @@ namespace Stegosaurus.Algorithm
                     
                     for (int byteIndex = 0; byteIndex < bytesPerSample; byteIndex++)
                     {
-                        temp = (outerSampleValues[byteIndex] >> shiftFactor);
+                        temp = (outerSampleValues[byteIndex] >> distancePrecision);
                         minValues[byteIndex] = temp;
                         maxValues[byteIndex] = ((temp + maxDelta) > dimMax) ? dimMax : (temp + maxDelta);
                     }
@@ -414,7 +417,7 @@ namespace Stegosaurus.Algorithm
                 {
                     vertexSample = _vertices[vertexIndex].Samples[sampleIndex];
                     vertexRef = Tuple.Create(vertexIndex, sampleIndex);
-                    location = Tuple.Create((byte)(vertexSample.Values[0] >> shiftFactor), (byte)(vertexSample.Values[1] >> shiftFactor), (byte)(vertexSample.Values[2] >> shiftFactor), vertexSample.ModValue, vertexSample.TargetModValue);
+                    location = Tuple.Create((byte)(vertexSample.Values[0] >> distancePrecision), (byte)(vertexSample.Values[1] >> distancePrecision), (byte)(vertexSample.Values[2] >> distancePrecision), vertexSample.ModValue, vertexSample.TargetModValue);
 
                     if (locationDictionary.TryGetValue(location, out vertexReferenceList))
                     {
