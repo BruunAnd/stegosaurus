@@ -52,7 +52,7 @@ namespace Stegosaurus.Algorithm
             set { distancePrecision = (value <= 32) ? ((value >= 2) ? value : 2) : 32; }
         }
 
-        private int verticesPerMatching = 100000;
+        private int verticesPerMatching = 500000;
         [Category("Algorithm"), Description("The maximum number of vertices to find edges for at a time. Higher numbers means more memory usage but better imperceptibility. (Default = 150,000, Min = 10,000.)")]
         public int VerticesPerMatching
         {
@@ -72,11 +72,6 @@ namespace Stegosaurus.Algorithm
         private byte modFactor;
         private byte bitwiseModFactor;
         private byte shiftFactor;
-        
-        public override long ComputeBandwidth()
-        {
-            return ((((CarrierMedia.ByteArray.Length / CarrierMedia.BytesPerSample) / samplesPerVertex) * messageBitsPerVertex ) / 8) - Signature.Length;
-        }
 
         #region Embed
         public override void Embed(StegoMessage _message, IProgress<int> _progress, CancellationToken _ct)
@@ -178,14 +173,12 @@ namespace Stegosaurus.Algorithm
                 // Otherwise add to message vertices.
                 if (i >= _messageChunks.Count)
                 {
-                    Vertex reserveVertex = new Vertex(tmpSampleArray);
-                    reserveVertex.Value = vertexModValue;
+                    Vertex reserveVertex = new Vertex(tmpSampleArray) {Value = vertexModValue};
                     reserveVertices.Add(reserveVertex);
                 }
                 else
                 {
-                    Vertex messageVertex = new Vertex(tmpSampleArray);
-                    messageVertex.Value = vertexModValue;
+                    Vertex messageVertex = new Vertex(tmpSampleArray) {Value = vertexModValue};
                     messageVertices.Add(messageVertex);
 
                     // Calculate delta value.
@@ -227,8 +220,7 @@ namespace Stegosaurus.Algorithm
                 tempVertices.AddRange(tempLeftovers);
                 tempVertices.AddRange(_vertices.GetRange(indexOffset, (i < (numRuns - 1) ? verticesPerRun : (_vertices.Count - indexOffset))));
                 GetEdges(tempVertices, _progress, _ct, weight);
-                tempLeftovers = Swap(tempVertices); //DoSwap(tempVertices, _progress, _ct, weight);//Swap(tempVertices);//
-                //PrintDebug("DoSwap:", _samples, _message);
+                tempLeftovers = Swap(tempVertices);
                 ClearVertexEdges(tempVertices);
                 indexOffset += verticesPerRun;
             }
@@ -437,6 +429,11 @@ namespace Stegosaurus.Algorithm
                 }
             }
             return locationDictionary;
+        }
+
+        public override long ComputeBandwidth()
+        {
+            return ((((CarrierMedia.ByteArray.Length / CarrierMedia.BytesPerSample) / samplesPerVertex) * messageBitsPerVertex) / 8) - Signature.Length;
         }
 
         private List<Vertex> Swap(List<Vertex> _vertexList)

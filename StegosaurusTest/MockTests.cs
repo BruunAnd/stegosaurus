@@ -33,11 +33,12 @@ namespace StegosaurusTest
             }
 
             // Test requires a cover file
-            Bitmap testImage = new Bitmap(500, 500);
+            Random rand = new Random();
+            Bitmap testImage = new Bitmap(rand.Next(500, 1000), rand.Next(500, 1000));
 
             // Setup algorithm
             _algorithm.CarrierMedia = new ImageCarrier(testImage);
-            new Random().NextBytes(_algorithm.CarrierMedia.ByteArray);
+            rand.NextBytes(_algorithm.CarrierMedia.ByteArray);
             _algorithm.CryptoProvider = _cryptoProvider;
 
             // Instantiate StegoMessage
