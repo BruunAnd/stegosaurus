@@ -48,11 +48,11 @@ namespace Stegosaurus.Algorithm
         [Category("Algorithm"), Description("The distance precision. Higher numbers significantly decreases performance with high DistanceMax. (Default = 8, Min-Max = 2-32.)")]
         public int DistancePrecision
         {
-            get { return 1 << distancePrecision; }
-            set { distancePrecision = (value <= 32) ? ((value >= 0) ? (int)Math.Log(value, 2) : 0) : 32; }
+            get { return distancePrecision; }
+            set { distancePrecision = (value <= 32) ? ((value >= 2) ? value : 2) : 32; }
         }
 
-        private int verticesPerMatching = 100000;
+        private int verticesPerMatching = 25000;
         [Category("Algorithm"), Description("The maximum number of vertices to find edges for at a time. Higher numbers means more memory usage but better imperceptibility. (Default = 150,000, Min = 10,000.)")]
         public int VerticesPerMatching
         {
@@ -71,18 +71,15 @@ namespace Stegosaurus.Algorithm
         private int progress, progressCounter, progressUpdateInterval;
         private byte modFactor;
         private byte bitwiseModFactor;
-        private byte distancePrecision;
-        
-        public override long ComputeBandwidth()
-        {
-            return ((((CarrierMedia.ByteArray.Length / CarrierMedia.BytesPerSample) / samplesPerVertex) * messageBitsPerVertex ) / 8) - Signature.Length;
-        }
+        private byte shiftFactor;
 
         #region Embed
         public override void Embed(StegoMessage _message, IProgress<int> _progress, CancellationToken _ct)
         {
             modFactor = (byte)(1 << messageBitsPerVertex);
             bitwiseModFactor = (byte)(modFactor - 1);
+            int logDistanceMax = (int)(Math.Ceiling(Math.Log(DistanceMax, 2))), logDistancePrecision = (int)(Math.Ceiling(Math.Log(distancePrecision, 2)));
+            shiftFactor = (logDistanceMax > logDistancePrecision) ? (byte)(logDistanceMax - logDistancePrecision) : (byte)0;
 
             // Verify that the carrier is supported by the algorithm.
             if (CarrierMedia.BytesPerSample != 3)
@@ -101,16 +98,20 @@ namespace Stegosaurus.Algorithm
             List<Vertex> messageVertexList = verticeTuple.Item1;
             List<Vertex> reserveVertexList = verticeTuple.Item2;
 
+            int messageVertexCount = messageVertexList.Count;
+
             // Find and swap edges.
             // Returned value is a list of vertices that could not be changed.
             List<Vertex> unmatchedVertexList = FindEdgesAndSwap(messageVertexList, _progress, _ct, 50, sampleList, messageChunks);
 
-            //DoReserveMatching();
             // Adjust vertices that could not be swapped.
             Adjust(unmatchedVertexList);
 
             // Finally encode the samples back into the CarrierMedia.
             Encode(sampleList);
+
+            Console.WriteLine("Finished. Had to adjust {0}%.", (unmatchedVertexList.Count / (float) messageVertexCount) * 100);
+
             _progress?.Report(100);
         }
 
@@ -200,41 +201,36 @@ namespace Stegosaurus.Algorithm
 
         private List<Vertex> FindEdgesAndSwap(List<Vertex> _vertices, IProgress<int> _progress, CancellationToken _ct, int _progressWeight, List<Sample> _samples, List<byte> _message)
         {
-            Console.WriteLine("Debug FindEdgesAndSwap:");
-            List<Vertex> leftovers = new List<Vertex>(), tempLeftovers = new List<Vertex>(), tempVertices = new List<Vertex>();
-            List<Edge> edges = new List<Edge>();
-            int numRuns = (int)Math.Ceiling((decimal)_vertices.Count / verticesPerMatching);
-            int verticesPerRun = _vertices.Count / numRuns;
-            int indexOffset = 0;
-            int maxLeftovers = (VerticesPerMatching >> 2);
-            int numToTrim;
-            int curProgress = progress, weight = ((_progressWeight >> 1) / numRuns) > 0 ? ((_progressWeight >> 1) / numRuns) : 1;
-            for (int i = 0; i < numRuns; i++)
-            {
-                Console.WriteLine($"FEAS Iteration {i} of {numRuns}.");
-                _ct.ThrowIfCancellationRequested();
-                tempVertices.Clear();
-                if (tempLeftovers.Count > maxLeftovers)
-                {
-                    numToTrim = tempLeftovers.Count - maxLeftovers;
-                    leftovers.AddRange(tempLeftovers.GetRange(0, numToTrim));
-                    tempLeftovers = tempLeftovers.GetRange(numToTrim, maxLeftovers);
-                }
-                tempVertices.AddRange(tempLeftovers);
-                tempVertices.AddRange(_vertices.GetRange(indexOffset, (i < (numRuns - 1) ? verticesPerRun : (_vertices.Count - indexOffset))));
-                GetEdges(tempVertices, _progress, _ct, weight);
-                tempLeftovers = Swap(tempVertices);
-                ClearVertexEdges(tempVertices);
-                indexOffset += verticesPerRun;
-            }
-            leftovers.AddRange(tempLeftovers);
-            Console.WriteLine($"Total of {leftovers.Count} vertices not swapped.");
-            progress = curProgress + _progressWeight;
-            _progress?.Report(progress);
+            int verticeOffset = 0, roundNumber = 0, startNumVertices = _vertices.Count;
+            List<Vertex> leftoverVertexList = new List<Vertex>();
 
-            ClearVertexEdges(tempVertices);
-            Console.WriteLine("FindEdgesAndSwap: Succesful.");
-            return leftovers;
+            // Continue until we have gone through all vertices.
+            while (verticeOffset < startNumVertices)
+            {
+                Console.WriteLine("Round: {0} ({1}/{2})", ++roundNumber, verticeOffset, startNumVertices);
+
+                // Calculate how many vertices to use this round.
+                int verticesThisRound = verticesPerMatching > _vertices.Count ? _vertices.Count : verticesPerMatching;
+                verticeOffset += verticesThisRound;
+
+                // Take this amount of vertices.
+                List<Vertex> tmpVertexList = _vertices.GetRange(0, verticesThisRound);
+
+                // Remove them from the main list.
+                _vertices.RemoveRange(0, verticesThisRound);
+                // mb dont do this?
+
+                // Get edges for subset.
+                GetEdges(tmpVertexList, _progress, _ct, 100);
+
+                // Swap edges found for subset and add leftovers to list.
+                leftoverVertexList.AddRange(Swap(tmpVertexList));
+
+                // Clear edges for subset.
+                tmpVertexList.ForEach(v => v.Edges.Clear());
+            }
+
+            return leftoverVertexList;
         }
 
         private List<Tuple<int, byte>>[,,,,] GetArray(List<Vertex> _vertices, int _dimensionSize, CancellationToken _ct)
@@ -250,15 +246,15 @@ namespace Stegosaurus.Algorithm
                 {
                     vertexRef = Tuple.Create(vertexIndex, sampleIndex);
                     sample = _vertices[vertexIndex].Samples[sampleIndex];
-                    vertexRefs = array[sample.Values[0] >> distancePrecision, sample.Values[1] >> distancePrecision, sample.Values[2] >> distancePrecision, sample.ModValue, sample.TargetModValue];
+                    vertexRefs = array[sample.Values[0] >> shiftFactor, sample.Values[1] >> shiftFactor, sample.Values[2] >> shiftFactor, sample.ModValue, sample.TargetModValue];
                     if (vertexRefs != null)
                     {
                         vertexRefs.Add(vertexRef);
                     }
                     else
                     {
-                        array[sample.Values[0] >> distancePrecision, sample.Values[1] >> distancePrecision, sample.Values[2] >> distancePrecision, sample.ModValue, sample.TargetModValue] = new List<Tuple<int, byte>>();
-                        array[sample.Values[0] >> distancePrecision, sample.Values[1] >> distancePrecision, sample.Values[2] >> distancePrecision, sample.ModValue, sample.TargetModValue].Add(vertexRef);
+                        array[sample.Values[0] >> shiftFactor, sample.Values[1] >> shiftFactor, sample.Values[2] >> shiftFactor, sample.ModValue, sample.TargetModValue] = new List<Tuple<int, byte>>();
+                        array[sample.Values[0] >> shiftFactor, sample.Values[1] >> shiftFactor, sample.Values[2] >> shiftFactor, sample.ModValue, sample.TargetModValue].Add(vertexRef);
                     }
                 }
             }
@@ -273,7 +269,7 @@ namespace Stegosaurus.Algorithm
             List<Tuple<int, byte>> vertexRefs;
             Vertex vertex;
             Sample sample;
-            byte dimMax = (byte)(byte.MaxValue >> distancePrecision), maxDelta = (byte)(distanceMax >> distancePrecision);
+            byte dimMax = (byte)(byte.MaxValue >> shiftFactor), maxDelta = (byte)(distanceMax >> shiftFactor);
             Console.WriteLine($"Debug GetEdges: maxDelta {maxDelta} , dimMax {dimMax}");
             List<Tuple<int, byte>>[,,,,] array = GetArray(_vertexList, dimMax + 1, _ct); //dimMax + 1 to account for 0 based indexes.
             int bytesPerSample = CarrierMedia.BytesPerSample;
@@ -308,7 +304,7 @@ namespace Stegosaurus.Algorithm
                     
                     for (int byteIndex = 0; byteIndex < bytesPerSample; byteIndex++)
                     {
-                        temp = (outerSampleValues[byteIndex] >> distancePrecision);
+                        temp = (outerSampleValues[byteIndex] >> shiftFactor);
                         minValues[byteIndex] = temp;
                         maxValues[byteIndex] = ((temp + maxDelta) > dimMax) ? dimMax : (temp + maxDelta);
                     }
@@ -417,7 +413,7 @@ namespace Stegosaurus.Algorithm
                 {
                     vertexSample = _vertices[vertexIndex].Samples[sampleIndex];
                     vertexRef = Tuple.Create(vertexIndex, sampleIndex);
-                    location = Tuple.Create((byte)(vertexSample.Values[0] >> distancePrecision), (byte)(vertexSample.Values[1] >> distancePrecision), (byte)(vertexSample.Values[2] >> distancePrecision), vertexSample.ModValue, vertexSample.TargetModValue);
+                    location = Tuple.Create((byte)(vertexSample.Values[0] >> shiftFactor), (byte)(vertexSample.Values[1] >> shiftFactor), (byte)(vertexSample.Values[2] >> shiftFactor), vertexSample.ModValue, vertexSample.TargetModValue);
 
                     if (locationDictionary.TryGetValue(location, out vertexReferenceList))
                     {
