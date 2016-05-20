@@ -203,7 +203,7 @@ namespace Stegosaurus.Algorithm
         {
             Console.WriteLine("Debug FindEdgesAndSwap:");
             int numRounds = (int)Math.Ceiling((decimal)_vertices.Count / VerticesPerMatching), roundProgressWeight = _progressWeight / numRounds;
-            int verticesPerRound = (_vertices.Count / numRounds) + 1, maxLeftoversPerRound = VerticesPerMatching >> 2;
+            int verticesPerRound = (_vertices.Count / numRounds) + 1, maxCarryoverPerRound = VerticesPerMatching >> 2;
             int verticeOffset = 0, roundNumber = 0, startNumVertices = _vertices.Count;
             List<Vertex> leftoverVertexList = new List<Vertex>();
 
@@ -223,15 +223,17 @@ namespace Stegosaurus.Algorithm
                 // Remove them from the main list.
                 _vertices.RemoveRange(0, verticesThisRound);
 
-                // Add leftover vertices.
-                // Their edges are cleared first to avoid errors.
-                leftoverVertexList.ForEach(vertex =>
-                {
-                    vertex.Edges.Clear();
-                    vertex.IsValid = true; // not sure why they are set to false? but this fixes an issue
-                });
-                tmpVertexList.AddRange(leftoverVertexList);
-                leftoverVertexList.Clear();
+                // Calculate how many leftover vertices to carry over.
+                int leftoverCarryover = maxCarryoverPerRound > leftoverVertexList.Count ? leftoverVertexList.Count : maxCarryoverPerRound;
+                //// Their edges are cleared first to avoid errors. // shouldnt be necessary
+                //leftoverVertexList.ForEach(vertex =>
+                //{
+                //    vertex.Edges.Clear();
+                //});
+                // Add leftover vertices to tmpVertexList.
+                tmpVertexList.AddRange(leftoverVertexList.GetRange(0, leftoverCarryover));
+                // remove the transfered vertices from the list.
+                leftoverVertexList.RemoveRange(0, leftoverCarryover);
 
                 // Get edges for subset.
                 GetEdges(tmpVertexList, _progress, _ct, roundProgressWeight);
@@ -461,7 +463,6 @@ namespace Stegosaurus.Algorithm
                     // Add to unmatched if it could not be swapped.
                     if (!swapped)
                     {
-                        vertex.IsValid = false;
                         leftoverVertexList.Add(vertex);
                     }
                 }
