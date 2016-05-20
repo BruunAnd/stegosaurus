@@ -176,14 +176,12 @@ namespace Stegosaurus.Algorithm
                 // Otherwise add to message vertices.
                 if (i >= _messageChunks.Count)
                 {
-                    Vertex reserveVertex = new Vertex(tmpSampleArray);
-                    reserveVertex.Value = vertexModValue;
+                    Vertex reserveVertex = new Vertex(tmpSampleArray) {Value = vertexModValue};
                     reserveVertices.Add(reserveVertex);
                 }
                 else
                 {
-                    Vertex messageVertex = new Vertex(tmpSampleArray);
-                    messageVertex.Value = vertexModValue;
+                    Vertex messageVertex = new Vertex(tmpSampleArray) {Value = vertexModValue};
                     messageVertices.Add(messageVertex);
 
                     // Calculate delta value.
@@ -213,7 +211,7 @@ namespace Stegosaurus.Algorithm
             int curProgress = progress, weight = ((_progressWeight >> 1) / numRuns) > 0 ? ((_progressWeight >> 1) / numRuns) : 1;
             for (int i = 0; i < numRuns; i++)
             {
-                Console.WriteLine($"FEAS Iteration {i + 1} of {numRuns}.");
+                Console.WriteLine($"FEAS Iteration {i} of {numRuns}.");
                 _ct.ThrowIfCancellationRequested();
                 tempVertices.Clear();
                 if (tempLeftovers.Count > maxLeftovers)
@@ -225,8 +223,7 @@ namespace Stegosaurus.Algorithm
                 tempVertices.AddRange(tempLeftovers);
                 tempVertices.AddRange(_vertices.GetRange(indexOffset, (i < (numRuns - 1) ? verticesPerRun : (_vertices.Count - indexOffset))));
                 GetEdges(tempVertices, _progress, _ct, weight);
-                tempLeftovers = Swap(tempVertices); //DoSwap(tempVertices, _progress, _ct, weight);//Swap(tempVertices);//
-                //PrintDebug("DoSwap:", _samples, _message);
+                tempLeftovers = Swap(tempVertices);
                 ClearVertexEdges(tempVertices);
                 indexOffset += verticesPerRun;
             }
@@ -339,7 +336,7 @@ namespace Stegosaurus.Algorithm
                                         for (int valueIndex = 0; valueIndex < bytesPerSample; valueIndex++)
                                         {
                                             temp = outerSampleValues[valueIndex] - innerSampleValues[valueIndex];
-                                            distance += (short)(temp + temp);
+                                            distance += (short)(temp * temp);
                                         }
 
                                         newEdge = new Edge(numVertex, vertexRef.Item1, distance, bestSwaps);
@@ -435,6 +432,11 @@ namespace Stegosaurus.Algorithm
                 }
             }
             return locationDictionary;
+        }
+
+        public override long ComputeBandwidth()
+        {
+            return ((((CarrierMedia.ByteArray.Length / CarrierMedia.BytesPerSample) / samplesPerVertex) * messageBitsPerVertex) / 8) - Signature.Length;
         }
 
         private List<Vertex> Swap(List<Vertex> _vertexList)
