@@ -1,13 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using Stegosaurus.Carrier;
-using Stegosaurus.Cryptography;
-using Stegosaurus.Algorithm;
 using System.Collections;
 using System.Linq;
-using System.Text;
 using Stegosaurus.Utility;
-using Stegosaurus.Forms;
 using System.ComponentModel;
 using System.Threading;
 using Stegosaurus.Algorithm.GraphTheory;
@@ -92,8 +87,7 @@ namespace Stegosaurus.Algorithm
             shiftFactor = (logDistanceMax > logDistancePrecision) ? (byte)(logDistanceMax - logDistancePrecision) : (byte)0;
 
             // Verify that the carrier is supported by the algorithm.
-            int bps = CarrierMedia.BytesPerSample;
-            if (bps != 3)
+            if (CarrierMedia.BytesPerSample != 3)
             {
                 throw new StegoAlgorithmException("The selected carrier is not supported by this algorithm.");
             }
@@ -102,64 +96,57 @@ namespace Stegosaurus.Algorithm
             List<byte> messageChunks = GetMessageChunks(_message);//GetMessage(_message, _progress, _ct, 10);
 
             // Convert bytes CarrierMedia to a list of Samples.
-            List<Sample> samples = Sample.GetSampleListFrom(CarrierMedia, bitwiseModFactor);
+            List<Sample> sampleList = Sample.GetSampleListFrom(CarrierMedia, bitwiseModFactor);
 
             // Get Vertex lists.
-            Tuple<List<Vertex>, List<Vertex>> verticeTuple = GetVerticeLists(samples, messageChunks);
+            Tuple<List<Vertex>, List<Vertex>> verticeTuple = GetVerticeLists(sampleList, messageChunks);
+            List<Vertex> messageVertexList = verticeTuple.Item1;
+            List<Vertex> reserveVertexList = verticeTuple.Item2;
 
-            List<Vertex> messageVertices = verticeTuple.Item1;
-            List<Vertex> reserveVertices = verticeTuple.Item2;
-
-            //GetEdges(vertices, _progress, _ct, 40);
-            //List<Vertex> leftovers = DoSwap(vertices, _progress, _ct, 10);
-
-            List<Vertex> leftovers = FindEdgesAndSwap(messageVertices, _progress, _ct, 50, samples, messageChunks);
-            //PrintMessage("FindEdgesAndSwap:", samples, message);
+            // Find and swap edges.
+            // Returned value is a list of vertices that could not be changed.
+            List<Vertex> unmatchedVertexList = FindEdgesAndSwap(messageVertexList, _progress, _ct, 50, sampleList, messageChunks);
 
             //DoReserveMatching();
+            // Adjust vertices that could not be swapped.
+            Adjust(unmatchedVertexList);
 
-            DoAdjust(leftovers, _progress, _ct, 5);
-            //PrintDebug("DoAdjust:", samples, message);
-
-            DoEncode(samples);
-            //PrintDebug("DoEncode:", samples, message);
-
+            // Finally encode the samples back into the CarrierMedia.
+            Encode(sampleList);
             _progress?.Report(100);
         }
-        
-        // Gets the encrypted message and seperates the bit pattern into chunks of size messageBitsPerVertex which are added to the messageHunk list.
-        private List<byte> GetMessage(StegoMessage _message, IProgress<int> _progress, CancellationToken _ct, int _progressWeight)
-        {
-            Console.WriteLine("Debug GetMessageHunks:");
-            List<byte> message = new List<byte>();
-            byte[] messageArray = _message.ToByteArray(CryptoProvider);
-            BitArray messageInBits = new BitArray(Signature.Concat(messageArray).ToArray());
-            int numMessageParts = messageInBits.Length / messageBitsPerVertex;
-            byte messageValue;
-            
-            progressUpdateInterval = numMessageParts / _progressWeight;
-            progressCounter = 0;
-            for (int index = 0, indexOffset = 0; index < numMessageParts; index++, indexOffset += messageBitsPerVertex, progressCounter++)
-            {
-                _ct.ThrowIfCancellationRequested();
-                messageValue = new byte();
-                messageValue = 0;
-                for (int byteIndex = 0; byteIndex < messageBitsPerVertex; byteIndex++)
-                {
-                    messageValue += messageInBits[indexOffset + byteIndex] ? (byte)(1 << byteIndex) : (byte)0;
-                }
-                message.Add(messageValue);
 
-                if (progressCounter == progressUpdateInterval)
+        private void Encode(List<Sample> _sampleList)
+        {
+            int pos = 0;
+            foreach (byte sample in _sampleList.SelectMany(current => current.Values))
+            {
+                CarrierMedia.ByteArray[pos++] = sample;
+            }
+        }
+
+        private void Adjust(List<Vertex> _vertices)
+        {
+            Random rand = new Random();
+
+            foreach (Vertex vertex in _vertices)
+            {
+                int sampleIndex = rand.Next(SamplesPerVertex), byteIndex = rand.Next(CarrierMedia.BytesPerSample);
+
+                // Calculate difference.
+                byte valueDifference = (byte) ((modFactor - vertex.Samples[sampleIndex].ModValue + vertex.Samples[sampleIndex].TargetModValue) & bitwiseModFactor);
+
+                // Adjust value.
+                byte currentValue = vertex.Samples[sampleIndex].Values[byteIndex];
+                if (( currentValue + valueDifference ) <= byte.MaxValue)
                 {
-                    progressCounter = 0;
-                    _progress?.Report(++progress);
-                    Console.WriteLine($"... {index} of {numMessageParts} messageHunks handled.");
+                    vertex.Samples[sampleIndex].Values[byteIndex] += valueDifference;
+                }
+                else
+                {
+                    vertex.Samples[sampleIndex].Values[byteIndex] -= (byte) ( modFactor - valueDifference );
                 }
             }
-
-            Console.WriteLine("GetMessageHunks: Succesful.");
-            return message;
         }
 
         private Tuple<List<Vertex>, List<Vertex>> GetVerticeLists(List<Sample> _sampleList, List<byte> _messageChunks)
@@ -524,65 +511,6 @@ namespace Stegosaurus.Algorithm
             Console.WriteLine("DoSwap: Succesful.");
             return leftoverVertices;
         }
-
-        // Iterates through the remainder vertices and adjusts their values to the desired values.
-        private void DoAdjust(List<Vertex> _leftoverVertices, IProgress<int> _progress, CancellationToken _ct, int _progressWeight)
-        {
-            Console.WriteLine("Debug DoAdjust:");
-            byte bps = (byte)CarrierMedia.BytesPerSample;
-            int maxValue = byte.MaxValue;
-            int numVertices = _leftoverVertices.Count;
-            int sampleIndex = 0, byteIndex = 0;
-            byte valueDif;
-            byte sampleValue;
-            Vertex vertex;
-            progressCounter = 1;
-            progressUpdateInterval = numVertices / _progressWeight;
-            for (int vertexIndex = 0; vertexIndex < numVertices; vertexIndex++, progressCounter++)
-            {
-                _ct.ThrowIfCancellationRequested();
-
-                vertex = _leftoverVertices[vertexIndex];
-
-                //ensures that it varies which sampe of a vertesx, and which byte of the sample that is adjusted varies.
-                sampleIndex = (sampleIndex > 0) ? (sampleIndex - 1) : (SamplesPerVertex - 1);
-                byteIndex = (byteIndex > 0) ? (byteIndex - 1) : (bps - 1);
-
-                valueDif = (byte)((modFactor - vertex.Samples[0].ModValue + vertex.Samples[0].TargetModValue) & bitwiseModFactor);
-                sampleValue = vertex.Samples[sampleIndex].Values[byteIndex];
-                if ((sampleValue + valueDif) <= maxValue)
-                {
-                    vertex.Samples[sampleIndex].Values[byteIndex] += valueDif;
-                }
-                else
-                {
-                    vertex.Samples[sampleIndex].Values[byteIndex] -= (byte)(modFactor - valueDif);
-                }
-
-                if (progressCounter == progressUpdateInterval)
-                {
-                    progressCounter = 1;
-                    _progress?.Report(++progress);
-                    Console.WriteLine($"... {vertexIndex} of {numVertices} adjusted. {(decimal)vertexIndex / numVertices :p}");
-                }
-            }
-            Console.WriteLine("DoAdjust: Succesful");
-        }
-
-        private void DoEncode(List<Sample> _samples)
-        {
-            int numSamples = _samples.Count;
-            int bytesPerSample = CarrierMedia.BytesPerSample;
-            int byteIndexOffset;
-            for (int sampleIndex = 0; sampleIndex < numSamples; sampleIndex++)
-            {
-                byteIndexOffset = sampleIndex * bytesPerSample;
-                for (int byteIndex = 0; byteIndex < bytesPerSample; byteIndex++)
-                {
-                    CarrierMedia.ByteArray[byteIndexOffset + byteIndex] = _samples[sampleIndex].Values[byteIndex];
-                }
-            }
-        }
         #endregion
 
         #region Extract
@@ -642,18 +570,15 @@ namespace Stegosaurus.Algorithm
         {
             BitArray tempBitArray = new BitArray(_count * 8);
             int bps = CarrierMedia.BytesPerSample;
-            int bytesPerVertex = bps * SamplesPerVertex;
             int numVertices = (_count * 8) / messageBitsPerVertex;
-            int tempValue = 0;
-            int byteIndexOffset, bitIndexOffset;
 
             for (int vertexIndex = 0; vertexIndex < numVertices; vertexIndex++)
             {
-                bitIndexOffset = vertexIndex * messageBitsPerVertex;
-                tempValue = 0;
+                int bitIndexOffset = vertexIndex * messageBitsPerVertex;
+                int tempValue = 0;
                 for (int sampleIndex = 0; sampleIndex < samplesPerVertex; sampleIndex++)
                 {
-                    byteIndexOffset = _numberList.Next * bps;
+                    var byteIndexOffset = _numberList.Next * bps;
                     for (int byteIndex = 0; byteIndex < bps; byteIndex++)
                     {
                         tempValue += CarrierMedia.ByteArray[byteIndexOffset + byteIndex];
@@ -677,50 +602,7 @@ namespace Stegosaurus.Algorithm
         //Clears the vertices for references to edges.
         private void ClearVertexEdges(List<Vertex> _vertices)
         {
-            //Console.WriteLine("Debug ClearVertexEdges:");
-            foreach (Vertex vertex in _vertices)
-            {
-                vertex.Edges.Clear();
-            }
-            //Console.WriteLine("... vertices cleared for edges.");
-
-            //Console.WriteLine("ClearVertexEdges: Succesful.");
+            _vertices.ForEach(v => v.Edges.Clear());
         }
-
-
-        private void PrintDebug(string _message, List<Sample> _samples, List<byte> _messageBytes)
-        {
-            Console.WriteLine(_message);
-            RandomNumberList rnl = new RandomNumberList(Seed, _samples.Count);
-            int temp;
-            int numMessageVals = _messageBytes.Count;
-            int bps = CarrierMedia.BytesPerSample, spv = SamplesPerVertex;
-            int sampleIndex, sampleTval = 0;
-            int sampleTotalValue;
-            Sample sample;
-            for (int i = 0; i < numMessageVals; i++)
-            {
-                temp = 0;
-                for (int j = 0; j < spv; j++)
-                {
-                    sampleIndex = rnl.Next;
-                    sampleTval = _samples[sampleIndex].TargetModValue;
-                    for (int k = 0; k < bps; k++)
-                    {
-                        temp += _samples[sampleIndex].Values[k];
-                    }
-                }
-                sampleTotalValue = temp;
-                temp = temp & bitwiseModFactor;
-
-                //Console.Write($"{sampleTotalValue},{temp}|");
-                //Console.Write($"{{{_messageBytes[i]};{temp}}}");
-            }
-
-
-
-        }
-
-
     }
 }
