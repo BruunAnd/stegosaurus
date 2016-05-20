@@ -227,7 +227,7 @@ namespace Stegosaurus.Algorithm
                 tempVertices.AddRange(tempLeftovers);
                 tempVertices.AddRange(_vertices.GetRange(indexOffset, (i < (numRuns - 1) ? verticesPerRun : (_vertices.Count - indexOffset))));
                 GetEdges(tempVertices, _progress, _ct, weight);
-                tempLeftovers = DoSwap(tempVertices, _progress, _ct, weight);
+                tempLeftovers = Swap(tempVertices); //DoSwap(tempVertices, _progress, _ct, weight);//Swap(tempVertices);//
                 //PrintDebug("DoSwap:", _samples, _message);
                 ClearVertexEdges(tempVertices);
                 indexOffset += verticesPerRun;
@@ -438,88 +438,71 @@ namespace Stegosaurus.Algorithm
             }
             return locationDictionary;
         }
-        
-        // receives a list of vertices, sorts them, performs swaps starting with the vertice with least edges and returns a list of the vertices that couldnt be swapped.
-        private List<Vertex> DoSwap(List<Vertex> _vertices, IProgress<int> _progress, CancellationToken _ct, int _progressWeight)
+
+        private List<Vertex> Swap(List<Vertex> _vertexList)
         {
-            Console.WriteLine("Debug DoSwap:");
-            List<Vertex> leftoverVertices = new List<Vertex>();
-            List<Vertex> sortedVertices = _vertices.GetRange(0, _vertices.Count);
-            //Console.WriteLine("... Sorting for edges");
-            sortedVertices.Sort((v1, v2) => v1.Edges.Count - v2.Edges.Count);
-            //Console.WriteLine("... Sorted.");
-            bool swapped;
-            int numVertices = _vertices.Count;
-            Vertex vertex;
-            int bytesPerSample = CarrierMedia.BytesPerSample;
-            byte[] tempSampleBytes = new byte[bytesPerSample];
+            List<Vertex> leftoverVertexList = new List<Vertex>();
 
-            byte[] iValues, oValues;
+            // Sort input list of vertices by amount of edges.
+            List<Vertex> sortedVertexList = _vertexList.Select(x => x).ToList();
+            sortedVertexList.Sort((v1, v2) => v1.Edges.Count - v2.Edges.Count);
 
-            progressUpdateInterval = numVertices / _progressWeight;
-            progressCounter = 1;
-            for (int i = 0; i < numVertices; i++, progressCounter++)
+            // Iterate through all vertices.
+            foreach (Vertex vertex in sortedVertexList)
             {
-                _ct.ThrowIfCancellationRequested();
-                vertex = sortedVertices[i];
+                // Only swap valid vertices.
                 if (vertex.IsValid)
                 {
-                    swapped = false;
+                    bool swapped = false;
+
+                    // Sort current vertex edges by weight.
                     vertex.Edges.Sort((e1, e2) => e1.Weight - e2.Weight);
+
+                    // Iterate through edges of this vertex.
                     foreach (Edge edge in vertex.Edges)
                     {
-                        if ((_vertices[edge.Vertices[0]].IsValid && _vertices[edge.Vertices[1]].IsValid) && (edge.Vertices[0] != edge.Vertices[1]))
+                        Vertex firstVertex = _vertexList[edge.Vertices[0]];
+                        Vertex secondVertex = _vertexList[edge.Vertices[1]];
+
+                        // Skip if either vertex is invalid.
+                        if (firstVertex == secondVertex || !firstVertex.IsValid || !secondVertex.IsValid)
                         {
-                            ////swap sample bytes.
-                            //tempSampleBytes = _vertices[edge.Vertices[0]].Samples[edge.BestSwaps[0]].Values;
-                            //_vertices[edge.Vertices[0]].Samples[edge.BestSwaps[0]].Values = _vertices[edge.Vertices[1]].Samples[edge.BestSwaps[1]].Values;
-                            //_vertices[edge.Vertices[1]].Samples[edge.BestSwaps[1]].Values = tempSampleBytes;
+                            continue;
+                        }
 
-                            oValues = _vertices[edge.Vertices[0]].Samples[edge.BestSwaps[0]].Values;
-                            iValues = _vertices[edge.Vertices[1]].Samples[edge.BestSwaps[1]].Values;
-                            for (int byteIndex = 0; byteIndex < bytesPerSample; byteIndex++)
-                            {
-                                tempSampleBytes[byteIndex] = oValues[byteIndex];
-                                oValues[byteIndex] = iValues[byteIndex];
-                                iValues[byteIndex] = tempSampleBytes[byteIndex];
-                            }
+                        // Swap samples.
+                        Sample firstSample = firstVertex.Samples[edge.BestSwaps[0]];
+                        Sample secondSample = secondVertex.Samples[edge.BestSwaps[1]];
+                        firstSample.Swap(secondSample);
 
-                        
-                            foreach (int edgeVertexId in edge.Vertices)
-                            {
-                                _vertices[edgeVertexId].IsValid = false;
-                            }
-                            swapped = true;
-                            break;
-                        }                
+                        // Disable vertices.
+                        firstVertex.IsValid = false;
+                        secondVertex.IsValid = false;
+
+                        swapped = true;
+                        break;
                     }
+
+                    // Add to unmatched if it could not be swapped.
                     if (!swapped)
                     {
                         vertex.IsValid = false;
-                        leftoverVertices.Add(vertex);
+                        leftoverVertexList.Add(vertex);
                     }
                 }
-                if (progressCounter == progressUpdateInterval)
-                {
-                    progressCounter = 1;
-                    _progress?.Report(++progress);
-                    Console.WriteLine($"... {i} of {numVertices} vertices handled. {(decimal)i / numVertices:p}");
-                }
             }
-            Console.WriteLine($"{leftoverVertices.Count} of {numVertices} vertices were unable to be swapped. {(decimal)leftoverVertices.Count / numVertices :p}");
 
-            Console.WriteLine("DoSwap: Succesful.");
-            return leftoverVertices;
+            return leftoverVertexList;
         }
         #endregion
 
         #region Extract
         public override StegoMessage Extract()
         {
+            int numSamples = CarrierMedia.ByteArray.Length / CarrierMedia.BytesPerSample;
             modFactor = (byte)(1 << messageBitsPerVertex);
             bitwiseModFactor = (byte)(modFactor - 1);
-            
-            int numSamples = CarrierMedia.ByteArray.Length / CarrierMedia.BytesPerSample;
+
             // Generate random numbers
             RandomNumberList randomNumbers = new RandomNumberList(Seed, numSamples);
 

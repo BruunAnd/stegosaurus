@@ -49,5 +49,17 @@ namespace Stegosaurus.Algorithm.GraphTheory
             return sampleList;
         }
 
+        /// <summary>
+        /// Swap the values of this sample with another sample.
+        /// </summary>
+        public void Swap(Sample _otherSample)
+        {
+            for (int i = 0; i < Values.Length; i++)
+            {
+                byte temp = Values[i];
+                Values[i] = _otherSample.Values[i];
+                _otherSample.Values[i] = temp;
+            }
+        }
     }
 }
