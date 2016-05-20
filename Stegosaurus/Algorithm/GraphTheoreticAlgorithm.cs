@@ -36,7 +36,7 @@ namespace Stegosaurus.Algorithm
             }
         }
 
-        private int distanceMax = 16;
+        private int distanceMax = 4;
         [Category("Algorithm"), Description("The maximum distance between single samplevalues for an edge to be valid. Higher numbers means less visual imperceptibility but more statistical imperceptibility. Higher numbers might also decrease performance, depending on DistancePrecision. (Default = 32, Min-Max = 2-128.)")]
         public int DistanceMax
         {
@@ -44,7 +44,7 @@ namespace Stegosaurus.Algorithm
             set { distanceMax = (value <= 128) ? ((value >= 2) ? value : 2) : 128; }
         }
 
-        private int distancePrecision = 4;
+        private int distancePrecision = 2;
         [Category("Algorithm"), Description("The distance precision. Higher numbers significantly decreases performance with high DistanceMax. (Default = 8, Min-Max = 2-32.)")]
         public int DistancePrecision
         {
@@ -102,7 +102,7 @@ namespace Stegosaurus.Algorithm
 
             // Find and swap edges.
             // Returned value is a list of vertices that could not be changed.
-            List<Vertex> unmatchedVertexList = FindEdgesAndSwap(messageVertexList, _progress, _ct, 50, sampleList, messageChunks);
+            List<Vertex> unmatchedVertexList = FindEdgesAndSwap(messageVertexList, _progress, _ct, 100);
 
             //DoReserveMatching();
             // Adjust vertices that could not be swapped.
@@ -144,6 +144,7 @@ namespace Stegosaurus.Algorithm
                     vertex.Samples[sampleIndex].Values[byteIndex] -= (byte) ( modFactor - valueDifference );
                 }
             }
+            Console.WriteLine($"{_vertices.Count} were adjusted.");
         }
 
         private Tuple<List<Vertex>, List<Vertex>> GetVerticeLists(List<Sample> _sampleList, List<byte> _messageChunks)
@@ -197,43 +198,49 @@ namespace Stegosaurus.Algorithm
             return new Tuple<List<Vertex>, List<Vertex>>(messageVertices, reserveVertices);
         }
 
-        private List<Vertex> FindEdgesAndSwap(List<Vertex> _vertices, IProgress<int> _progress, CancellationToken _ct, int _progressWeight, List<Sample> _samples, List<byte> _message)
+        private List<Vertex> FindEdgesAndSwap(List<Vertex> _vertices, IProgress<int> _progress, CancellationToken _ct, int _progressWeight)
         {
             Console.WriteLine("Debug FindEdgesAndSwap:");
-            List<Vertex> leftovers = new List<Vertex>(), tempLeftovers = new List<Vertex>(), tempVertices = new List<Vertex>();
-            List<Edge> edges = new List<Edge>();
-            int numRuns = (int)Math.Ceiling((decimal)_vertices.Count / verticesPerMatching);
-            int verticesPerRun = (int)Math.Ceiling((decimal)_vertices.Count / numRuns), verticesRemainder = _vertices.Count % numRuns;
-            int indexOffset = 0;
-            int maxLeftovers = (VerticesPerMatching >> 2);
-            int numToTrim;
-            int curProgress = progress, weight = ((_progressWeight >> 1) / numRuns) > 0 ? ((_progressWeight >> 1) / numRuns) : 1;
-            for (int i = 1; i <= numRuns; i++)
-            {
-                Console.WriteLine($"FEAS Iteration {i} of {numRuns}.");
-                _ct.ThrowIfCancellationRequested();
-                tempVertices = new List<Vertex>();
-                if (tempLeftovers.Count > maxLeftovers)
-                {
-                    numToTrim = tempLeftovers.Count - maxLeftovers;
-                    leftovers.AddRange(tempLeftovers.GetRange(0, numToTrim));
-                    tempLeftovers = tempLeftovers.GetRange(numToTrim, maxLeftovers);
-                }
-                tempVertices.AddRange(tempLeftovers);
-                tempVertices.AddRange(_vertices.Skip(indexOffset).Take(verticesPerRun));
-                indexOffset += verticesPerRun;
-                GetEdges(tempVertices, _progress, _ct, weight);
-                tempLeftovers = Swap(tempVertices);
-                ClearVertexEdges(tempVertices);
-            }
-            leftovers.AddRange(tempLeftovers);
-            Console.WriteLine($"Total of {leftovers.Count} vertices not swapped.");
-            progress = curProgress + _progressWeight;
-            _progress?.Report(progress);
+            int numRounds = (int)Math.Ceiling((decimal)_vertices.Count / VerticesPerMatching), roundProgressWeight = _progressWeight / numRounds;
+            int verticesPerRound = (_vertices.Count / numRounds) + 1, maxLeftoversPerRound = VerticesPerMatching >> 2;
+            int verticeOffset = 0, roundNumber = 0, startNumVertices = _vertices.Count;
+            List<Vertex> leftoverVertexList = new List<Vertex>();
 
-            ClearVertexEdges(tempVertices);
-            Console.WriteLine("FindEdgesAndSwap: Succesful.");
-            return leftovers;
+
+            // Continue until we have gone through all vertices.
+            while (verticeOffset<startNumVertices)
+            {
+                Console.WriteLine("Round: {0} ({1}/{2})", ++roundNumber, verticeOffset, startNumVertices);
+
+                // Calculate how many vertices to use this round.
+                int verticesThisRound = verticesPerRound > _vertices.Count ? _vertices.Count : verticesPerRound;
+                verticeOffset += verticesThisRound;
+
+                // Take this amount of vertices.
+                List<Vertex> tmpVertexList = _vertices.GetRange(0, verticesThisRound);
+
+                // Remove them from the main list.
+                _vertices.RemoveRange(0, verticesThisRound);
+
+                //// Add leftovers from last round.
+                //int leftoverCarryover = maxLeftoversPerRound > leftoverVertexList.Count ? leftoverVertexList.Count : maxLeftoversPerRound;
+                //List<Vertex> vertexCarryoverList = leftoverVertexList.GetRange(0, leftoverCarryover);
+                //leftoverVertexList.RemoveRange(0, leftoverCarryover);
+                //tmpVertexList.AddRange(vertexCarryoverList);
+                
+                // Get edges for subset.
+                GetEdges(tmpVertexList, _progress, _ct, roundProgressWeight);
+
+                // Swap edges found for subset and add leftovers to list.
+                leftoverVertexList.AddRange(Swap(tmpVertexList));
+                Console.WriteLine($"{leftoverVertexList.Count} vertices couldn't be swapped.");
+
+                // Clear edges for subset.
+                tmpVertexList.ForEach(v => v.Edges.Clear());
+            }
+
+
+            return leftoverVertexList;
         }
 
         private List<Tuple<int, byte>>[,,,,] GetArray(List<Vertex> _vertices, int _dimensionSize, CancellationToken _ct)
@@ -367,39 +374,39 @@ namespace Stegosaurus.Algorithm
             return;
         }
         
-        // returns a dictionary of lists of Tuple vertex references, with keys containing the sample Values, ModValue and TargetValue.
-        private Dictionary<Tuple<byte, byte, byte, byte, byte>, List<Tuple<int, byte>>> GetDictionary(List<Vertex> _vertices, CancellationToken _ct)
-        {
-            Dictionary<Tuple<byte, byte, byte, byte, byte>, List<Tuple<int, byte>>> locationDictionary = new Dictionary<Tuple<byte, byte, byte, byte, byte>, List<Tuple<int, byte>>>();
+        //// returns a dictionary of lists of Tuple vertex references, with keys containing the sample Values, ModValue and TargetValue.
+        //private Dictionary<Tuple<byte, byte, byte, byte, byte>, List<Tuple<int, byte>>> GetDictionary(List<Vertex> _vertices, CancellationToken _ct)
+        //{
+        //    Dictionary<Tuple<byte, byte, byte, byte, byte>, List<Tuple<int, byte>>> locationDictionary = new Dictionary<Tuple<byte, byte, byte, byte, byte>, List<Tuple<int, byte>>>();
 
-            Sample vertexSample;
-            List<Tuple<int, byte>> vertexReferenceList;
-            Tuple <int, byte> vertexRef;
-            Tuple<byte, byte, byte, byte, byte> location;
-            int numVertices = _vertices.Count;
-            for (int vertexIndex = 0; vertexIndex < numVertices; vertexIndex++)
-            {
-                _ct.ThrowIfCancellationRequested();
-                for (byte sampleIndex = 0; sampleIndex < samplesPerVertex; sampleIndex++)
-                {
-                    vertexSample = _vertices[vertexIndex].Samples[sampleIndex];
-                    vertexRef = Tuple.Create(vertexIndex, sampleIndex);
-                    location = Tuple.Create((byte)(vertexSample.Values[0] >> distancePrecision), (byte)(vertexSample.Values[1] >> distancePrecision), (byte)(vertexSample.Values[2] >> distancePrecision), vertexSample.ModValue, vertexSample.TargetModValue);
+        //    Sample vertexSample;
+        //    List<Tuple<int, byte>> vertexReferenceList;
+        //    Tuple <int, byte> vertexRef;
+        //    Tuple<byte, byte, byte, byte, byte> location;
+        //    int numVertices = _vertices.Count;
+        //    for (int vertexIndex = 0; vertexIndex < numVertices; vertexIndex++)
+        //    {
+        //        _ct.ThrowIfCancellationRequested();
+        //        for (byte sampleIndex = 0; sampleIndex < samplesPerVertex; sampleIndex++)
+        //        {
+        //            vertexSample = _vertices[vertexIndex].Samples[sampleIndex];
+        //            vertexRef = Tuple.Create(vertexIndex, sampleIndex);
+        //            location = Tuple.Create((byte)(vertexSample.Values[0] >> distancePrecision), (byte)(vertexSample.Values[1] >> distancePrecision), (byte)(vertexSample.Values[2] >> distancePrecision), vertexSample.ModValue, vertexSample.TargetModValue);
 
-                    if (locationDictionary.TryGetValue(location, out vertexReferenceList))
-                    {
-                        vertexReferenceList.Add(vertexRef);
-                    }
-                    else
-                    {
-                        vertexReferenceList = new List<Tuple<int, byte>>();
-                        vertexReferenceList.Add(vertexRef);
-                        locationDictionary.Add(location, vertexReferenceList);
-                    }
-                }
-            }
-            return locationDictionary;
-        }
+        //            if (locationDictionary.TryGetValue(location, out vertexReferenceList))
+        //            {
+        //                vertexReferenceList.Add(vertexRef);
+        //            }
+        //            else
+        //            {
+        //                vertexReferenceList = new List<Tuple<int, byte>>();
+        //                vertexReferenceList.Add(vertexRef);
+        //                locationDictionary.Add(location, vertexReferenceList);
+        //            }
+        //        }
+        //    }
+        //    return locationDictionary;
+        //}
 
 
         private List<Vertex> Swap(List<Vertex> _vertexList)
