@@ -52,7 +52,7 @@ namespace Stegosaurus.Algorithm
             set { distancePrecision = (value <= 32) ? ((value >= 0) ? (int)Math.Log(value, 2) : 0) : 32; }
         }
 
-        private int verticesPerMatching = 100000;
+        private int verticesPerMatching = 50000;
         [Category("Algorithm"), Description("The maximum number of vertices to find edges for at a time. Higher numbers means more memory usage but better imperceptibility. (Default = 150,000, Min = 10,000.)")]
         public int VerticesPerMatching
         {
@@ -71,7 +71,6 @@ namespace Stegosaurus.Algorithm
         private int progress, progressCounter, progressUpdateInterval;
         private byte modFactor;
         private byte bitwiseModFactor;
-        private byte distancePrecision;
         
         public override long ComputeBandwidth()
         {
@@ -204,16 +203,16 @@ namespace Stegosaurus.Algorithm
             List<Vertex> leftovers = new List<Vertex>(), tempLeftovers = new List<Vertex>(), tempVertices = new List<Vertex>();
             List<Edge> edges = new List<Edge>();
             int numRuns = (int)Math.Ceiling((decimal)_vertices.Count / verticesPerMatching);
-            int verticesPerRun = _vertices.Count / numRuns;
+            int verticesPerRun = (int)Math.Ceiling((decimal)_vertices.Count / numRuns), verticesRemainder = _vertices.Count % numRuns;
             int indexOffset = 0;
             int maxLeftovers = (VerticesPerMatching >> 2);
             int numToTrim;
             int curProgress = progress, weight = ((_progressWeight >> 1) / numRuns) > 0 ? ((_progressWeight >> 1) / numRuns) : 1;
-            for (int i = 0; i < numRuns; i++)
+            for (int i = 1; i <= numRuns; i++)
             {
                 Console.WriteLine($"FEAS Iteration {i} of {numRuns}.");
                 _ct.ThrowIfCancellationRequested();
-                tempVertices.Clear();
+                tempVertices = new List<Vertex>();
                 if (tempLeftovers.Count > maxLeftovers)
                 {
                     numToTrim = tempLeftovers.Count - maxLeftovers;
@@ -221,11 +220,11 @@ namespace Stegosaurus.Algorithm
                     tempLeftovers = tempLeftovers.GetRange(numToTrim, maxLeftovers);
                 }
                 tempVertices.AddRange(tempLeftovers);
-                tempVertices.AddRange(_vertices.GetRange(indexOffset, (i < (numRuns - 1) ? verticesPerRun : (_vertices.Count - indexOffset))));
+                tempVertices.AddRange(_vertices.Skip(indexOffset).Take(verticesPerRun));
+                indexOffset += verticesPerRun;
                 GetEdges(tempVertices, _progress, _ct, weight);
                 tempLeftovers = Swap(tempVertices);
                 ClearVertexEdges(tempVertices);
-                indexOffset += verticesPerRun;
             }
             leftovers.AddRange(tempLeftovers);
             Console.WriteLine($"Total of {leftovers.Count} vertices not swapped.");
@@ -285,8 +284,6 @@ namespace Stegosaurus.Algorithm
             int[] minValues = new int[bytesPerSample], maxValues = new int[bytesPerSample];
             byte sampleTargetValue, sampleModValue;
             byte[] bestSwaps = new byte[2];
-            //Dictionary<Tuple<byte, byte, byte, byte, byte>, List<Tuple<int, byte>>> locationDictionary = GetDictionary(_vertexList, _ct);
-            //Tuple<byte, byte, byte, byte, byte> location;
             progressCounter = 1;
             progressUpdateInterval = numVertices / _progressWeight;
  
@@ -347,42 +344,12 @@ namespace Stegosaurus.Algorithm
                                         }
                                     }
                                 }
-                                //location = Tuple.Create((byte)x, (byte)y, (byte)z, sampleTargetValue, sampleModValue);
-                                //if (locationDictionary.TryGetValue(location, out vertexRefs))
-                                //{
-                                //    foreach (Tuple<int, byte> vertexRef in vertexRefs)
-                                //    {
-                                //        if (isHere && vertexRef.Item1 <= numVertex)
-                                //        {
-                                //            continue;
-                                //        }
-                                //        innerVertex = _vertexList[vertexRef.Item1];
-                                //        innerSampleValues = innerVertex.Samples[vertexRef.Item2].Values;
-                                //        bestSwaps[1] = vertexRef.Item2;
-
-                                //        distance = 0;
-                                //        deltaValue = 0;
-                                //        for (int valueIndex = 0; valueIndex < bps; valueIndex++)
-                                //        {
-                                //            deltaValue = outerSampleValues[valueIndex] - innerSampleValues[valueIndex];
-                                //            distance += (short)(deltaValue * deltaValue);
-                                //        }
-
-                                //        newEdge = new Edge(outerVertex, _vertexList[vertexRef.Item1], distance, bestSwaps);
-                                //        foreach (Vertex vertex in newEdge.Vertices)
-                                //        {
-                                //            vertex.Edges.Add(newEdge);
-                                //            vertex.numEdges++;
-                                //        }
-                                //        edges.Add(newEdge);
-                                //    }
-                                //}
                                 isHere = false;
                             }
                             if (firstXY)
                             {
-                                minValues[1] = (outerSampleValues[1] > distanceMax) ? (byte)((outerSampleValues[1] - distanceMax) >> shiftFactor) : (byte)0;
-                                minValues[2] = (outerSampleValues[2] > distanceMax) ? (byte)((outerSampleValues[2] - distanceMax) >> shiftFactor) : (byte)0;
+                                minValues[1] = (outerSampleValues[1] > distanceMax) ? (byte)((outerSampleValues[1] - distanceMax) >> distancePrecision) : (byte)0;
+                                minValues[2] = (outerSampleValues[2] > distanceMax) ? (byte)((outerSampleValues[2] - distanceMax) >> distancePrecision) : (byte)0;
                                 firstXY = false;
                             }
                         }
@@ -434,10 +401,6 @@ namespace Stegosaurus.Algorithm
             return locationDictionary;
         }
 
-        public override long ComputeBandwidth()
-        {
-            return ((((CarrierMedia.ByteArray.Length / CarrierMedia.BytesPerSample) / samplesPerVertex) * messageBitsPerVertex) / 8) - Signature.Length;
-        }
 
         private List<Vertex> Swap(List<Vertex> _vertexList)
         {
@@ -587,5 +550,6 @@ namespace Stegosaurus.Algorithm
         {
             _vertices.ForEach(v => v.Edges.Clear());
         }
+
     }
 }
