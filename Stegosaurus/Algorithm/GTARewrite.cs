@@ -183,7 +183,7 @@ namespace Stegosaurus.Algorithm
             Console.WriteLine("{0} message vertices, {1} reserved", messageVertices.Count, reserveVertices.Count);
 
             // Find edges 
-            /*List<NewVertex> unexposed = new List<NewVertex>();
+            List<NewVertex> unexposed = new List<NewVertex>();
             foreach (NewVertex outerVertex in messageVertices)
             {
                 if (outerVertex.Active)
@@ -204,12 +204,15 @@ namespace Stegosaurus.Algorithm
                         if (outerVertex.Samples[i].TargetModValue == innerVertex.Samples[i].ModValue && outerVertex.Samples[i].ModValue == innerVertex.Samples[i].TargetModValue)
                         {
                             innerVertex.Samples[i].Swap(outerVertex.Samples[i]);
+
                             innerVertex.Samples[i].UpdateModValue(bitwiseModFactor);
                             outerVertex.Samples[i].UpdateModValue(bitwiseModFactor);
+
                             if (innerVertex.Samples[i].TargetModValue != innerVertex.Samples[i].ModValue)
                                 throw new Exception("gg1");
                             if (outerVertex.Samples[i].TargetModValue != outerVertex.Samples[i].ModValue)
                                 throw new Exception("gg2");
+
                             match = true;
                             innerVertex.Active = true;
                             outerVertex.Active = true;
@@ -222,22 +225,22 @@ namespace Stegosaurus.Algorithm
                         byte innerval = innerVertex.ModSum(bitwiseModFactor);
                         byte outerval = outerVertex.ModSum(bitwiseModFactor);
                         if (innerval != innerVertex.Target)
-                            throw new Exception("inner no match");
+                            Console.WriteLine("inner no match {0}!={1}", innerVertex.Target, innerval);
                         if (outerval != outerVertex.Target)
-                            throw new Exception("outer no match");
+                            Console.WriteLine("outer no match {0}!={1}", outerVertex.Target, outerval);
                         break;
                     }
                 }
 
                 if (!match)
                     unexposed.Add(outerVertex);
-            }*/
+            }
 
             // Swap edges
 
             // Adjust unexposed vertices
-            // Console.WriteLine("adjust {0}", unexposed.Count);
-            Adjust(messageVertices);
+            Console.WriteLine("adjust {0}", unexposed.Count);
+            Adjust(unexposed);
 
             // Encode samples back into carrier.
             Encode(sampleList);
