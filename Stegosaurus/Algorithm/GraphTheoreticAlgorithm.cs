@@ -23,7 +23,7 @@ namespace Stegosaurus.Algorithm
             get { return samplesPerVertex; }
             set { samplesPerVertex = (value <= 4) ? ((value >= 1) ? value : (byte)1) : (byte)4; }
         }
-        
+
         private byte messageBitsPerVertex = 2;
         [Category("Algorithm"), Description("The number of bits hidden in each vertex. Higher numbers means more bandwidth but less imperceptibility.(Default = 2, Max = 4.)")]
         public byte MessageBitsPerVertex
@@ -71,10 +71,10 @@ namespace Stegosaurus.Algorithm
         private int progress, progressCounter, progressUpdateInterval;
         private byte modFactor;
         private byte bitwiseModFactor;
-        
+
         public override long ComputeBandwidth()
         {
-            return ((((CarrierMedia.ByteArray.Length / CarrierMedia.BytesPerSample) / samplesPerVertex) * messageBitsPerVertex ) / 8) - Signature.Length;
+            return ((((CarrierMedia.ByteArray.Length / CarrierMedia.BytesPerSample) / samplesPerVertex) * messageBitsPerVertex) / 8) - Signature.Length;
         }
 
         #region Embed
@@ -99,6 +99,7 @@ namespace Stegosaurus.Algorithm
             Tuple<List<Vertex>, List<Vertex>> verticeTuple = GetVerticeLists(sampleList, messageChunks);
             List<Vertex> messageVertexList = verticeTuple.Item1;
             List<Vertex> reserveVertexList = verticeTuple.Item2;
+            int messageVertexCount = messageVertexList.Count;
 
             // Find and swap edges.
             // Returned value is a list of vertices that could not be changed.
@@ -107,6 +108,7 @@ namespace Stegosaurus.Algorithm
             //DoReserveMatching();
             // Adjust vertices that could not be swapped.
             Adjust(unmatchedVertexList);
+            Console.WriteLine("Adjusted {0} vertices ({1}% of total).", unmatchedVertexList.Count, (unmatchedVertexList.Count / (float)messageVertexCount) * 100);
 
             // Finally encode the samples back into the CarrierMedia.
             Encode(sampleList);
@@ -131,20 +133,19 @@ namespace Stegosaurus.Algorithm
                 int sampleIndex = rand.Next(SamplesPerVertex), byteIndex = rand.Next(CarrierMedia.BytesPerSample);
 
                 // Calculate difference.
-                byte valueDifference = (byte) ((modFactor - vertex.Samples[sampleIndex].ModValue + vertex.Samples[sampleIndex].TargetModValue) & bitwiseModFactor);
+                byte valueDifference = (byte)((modFactor - vertex.Samples[sampleIndex].ModValue + vertex.Samples[sampleIndex].TargetModValue) & bitwiseModFactor);
 
                 // Adjust value.
                 byte currentValue = vertex.Samples[sampleIndex].Values[byteIndex];
-                if (( currentValue + valueDifference ) <= byte.MaxValue)
+                if ((currentValue + valueDifference) <= byte.MaxValue)
                 {
                     vertex.Samples[sampleIndex].Values[byteIndex] += valueDifference;
                 }
                 else
                 {
-                    vertex.Samples[sampleIndex].Values[byteIndex] -= (byte) ( modFactor - valueDifference );
+                    vertex.Samples[sampleIndex].Values[byteIndex] -= (byte)(modFactor - valueDifference);
                 }
             }
-            Console.WriteLine($"{_vertices.Count} were adjusted.");
         }
 
         private Tuple<List<Vertex>, List<Vertex>> GetVerticeLists(List<Sample> _sampleList, List<byte> _messageChunks)
@@ -176,21 +177,21 @@ namespace Stegosaurus.Algorithm
                 // Otherwise add to message vertices.
                 if (i >= _messageChunks.Count)
                 {
-                    Vertex reserveVertex = new Vertex(tmpSampleArray) {Value = vertexModValue};
+                    Vertex reserveVertex = new Vertex(tmpSampleArray) { Value = vertexModValue };
                     reserveVertices.Add(reserveVertex);
                 }
                 else
                 {
-                    Vertex messageVertex = new Vertex(tmpSampleArray) {Value = vertexModValue};
+                    Vertex messageVertex = new Vertex(tmpSampleArray) { Value = vertexModValue };
                     messageVertices.Add(messageVertex);
 
                     // Calculate delta value.
-                    byte deltaValue = (byte) ((modFactor + _messageChunks[i] - messageVertex.Value) & bitwiseModFactor );
+                    byte deltaValue = (byte)((modFactor + _messageChunks[i] - messageVertex.Value) & bitwiseModFactor);
 
                     // Set target values.
                     foreach (Sample sample in messageVertex.Samples)
                     {
-                        sample.TargetModValue = (byte) ((sample.ModValue + deltaValue) & bitwiseModFactor);
+                        sample.TargetModValue = (byte)((sample.ModValue + deltaValue) & bitwiseModFactor);
                     }
                 }
             }
@@ -208,7 +209,7 @@ namespace Stegosaurus.Algorithm
 
 
             // Continue until we have gone through all vertices.
-            while (verticeOffset<startNumVertices)
+            while (verticeOffset < startNumVertices)
             {
                 Console.WriteLine("Round: {0} ({1}/{2})", ++roundNumber, verticeOffset, startNumVertices);
 
@@ -222,12 +223,16 @@ namespace Stegosaurus.Algorithm
                 // Remove them from the main list.
                 _vertices.RemoveRange(0, verticesThisRound);
 
-                //// Add leftovers from last round.
-                //int leftoverCarryover = maxLeftoversPerRound > leftoverVertexList.Count ? leftoverVertexList.Count : maxLeftoversPerRound;
-                //List<Vertex> vertexCarryoverList = leftoverVertexList.GetRange(0, leftoverCarryover);
-                //leftoverVertexList.RemoveRange(0, leftoverCarryover);
-                //tmpVertexList.AddRange(vertexCarryoverList);
-                
+                // Add leftover vertices.
+                // Their edges are cleared first to avoid errors.
+                leftoverVertexList.ForEach(vertex =>
+                {
+                    vertex.Edges.Clear();
+                    vertex.IsValid = true; // not sure why they are set to false? but this fixes an issue
+                });
+                tmpVertexList.AddRange(leftoverVertexList);
+                leftoverVertexList.Clear();
+
                 // Get edges for subset.
                 GetEdges(tmpVertexList, _progress, _ct, roundProgressWeight);
 
@@ -247,7 +252,7 @@ namespace Stegosaurus.Algorithm
         {
             List<Tuple<int, byte>>[,,,,] array = new List<Tuple<int, byte>>[_dimensionSize, _dimensionSize, _dimensionSize, modFactor, modFactor];
             Tuple<int, byte> vertexRef;
-            List<Tuple<int, byte>> vertexRefs; 
+            List<Tuple<int, byte>> vertexRefs;
             Sample sample;
             int numVertices = _vertices.Count;
             for (int vertexIndex = 0; vertexIndex < numVertices; vertexIndex++)
@@ -293,7 +298,7 @@ namespace Stegosaurus.Algorithm
             byte[] bestSwaps = new byte[2];
             progressCounter = 1;
             progressUpdateInterval = numVertices / _progressWeight;
- 
+
             bool firstXY, isHere;
 
 
@@ -301,7 +306,7 @@ namespace Stegosaurus.Algorithm
             {
                 _ct.ThrowIfCancellationRequested();
                 vertex = _vertexList[numVertex];
-                
+
                 for (byte sampleIndex = 0; sampleIndex < samplesPerVertex; sampleIndex++)
                 {
                     sample = vertex.Samples[sampleIndex];
@@ -309,7 +314,7 @@ namespace Stegosaurus.Algorithm
                     sampleTargetValue = sample.TargetModValue;
                     sampleModValue = sample.ModValue;
                     bestSwaps[0] = sampleIndex;
-                    
+
                     for (int byteIndex = 0; byteIndex < bytesPerSample; byteIndex++)
                     {
                         temp = (outerSampleValues[byteIndex] >> distancePrecision);
@@ -366,14 +371,14 @@ namespace Stegosaurus.Algorithm
                 {
                     progressCounter = 1;
                     _progress?.Report(++progress);
-                    Console.WriteLine($"... {numVertex} of {numVertices} handled. {(decimal)numVertex / numVertices :p}");
+                    Console.WriteLine($"... {numVertex} of {numVertices} handled. {(decimal)numVertex / numVertices:p}");
                 }
             }
             Console.WriteLine("GetEdges: Succesfull.");
 
             return;
         }
-        
+
         //// returns a dictionary of lists of Tuple vertex references, with keys containing the sample Values, ModValue and TargetValue.
         //private Dictionary<Tuple<byte, byte, byte, byte, byte>, List<Tuple<int, byte>>> GetDictionary(List<Vertex> _vertices, CancellationToken _ct)
         //{
@@ -506,7 +511,7 @@ namespace Stegosaurus.Algorithm
                 byte messageValue = 0;
                 for (int byteIndex = 0; byteIndex < messageBitsPerVertex; byteIndex++)
                 {
-                    messageValue += messageBitArray[indexOffset + byteIndex] ? (byte) ( 1 << byteIndex ) : (byte) 0;
+                    messageValue += messageBitArray[indexOffset + byteIndex] ? (byte)(1 << byteIndex) : (byte)0;
                 }
 
                 // Increment offset.
