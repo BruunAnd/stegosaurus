@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using System.IO.Compression;
+using Stegosaurus.Utility.Extensions;
 
 namespace Stegosaurus.Utility
 {
@@ -7,44 +8,34 @@ namespace Stegosaurus.Utility
     {
         /// <summary>
         /// Returns compressed byte array from an existing byte array.
-        /// Source: http://www.dotnetperls.com/compress
         /// </summary>
         public static byte[] Compress(byte[] _bytes)
         {
-            using (MemoryStream memory = new MemoryStream())
+            using (MemoryStream outStream = new MemoryStream())
             {
-                using (GZipStream gzip = new GZipStream(memory, CompressionMode.Compress, true))
+                using (DeflateStream deflateStream = new DeflateStream(outStream, CompressionLevel.Optimal))
                 {
-                    gzip.Write(_bytes, 0, _bytes.Length);
+                    deflateStream.Write(_bytes);
                 }
 
-                return memory.ToArray();
+                return outStream.ToArray();
             }
         }
 
         /// <summary>
         /// Returns a decompressed byte array from an existing byte array.
-        /// Source: http://www.dotnetperls.com/decompress
         /// </summary>
         public static byte[] Decompress(byte[] _byteArray)
         {
-            using (GZipStream stream = new GZipStream(new MemoryStream(_byteArray), CompressionMode.Decompress))
+            using (MemoryStream returnStream = new MemoryStream())
             {
-                const int size = 4096;
-                byte[] buffer = new byte[size];
-                using (MemoryStream memory = new MemoryStream())
+                using (MemoryStream inStream = new MemoryStream(_byteArray))
                 {
-                    int count;
-                    do
+                    using (DeflateStream deflateStream = new DeflateStream(inStream, CompressionMode.Decompress))
                     {
-                        count = stream.Read(buffer, 0, size);
-                        if (count > 0)
-                        {
-                            memory.Write(buffer, 0, count);
-                        }
+                        deflateStream.CopyTo(returnStream);
+                        return returnStream.ToArray();
                     }
-                    while (count > 0);
-                    return memory.ToArray();
                 }
             }
         }
