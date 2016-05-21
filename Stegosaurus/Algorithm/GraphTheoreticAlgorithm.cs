@@ -124,6 +124,10 @@ namespace Stegosaurus.Algorithm
             }
         }
 
+        /// <summary>
+        /// Adjust a list of vertices, so all vertices have their target value.
+        /// There is a randomly selected sample and byteIndex that will be edited for each vertex.
+        /// </summary>
         private void Adjust(List<Vertex> _vertices)
         {
             Random rand = new Random();
@@ -148,6 +152,11 @@ namespace Stegosaurus.Algorithm
             }
         }
 
+        /// <summary>
+        /// Returns a Tuple containing two lists of vertices.
+        /// The first list contains the vertices that have been assigned a target value.
+        /// The second list contains vertices with no targets, that can be used as a reserve to exchange.
+        /// </summary>
         private Tuple<List<Vertex>, List<Vertex>> GetVerticeLists(List<Sample> _sampleList, List<byte> _messageChunks)
         {
             // Find the total amount of vertices in selected carrier.
@@ -201,17 +210,15 @@ namespace Stegosaurus.Algorithm
 
         private List<Vertex> FindEdgesAndSwap(List<Vertex> _vertices, IProgress<int> _progress, CancellationToken _ct, int _progressWeight)
         {
-            Console.WriteLine("Debug FindEdgesAndSwap:");
             int numRounds = (int)Math.Ceiling((decimal)_vertices.Count / VerticesPerMatching), roundProgressWeight = _progressWeight / numRounds;
-            int verticesPerRound = (_vertices.Count / numRounds) + 1, maxCarryoverPerRound = VerticesPerMatching >> 2;
-            int verticeOffset = 0, roundNumber = 0, startNumVertices = _vertices.Count;
+            int verticesPerRound = _vertices.Count / numRounds + 1, maxCarryoverPerRound = VerticesPerMatching / 4;
+            int verticeOffset = 0, startNumVertices = _vertices.Count;
             List<Vertex> leftoverVertexList = new List<Vertex>();
-
 
             // Continue until we have gone through all vertices.
             while (verticeOffset < startNumVertices)
             {
-                Console.WriteLine("Round: {0} ({1}/{2})", ++roundNumber, verticeOffset, startNumVertices);
+                //Console.WriteLine("Round: {0} ({1}/{2})", ++roundNumber, verticeOffset, startNumVertices);
 
                 // Calculate how many vertices to use this round.
                 int verticesThisRound = verticesPerRound > _vertices.Count ? _vertices.Count : verticesPerRound;
@@ -225,14 +232,11 @@ namespace Stegosaurus.Algorithm
 
                 // Calculate how many leftover vertices to carry over.
                 int leftoverCarryover = maxCarryoverPerRound > leftoverVertexList.Count ? leftoverVertexList.Count : maxCarryoverPerRound;
-                //// Their edges are cleared first to avoid errors. // shouldnt be necessary
-                //leftoverVertexList.ForEach(vertex =>
-                //{
-                //    vertex.Edges.Clear();
-                //});
+
                 // Add leftover vertices to tmpVertexList.
                 tmpVertexList.AddRange(leftoverVertexList.GetRange(0, leftoverCarryover));
-                // remove the transfered vertices from the list.
+
+                // Remove the transfered vertices from the list.
                 leftoverVertexList.RemoveRange(0, leftoverCarryover);
 
                 // Get edges for subset.
@@ -240,7 +244,6 @@ namespace Stegosaurus.Algorithm
 
                 // Swap edges found for subset and add leftovers to list.
                 leftoverVertexList.AddRange(Swap(tmpVertexList));
-                Console.WriteLine($"{leftoverVertexList.Count} vertices couldn't be swapped.");
 
                 // Clear edges for subset.
                 tmpVertexList.ForEach(v => v.Edges.Clear());
@@ -257,6 +260,7 @@ namespace Stegosaurus.Algorithm
             List<Tuple<int, byte>> vertexRefs;
             Sample sample;
             int numVertices = _vertices.Count;
+
             for (int vertexIndex = 0; vertexIndex < numVertices; vertexIndex++)
             {
                 for (byte sampleIndex = 0; sampleIndex < samplesPerVertex; sampleIndex++)
@@ -280,19 +284,17 @@ namespace Stegosaurus.Algorithm
 
         private void GetEdges(List<Vertex> _vertexList, IProgress<int> _progress, CancellationToken _ct, int _progressWeight)
         {
-            Console.WriteLine("Debug GetEdges:");
+            //Console.WriteLine("Debug GetEdges:");
             int numVertices = _vertexList.Count;
-            List<Edge> edges = new List<Edge>();
             List<Tuple<int, byte>> vertexRefs;
             Vertex vertex;
             Sample sample;
             byte dimMax = (byte)(byte.MaxValue >> distancePrecision), maxDelta = (byte)(distanceMax >> distancePrecision);
-            Console.WriteLine($"Debug GetEdges: maxDelta {maxDelta} , dimMax {dimMax}");
+            //Console.WriteLine($"Debug GetEdges: maxDelta {maxDelta} , dimMax {dimMax}");
             List<Tuple<int, byte>>[,,,,] array = GetArray(_vertexList, dimMax + 1, _ct); //dimMax + 1 to account for 0 based indexes.
             int bytesPerSample = CarrierMedia.BytesPerSample;
             Edge newEdge;
             byte[] outerSampleValues, innerSampleValues;
-            byte[] sampleDeltaValues = new byte[bytesPerSample];
             short distance;
             int temp;
             int[] minValues = new int[bytesPerSample], maxValues = new int[bytesPerSample];
@@ -362,21 +364,23 @@ namespace Stegosaurus.Algorithm
                             }
                             if (firstXY)
                             {
-                                minValues[1] = (outerSampleValues[1] > distanceMax) ? (outerSampleValues[1] - distanceMax ) >> distancePrecision : 0;
-                                minValues[2] = (outerSampleValues[2] > distanceMax) ? (outerSampleValues[2] - distanceMax ) >> distancePrecision : 0;
+                                minValues[1] = outerSampleValues[1] > distanceMax ? (outerSampleValues[1] - distanceMax) >> distancePrecision : 0;
+                                minValues[2] = outerSampleValues[2] > distanceMax ? (outerSampleValues[2] - distanceMax) >> distancePrecision : 0;
                                 firstXY = false;
                             }
                         }
                     }
                 }
+
+                // Update progress counter.
                 if (progressCounter == progressUpdateInterval)
                 {
                     progressCounter = 1;
                     _progress?.Report(++progress);
-                    Console.WriteLine($"... {numVertex} of {numVertices} handled. {(decimal)numVertex / numVertices:p}");
+                    //Console.WriteLine($"... {numVertex} of {numVertices} handled. {(decimal)numVertex / numVertices:p}");
                 }
             }
-            Console.WriteLine("GetEdges: Succesfull.");
+            //Console.WriteLine("GetEdges: Successful.");
         }
 
         private List<Vertex> Swap(List<Vertex> _vertexList)

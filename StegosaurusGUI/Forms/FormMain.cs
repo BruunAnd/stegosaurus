@@ -17,7 +17,10 @@ using Stegosaurus.Carrier;
 using Stegosaurus.Cryptography;
 using Stegosaurus.Exceptions;
 using Stegosaurus.Utility;
-using Stegosaurus.Utility.InputTypes;
+using StegosaurusGUI.Utility;
+using CarrierType = Stegosaurus.Utility.InputTypes.CarrierType;
+using ContentType = Stegosaurus.Utility.InputTypes.ContentType;
+using IInputType = Stegosaurus.Utility.InputTypes.IInputType;
 
 namespace StegosaurusGUI.Forms
 {
@@ -86,22 +89,21 @@ namespace StegosaurusGUI.Forms
                 }
                 catch (ArgumentNullException ex)
                 {
-                    ShowError(ex.Message, "Unknown error.");
+                    MessageBoxUtility.ShowError(ex.Message, "Unknown error");
                 }
                 catch (InvalidCarrierFileException ex)
                 {
-                    ShowError(ex.Message, "Invalid file.");
+                    MessageBoxUtility.ShowError(ex.Message, "Carrier format error");
+                }
+                catch (StegoCarrierException ex)
+                {
+                    MessageBoxUtility.ShowError(ex.Message, "Carrier error");
                 }
             }
             else
             {
-                ShowError("Cannot have multiple carrier media.");
+                MessageBoxUtility.ShowError("Cannot have multiple carrier media.");
             }
-        }
-
-        private void ShowError(string _message, string _title = "Error")
-        {
-            MessageBox.Show(_message, _title, MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
 
         /// <summary>
@@ -176,7 +178,7 @@ namespace StegosaurusGUI.Forms
             int selectedCount = fileIndices.Length;
             if (selectedCount == 0)
             {
-                ShowError("You must have items selected to save.", "Save error");
+                MessageBoxUtility.ShowError("You must have items selected to save.", "Save error");
             }
             else if (selectedCount == 1)
             {
@@ -189,7 +191,7 @@ namespace StegosaurusGUI.Forms
 
                 if (sfd.FileName == "")
                 {
-                    ShowError("The chosen destination cannot be blank.", "Save error");
+                    MessageBoxUtility.ShowError("The chosen destination cannot be blank.", "Save error");
                 }
                 else
                 {
@@ -380,15 +382,15 @@ namespace StegosaurusGUI.Forms
                 }
                 catch (StegoCryptoException ex)
                 {
-                    ShowError(ex.Message, "Cryptography error");
+                    MessageBoxUtility.ShowError(ex.Message, "Cryptography error");
                 }
                 catch (StegoMessageException ex)
                 {
-                    ShowError(ex.Message, "Message error");
+                    MessageBoxUtility.ShowError(ex.Message, "Message error");
                 }
                 catch (StegoAlgorithmException ex)
                 {
-                    ShowError(ex.Message, "Algorithm error");
+                    MessageBoxUtility.ShowError(ex.Message, "Algorithm error");
                 }
                 return null;
             });
@@ -738,11 +740,11 @@ namespace StegosaurusGUI.Forms
             }
             catch (WebException)
             {
-                ShowError("An error occurred while downloading the file.");
+                MessageBoxUtility.ShowError("An error occurred while downloading the file.");
             }
             catch (InvalidImageFileException)
             {
-                ShowError("The selected URL is not an image.");
+                MessageBoxUtility.ShowError("The selected URL is not an image.");
             }
             finally
             {

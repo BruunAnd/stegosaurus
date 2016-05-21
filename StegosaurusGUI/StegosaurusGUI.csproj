@@ -70,6 +70,7 @@
     <Compile Include="Utility\CarrierType.cs" />
     <Compile Include="Utility\ContentType.cs" />
     <Compile Include="Utility\IInputType.cs" />
+    <Compile Include="Utility\MessageBoxUtility.cs" />
     <Compile Include="Utility\SizeFormatting.cs" />
     <EmbeddedResource Include="Forms\FormEmbeddingProgress.resx">
       <DependentUpon>FormEmbeddingProgress.cs</DependentUpon>
