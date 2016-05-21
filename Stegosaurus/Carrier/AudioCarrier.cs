@@ -1,34 +1,42 @@
 ﻿using Stegosaurus.Carrier.AudioFormats;
 using System;
-using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Text;
+using Stegosaurus.Exceptions;
+using Stegosaurus.Utility;
 
 namespace Stegosaurus.Carrier
 {
-    class AudioCarrier : ICarrierMedia
+    public class AudioCarrier : ICarrierMedia
     {
         public byte[] ByteArray { get; set; }
+        public string OutputExtension => ".wav";
+        public Image Thumbnail => IconExtractor.ExtractIcon(OutputExtension).ToBitmap();
 
-        public int SamplesPerVertex => audioFile.BitsPerSample / 8;
+        public int BytesPerSample => audioFile.BitsPerSample / 8;
 
         private AudioFile audioFile;
 
-        public AudioCarrier(string _filePath)
+        public bool IsExtensionCompatible(string _extension)
+        {
+            string[] compatibleExtensions = { ".wav" };
+            return compatibleExtensions.Contains(_extension);
+        }
+
+        public void OpenFile(string _filePath)
         {
             // Check if format is supported
             if (_filePath.EndsWith(".wav"))
+            {
                 audioFile = new WaveFile(_filePath);
+            }
             else
-                throw new ArgumentException("Input file format is not supported.");
+            {
+                throw new StegoCarrierException("Audio file is not supported by this carrier.");
+            }
 
-            Decode();        
-        }
-
-        public void Decode()
-        {
-            ByteArray = audioFile.CopyInnerData();
+            Decode();
         }
 
         public void Encode()
@@ -36,10 +44,15 @@ namespace Stegosaurus.Carrier
             audioFile.SetInnerData(ByteArray);
         }
 
-        public void SaveToFile(string destination)
+        public void Decode()
+        {
+            ByteArray = audioFile.CopyInnerData();
+        }
+
+        public void SaveToFile(string _destination)
         {
             Encode();
-            File.WriteAllBytes(destination, audioFile.ToArray());
+            File.WriteAllBytes(_destination, audioFile.ToArray());
         }
     }
 }

@@ -1,53 +1,117 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.IO;
 using Stegosaurus.Algorithm;
-using System.Text;
 using Stegosaurus;
 using Stegosaurus.Carrier;
 using System.Drawing;
 using Stegosaurus.Cryptography;
+using System.Linq;
+using System.Threading;
 
 namespace StegosaurusTest
 {
     [TestClass]
     public class MockTests
     {
-        [TestMethod]
-        public void TestMainImplementation()
+        public void TestSpecifiedAlgorithms(ICryptoProvider _cryptoProvider, StegoAlgorithmBase _algorithm, int _dataSize)
         {
-            const string coverFile = "cover.png";
             const string testMessageString = "Example text message.";
-            const string testKey = "Example Key";
-            ICryptoProvider cryptoProvider = new AESProvider();
-            cryptoProvider.CryptoKey = testKey;
+            const string testFileName = "Example.bin";
+            byte[] testFileBuffer = new byte[1024 * _dataSize];
+            new Random().NextBytes(testFileBuffer);
 
-            // Test requires a cover file
-            if (!File.Exists(coverFile))
+            // Setup cryptoProvider
+            RSAKeyPair rsaPair = null;
+            if (_cryptoProvider is RSAProvider)
             {
-                new Bitmap(200, 200).Save(coverFile);
+                rsaPair = RSAProvider.GenerateKeys(_cryptoProvider.KeySize);
+                _cryptoProvider.SetKey(rsaPair.PublicKey);
+            }
+            else
+            {
+                _cryptoProvider.Key = _cryptoProvider.GenerateKey();
             }
 
-            // Instantiate algorithm
-            IStegoAlgorithm algorithm = (IStegoAlgorithm) Activator.CreateInstance(typeof(LSBAlgorithm));
-            algorithm.CarrierMedia = new ImageCarrier(coverFile);
-            algorithm.CryptoProvider = cryptoProvider;
+            // Test requires a cover file
+            Random rand = new Random();
+            Bitmap testImage = new Bitmap(rand.Next(500, 1000), rand.Next(500, 1000));
+
+            // Setup algorithm
+            _algorithm.CarrierMedia = new ImageCarrier {Image = testImage};
+            _algorithm.CarrierMedia.Decode();
+            rand.NextBytes(_algorithm.CarrierMedia.ByteArray);
+            _algorithm.CryptoProvider = _cryptoProvider;
 
             // Instantiate StegoMessage
-            StegoMessage inMessage = new StegoMessage();
-            inMessage.TextMessage = testMessageString;
-            algorithm.Embed(inMessage);
+            StegoMessage inMessage = new StegoMessage {TextMessage = testMessageString};
+            inMessage.InputFiles.Add(new InputFile(testFileName, testFileBuffer));
+            _algorithm.Embed(inMessage, null, CancellationToken.None);
 
             // Save to an output file
-            algorithm.CarrierMedia.SaveToFile("output.png");
+            _algorithm.CarrierMedia.SaveToFile("output.png");
 
             // Load the output file we just saved
-            algorithm.CarrierMedia = new ImageCarrier("output.png");
+            _algorithm.CarrierMedia = new ImageCarrier();
+            _algorithm.CarrierMedia.OpenFile("output.png");
+
+            // Change key if using RSA
+            if (_cryptoProvider is RSAProvider)
+            {
+                _cryptoProvider.SetKey(rsaPair.PrivateKey);
+            }
 
             // Get outMessage and verify message
-            StegoMessage outMessage = algorithm.Extract();
+            StegoMessage outMessage = _algorithm.Extract();
 
             Assert.AreEqual(testMessageString, outMessage.TextMessage);
+
+            InputFile outputFile = outMessage.InputFiles[0];
+            Assert.AreEqual(outputFile.Name, testFileName);
+            Assert.IsTrue(outputFile.Content.SequenceEqual(testFileBuffer));
+        }
+
+        [TestMethod]
+        public void GTA_AES_ExpectedOutput()
+        {
+            Random rand = new Random();
+            for (int i = 0; i < 5; i++)
+            {
+                TestSpecifiedAlgorithms(new AESProvider(), new GraphTheoreticAlgorithm(), rand.Next(4, 24));
+            }
+        }
+
+        [TestMethod]
+        public void GTA_RSA_ExpectedOutput()
+        {
+            Random rand = new Random();
+            for (int i = 0; i < 5; i++)
+            {
+                TestSpecifiedAlgorithms(new RSAProvider(), new GraphTheoreticAlgorithm(), rand.Next(4, 24));
+            }
+        }
+
+        [TestMethod]
+        public void LSB_AES_ExpectedOutput()
+        {
+            TestSpecifiedAlgorithms(new AESProvider(), new LSBAlgorithm(), 16);
+        }
+
+        [TestMethod]
+        public void LSB_RSA_ExpectedOutput()
+        {
+            TestSpecifiedAlgorithms(new RSAProvider(), new LSBAlgorithm(), 16);
+        }
+
+        [TestMethod]
+        public void CSA_AES_ExpectedOutput()
+        {
+            TestSpecifiedAlgorithms(new AESProvider(), new CommonSampleAlgorithm(), 3);
+        }
+
+        [TestMethod]
+        public void CSA_RSA_ExpectedOutput()
+        {
+            TestSpecifiedAlgorithms(new RSAProvider(), new CommonSampleAlgorithm(), 3);
         }
     }
 }

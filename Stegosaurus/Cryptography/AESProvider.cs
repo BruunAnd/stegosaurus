@@ -2,25 +2,28 @@
 using System.Security.Cryptography;
 using Stegosaurus.Utility.Extensions;
 using Stegosaurus.Exceptions;
+using Stegosaurus.Utility;
 
 namespace Stegosaurus.Cryptography
 {
     public class AESProvider : ICryptoProvider
     {
-        public string CryptoKey { get; set; }
         public string Name => "AES";
 
-        private static byte[] salt = { 0x4e, 0x27, 0xaa, 0x18, 0x8b, 0xf7, 0x7f, 0x76 };
+        public int Seed => Key?.ComputeHash() ?? 0;
+        public int HeaderSize => Key == null ? 0 : 16;
+        public int KeySize => 256;
+
+        public byte[] Key { get; set; }
 
         public byte[] Encrypt(byte[] _data)
         {
             using (AesManaged aesAlgorithm = new AesManaged())
             {
-                // Generate key from key and salt
-                Rfc2898DeriveBytes key = new Rfc2898DeriveBytes(CryptoKey, salt);
+                aesAlgorithm.KeySize = KeySize;
 
                 // Set key and generate initialization vector
-                aesAlgorithm.Key = key.GetBytes(aesAlgorithm.KeySize / 8);
+                aesAlgorithm.Key = Key;
                 aesAlgorithm.GenerateIV();
 
                 // Create encryptor
@@ -29,7 +32,9 @@ namespace Stegosaurus.Cryptography
                 using (MemoryStream outputStream = new MemoryStream())
                 {
                     if (aesAlgorithm.IV.Length != 16)
-                        throw new StegosaurusException("Unexpected length of initialization vector."); // TODO custom exception
+                    {
+                        throw new StegoCryptoException("Unexpected length of initialization vector.");
+                    }
 
                     // Append initialization vector to stream
                     outputStream.Write(aesAlgorithm.IV);
@@ -48,11 +53,7 @@ namespace Stegosaurus.Cryptography
         {
             using (AesManaged aesManaged = new AesManaged())
             {
-                // Generate key from key and salt
-                Rfc2898DeriveBytes key = new Rfc2898DeriveBytes(CryptoKey, salt);
-
-                // Set key and generate initialization vector
-                aesManaged.Key = key.GetBytes(aesManaged.KeySize / 8);
+                aesManaged.Key = Key;
 
                 using (MemoryStream inputStream = new MemoryStream(_data))
                 {
@@ -73,6 +74,21 @@ namespace Stegosaurus.Cryptography
                     }
                 }
             }
+        }
+
+        public byte[] GenerateKey()
+        {
+            using (AesManaged aes = new AesManaged())
+            {
+                aes.KeySize = KeySize;
+                aes.GenerateKey();
+                return aes.Key;
+            }
+        }
+
+        public void SetKey(string _keyString)
+        {
+            Key = string.IsNullOrEmpty(_keyString) ? null : KeyDeriver.DeriveKey(_keyString, KeySize);
         }
     }
 }

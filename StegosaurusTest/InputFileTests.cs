@@ -9,10 +9,10 @@ namespace StegosaurusTest
     public class InputFileTests
     {
         [TestMethod]
-        [ExpectedException(typeof(InvalidFileException))]
-        public void TestInvalidFileException()
+        [ExpectedException(typeof(InvalidCarrierFileException))]
+        public void RandomInputFile_ThrowsInvalidFileException()
         {
-            new InputFile(Guid.NewGuid().ToString());
+            InputFile file = new InputFile(Guid.NewGuid().ToString());
         }
     }
 }

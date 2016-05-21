@@ -4,16 +4,15 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{7918B181-6A70-430E-8BFB-A7C2944C4822}</ProjectGuid>
-    <OutputType>Exe</OutputType>
+    <ProjectGuid>{100E3A69-7D0B-4A29-8724-F8CA28019313}</ProjectGuid>
+    <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Stegosaurus</RootNamespace>
-    <AssemblyName>Stegosaurus</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <AssemblyName>StegosaurusLib</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -21,100 +20,72 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>
-    </DocumentationFile>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <PropertyGroup>
-    <ApplicationIcon>stegosaurus.ico</ApplicationIcon>
-  </PropertyGroup>
-  <PropertyGroup>
-    <StartupObject>
-    </StartupObject>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
-    <Reference Include="System.Deployment" />
-    <Reference Include="System.Drawing" />
-    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Algorithm\CommonSampleAlgorithm.cs" />
+    <Compile Include="Algorithm\CommonSample\Sample.cs" />
     <Compile Include="Algorithm\GraphTheoreticAlgorithm.cs" />
     <Compile Include="Algorithm\GraphTheory\Edge.cs" />
+    <Compile Include="Algorithm\GraphTheory\Sample.cs" />
     <Compile Include="Algorithm\GraphTheory\Vertex.cs" />
-    <Compile Include="Algorithm\IStegoAlgorithm.cs" />
+    <Compile Include="Algorithm\GTARewrite.cs" />
     <Compile Include="Algorithm\LSBAlgorithm.cs" />
+    <Compile Include="Algorithm\StegoAlgorithmBase.cs" />
     <Compile Include="Carrier\AudioCarrier.cs" />
     <Compile Include="Carrier\AudioFormats\AudioFile.cs" />
     <Compile Include="Carrier\AudioFormats\WaveFile.cs" />
+    <Compile Include="Carrier\ICarrierMedia.cs" />
     <Compile Include="Carrier\ImageCarrier.cs" />
     <Compile Include="Cryptography\AESProvider.cs" />
     <Compile Include="Cryptography\ICryptoProvider.cs" />
-    <Compile Include="Exceptions\InvalidFileException.cs" />
+    <Compile Include="Cryptography\PublicKeyList.cs" />
+    <Compile Include="Cryptography\RSAKeyPair.cs" />
+    <Compile Include="Cryptography\RSAProvider.cs" />
+    <Compile Include="Cryptography\SavedPublicKey.cs" />
+    <Compile Include="Exceptions\InvalidCarrierFileException.cs" />
+    <Compile Include="Exceptions\InvalidImageFileException.cs" />
     <Compile Include="Exceptions\InvalidWaveFileException.cs" />
+    <Compile Include="Exceptions\RandomNumbersOutOfRangeException.cs" />
     <Compile Include="Exceptions\StegoAlgorithmException.cs" />
+    <Compile Include="Exceptions\StegoCarrierException.cs" />
+    <Compile Include="Exceptions\StegoCryptoException.cs" />
     <Compile Include="Exceptions\StegoMessageException.cs" />
     <Compile Include="Exceptions\StegosaurusException.cs" />
-    <Compile Include="Utility\Extensions\FileSizeExtensions.cs" />
-    <Compile Include="Utility\Extensions\StringExtensions.cs" />
+    <Compile Include="InputFIle.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="StegoMessage.cs" />
+    <Compile Include="Utility\Compression.cs" />
+    <Compile Include="Utility\Extensions\ByteArrayExtensions.cs" />
+    <Compile Include="Utility\Extensions\StreamExtensions.cs" />
+    <Compile Include="Utility\IconExtractor.cs" />
     <Compile Include="Utility\InputTypes\CarrierType.cs" />
     <Compile Include="Utility\InputTypes\ContentType.cs" />
     <Compile Include="Utility\InputTypes\IInputType.cs" />
-    <Compile Include="Utility\Extensions\StreamExtensions.cs" />
-    <Compile Include="Utility\Compression.cs" />
-    <Compile Include="Utility\IconExtractor.cs" />
-    <Compile Include="InputFile.cs" />
-    <Compile Include="Carrier\ICarrierMedia.cs" />
-    <Compile Include="Forms\FormMain.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Forms\FormMain.Designer.cs">
-      <DependentUpon>FormMain.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Program.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Utility\KeyDeriver.cs" />
     <Compile Include="Utility\RandomNumberList.cs" />
-    <Compile Include="StegoMessage.cs" />
-    <EmbeddedResource Include="Forms\FormMain.resx">
-      <DependentUpon>FormMain.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Properties\Resources.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <Compile Include="Properties\Resources.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Resources.resx</DependentUpon>
-    </Compile>
-    <None Include="Properties\Settings.settings">
-      <Generator>SettingsSingleFileGenerator</Generator>
-      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
-    </None>
-    <Compile Include="Properties\Settings.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Settings.settings</DependentUpon>
-      <DesignTimeSharedInput>True</DesignTimeSharedInput>
-    </Compile>
+    <Compile Include="Utility\SizeFormatter.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <Content Include="stegosaurus.ico" />
-  </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

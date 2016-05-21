@@ -1,47 +1,48 @@
-﻿using System;
-using System.Collections;
+﻿using Stegosaurus.Exceptions;
+using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Stegosaurus.Utility
 {
-    public class RandomNumberList : IEnumerable<int>
+    public class RandomNumberList
     {
-        // Private variables
-        private Random random;
-        private HashSet<int> generatedIntegers = new HashSet<int>();
-        private int maxValue;
+        private readonly Random random;
+        private readonly HashSet<int> generatedIntegers = new HashSet<int>();
+        private readonly int maxValue;
 
+        /// <summary>
+        /// Construct a RandomNumberList with a seed and maximum value.
+        /// </summary>
         public RandomNumberList(int _seed, int _maxValue)
         {
             random = new Random(_seed);
             maxValue = _maxValue;
         }
 
-        public IEnumerator<int> GetEnumerator()
+        /// <summary>
+        /// Get the next integer in the random number sequence.
+        /// Throws a RandomNumbersOutOfRangeException if there are no numbers left to generate.
+        /// </summary>
+        public int Next
         {
-            int generatedInt;
-
-            // Check if there are any more integers to generate
-            if (generatedIntegers.Count >= maxValue)
-                throw new ArgumentOutOfRangeException("No more integers to generate.");
-
-            // Generate an integer which has not yet been generated
-            int requestedCount = generatedIntegers.Count + 1;
-            do
+            get
             {
-                generatedInt = random.Next(maxValue);
-                generatedIntegers.Add(generatedInt);
-            } while (generatedIntegers.Count < requestedCount);
+                int generatedInt;
 
-            generatedIntegers.Add(generatedInt);
+                // Check if there are any more integers to generate.
+                if (generatedIntegers.Count >= maxValue)
+                {
+                    throw new RandomNumbersOutOfRangeException();
+                }
 
-            yield return generatedInt;
-        }
+                // Generate an integer which has not yet been generated.
+                do
+                {
+                    generatedInt = random.Next(maxValue);
+                } while (!generatedIntegers.Add(generatedInt));
 
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
+                return generatedInt;
+            }
         }
     }
 }

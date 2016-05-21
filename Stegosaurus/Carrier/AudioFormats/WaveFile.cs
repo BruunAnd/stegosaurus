@@ -5,19 +5,36 @@ using Stegosaurus.Exceptions;
 
 namespace Stegosaurus.Carrier.AudioFormats
 {
-    class WaveFile : AudioFile
+    public class WaveFile : AudioFile
     {
         // Constants
         private static readonly byte[] RiffHeader = {82, 73, 70, 70};
         private static readonly byte[] FormatHeader = { 87, 65, 86, 69, 102, 109, 116, 32 };
         private static readonly byte[] DataHeader = { 100, 97, 116, 97 };
 
-        // Wave-specific properties
+        /// <summary>
+        /// Get or set the chunk size.
+        /// </summary>
         public int ChunkSize { get; private set; }
+
+        /// <summary>
+        /// Get or set the size of the format subchunk.
+        /// </summary>
         public int FormatSubChunkSize { get; private set; }
+
+        /// <summary>
+        /// Get or set the size of the data subchunk.
+        /// </summary>
         public int DataSubChunkSize { get; private set; }
+
+        /// <summary>
+        /// Get or set the audio format.
+        /// </summary>
         public short AudioFormat { get; private set; }
 
+        /// <summary>
+        /// Construct a WaveFile from a file path.
+        /// </summary>
         public WaveFile(string _filePath) : base(_filePath)
         {
         }
@@ -38,12 +55,15 @@ namespace Stegosaurus.Carrier.AudioFormats
                 // Checks if format header is correct
                 if (!fileStream.ReadBytes(FormatHeader.Length).SequenceEqual(FormatHeader))
                 {
-                    // TODO: Add user exception
                     throw new InvalidWaveFileException("File does not contain format header.", _filePath);
                 }
 
                 // Read sub chunk size
                 FormatSubChunkSize = fileStream.ReadInt();
+                if (FormatSubChunkSize > 16)
+                {
+                    throw new InvalidWaveFileException("Non-PCM files are not supported.", _filePath);
+                }
 
                 // Read audio format
                 AudioFormat = fileStream.ReadShort();
@@ -63,17 +83,9 @@ namespace Stegosaurus.Carrier.AudioFormats
                 // Read bits per sample
                 BitsPerSample = fileStream.ReadShort();
 
-                // If format block is larger than 16 bytes, read FormatSubChunkSize - 16 bytes
-                if (FormatSubChunkSize > 16)
-                {
-                    // TODO: Fix for all wave files
-                    fileStream.ReadBytes(FormatSubChunkSize - 16);
-                }
-
                 // Checks if data header is correct
                 if (!fileStream.ReadBytes(DataHeader.Length).SequenceEqual(DataHeader))
                 {
-                    // TODO: Add user exception
                     throw new InvalidWaveFileException("File does not contain data header.", _filePath);
                 }
 
@@ -81,7 +93,7 @@ namespace Stegosaurus.Carrier.AudioFormats
                 DataSubChunkSize = fileStream.ReadInt();
 
                 // Read samples
-                innerData = fileStream.ReadBytes(DataSubChunkSize);
+                InnerData = fileStream.ReadBytes(DataSubChunkSize);
             }
         }
 
@@ -100,18 +112,14 @@ namespace Stegosaurus.Carrier.AudioFormats
                 tempStream.Write(ByteRate);
                 tempStream.Write(BlockAlign);
                 tempStream.Write(BitsPerSample);
-                // TODO: Write remainder bytes?
 
                 // Write data
                 tempStream.Write(DataHeader);
                 tempStream.Write(DataSubChunkSize);
-                tempStream.Write(innerData);
+                tempStream.Write(InnerData);
 
                 return tempStream.ToArray();
             }
         }
-
-        
-
     }
 }

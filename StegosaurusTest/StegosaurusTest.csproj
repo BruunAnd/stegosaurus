@@ -53,16 +53,19 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
-    <Compile Include="CompressionTest.cs" />
-    <Compile Include="EncryptionTest.cs" />
+    <Compile Include="CryptographyTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="MockTests.cs" />
     <Compile Include="InputFileTests.cs" />
     <Compile Include="StegoMessageTests.cs" />
+    <Compile Include="TestUtility.cs" />
+    <Compile Include="CarrierTests.cs" />
+    <Compile Include="UtillityTests.cs" />
+    <Compile Include="SigningTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Stegosaurus\Stegosaurus.csproj">
-      <Project>{7918b181-6a70-430e-8bfb-a7c2944c4822}</Project>
+      <Project>{100E3A69-7D0B-4A29-8724-F8CA28019313}</Project>
       <Name>Stegosaurus</Name>
     </ProjectReference>
   </ItemGroup>
