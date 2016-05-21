@@ -9,53 +9,39 @@ namespace Stegosaurus.Carrier
 {
     public class ImageCarrier : ICarrierMedia
     {
-        private readonly Bitmap image;
+        private Bitmap image;
 
         public byte[] ByteArray { get; set; }
+        public string OutputExtension => ".png";
+        public Image Thumbnail => Image;
 
         public int BytesPerSample => 3;
 
         /// <summary>
         /// Returns the inner instance of Image.
         /// </summary>
-        public Image InnerImage => image;
-
-        /// <summary>
-        /// Construct ImageCarrier from an instance of Image.
-        /// </summary>
-        public ImageCarrier(Bitmap _image)
+        public Image Image
         {
-            if (_image == null)
+            get { return image; }
+            set
             {
-                throw new StegosaurusException("Image can not be null.");
-            }
-
-            // Use original image if it meets standards, otherwise convert it to 24 bpp
-            if (Equals(_image.RawFormat, ImageFormat.Png) && _image.PixelFormat == PixelFormat.Format24bppRgb)
-            {
-                image = _image;
-            }
-            else
-            {
-                // Copy image
-                Bitmap newImage = new Bitmap(_image.Width, _image.Height, PixelFormat.Format24bppRgb);
-                using (Graphics graphics = Graphics.FromImage(newImage))
+                // Use original image if it meets standards, otherwise convert it to 24 bpp
+                if (Equals(value.RawFormat, ImageFormat.Png) && value.PixelFormat == PixelFormat.Format24bppRgb)
                 {
-                    graphics.DrawImage(_image, new Rectangle(0, 0, _image.Width, _image.Height));
+                    image = (Bitmap) value;
                 }
+                else
+                {
+                    // Copy image
+                    Bitmap newImage = new Bitmap(value.Width, value.Height, PixelFormat.Format24bppRgb);
+                    using (Graphics graphics = Graphics.FromImage(newImage))
+                    {
+                        graphics.DrawImage(value, new Rectangle(0, 0, value.Width, value.Height));
+                    }
 
-                image = newImage;
+                    image = newImage;
+                }
             }
-
-            Decode();
-        }
-
-        /// <summary>
-        /// Gets file path to image file and passes instace of Image to constructor.
-        /// </summary>
-        /// <param name="_filePath"></param>
-        public ImageCarrier(string _filePath) : this(LoadImageFromFile(_filePath))
-        {
         }
 
         /// <summary>
@@ -84,6 +70,11 @@ namespace Stegosaurus.Carrier
 
         public unsafe void Decode()
         {
+            if (Image == null)
+            {
+                throw new StegoCarrierException("Image should be set before being decoded.");
+            }
+
             // Lock bits
             BitmapData imageData = LockBitmap();
 
@@ -92,7 +83,6 @@ namespace Stegosaurus.Carrier
             ByteArray = new byte[imageDataLength];
 
             // Get scan0 pointer
-            byte[] rgbValues = new byte[imageDataLength];
             byte* scanPtr = (byte*)imageData.Scan0.ToPointer();
 
             // Iterate through pixels
@@ -113,11 +103,25 @@ namespace Stegosaurus.Carrier
             image.UnlockBits(imageData);
         }
 
-        /// <summary>
-        /// Moves data from ByteArray into innerImage.
-        /// </summary>
+        public bool IsExtensionCompatible(string _extension)
+        {
+            string[] compatibleExtensions = { ".jpg", ".jpeg", ".jpe", ".jfif", ".png", ".gif", ".bmp" };
+            return compatibleExtensions.Contains(_extension);
+        }
+
+        public void OpenFile(string _filePath)
+        {
+            Image = LoadImageFromFile(_filePath);
+            Decode();
+        }
+
         public unsafe void Encode()
         {
+            if (Image == null)
+            {
+                throw new StegoCarrierException("Image should be set before being encoded.");
+            }
+
             // Lock bits
             BitmapData imageData = LockBitmap();
 
@@ -144,21 +148,10 @@ namespace Stegosaurus.Carrier
             image.UnlockBits(imageData);
         }
 
-        /// <summary>
-        /// Encodes and saves file to destination.
-        /// </summary>
         public void SaveToFile(string _destination)
         {
-            var old = ByteArray;
             Encode();
             image.Save(_destination, ImageFormat.Png);
-
-            // todo remove this when sure that bug is gone
-            ImageCarrier car = new ImageCarrier(_destination);
-            if (!old.SequenceEqual(car.ByteArray))
-            {
-                throw new StegosaurusException("ImageCarrier is possibly bugged.");
-            }
         }
     }
 }

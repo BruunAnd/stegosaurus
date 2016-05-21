@@ -1,39 +1,52 @@
 ﻿using Stegosaurus.Carrier.AudioFormats;
 using System;
+using System.Drawing;
 using System.IO;
+using System.Linq;
+using Stegosaurus.Exceptions;
+using Stegosaurus.Utility;
 
 namespace Stegosaurus.Carrier
 {
     public class AudioCarrier : ICarrierMedia
     {
         public byte[] ByteArray { get; set; }
+        public string OutputExtension => ".wav";
+        public Image Thumbnail => IconExtractor.ExtractIcon(OutputExtension).ToBitmap();
 
         public int BytesPerSample => audioFile.BitsPerSample / 8;
 
-        private readonly AudioFile audioFile;
+        private AudioFile audioFile;
 
-        /// <summary>
-        /// Construct an AudioCarrier from a file path.
-        /// </summary>
-        public AudioCarrier(string _filePath)
+        public bool IsExtensionCompatible(string _extension)
+        {
+            string[] compatibleExtensions = { ".wav" };
+            return compatibleExtensions.Contains(_extension);
+        }
+
+        public void OpenFile(string _filePath)
         {
             // Check if format is supported
             if (_filePath.EndsWith(".wav"))
+            {
                 audioFile = new WaveFile(_filePath);
+            }
             else
-                throw new ArgumentException("Input file format is not supported.");
+            {
+                throw new StegoCarrierException("Audio file is not supported by this carrier.");
+            }
 
-            Decode();        
-        }
-
-        public void Decode()
-        {
-            ByteArray = audioFile.CopyInnerData();
+            Decode();
         }
 
         public void Encode()
         {
             audioFile.SetInnerData(ByteArray);
+        }
+
+        public void Decode()
+        {
+            ByteArray = audioFile.CopyInnerData();
         }
 
         public void SaveToFile(string _destination)

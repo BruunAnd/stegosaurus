@@ -68,6 +68,7 @@
     <Compile Include="Exceptions\InvalidWaveFileException.cs" />
     <Compile Include="Exceptions\RandomNumbersOutOfRangeException.cs" />
     <Compile Include="Exceptions\StegoAlgorithmException.cs" />
+    <Compile Include="Exceptions\StegoCarrierException.cs" />
     <Compile Include="Exceptions\StegoCryptoException.cs" />
     <Compile Include="Exceptions\StegoMessageException.cs" />
     <Compile Include="Exceptions\StegosaurusException.cs" />

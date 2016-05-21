@@ -6,9 +6,9 @@ using Stegosaurus.Exceptions;
 
 namespace PluginExample
 {
-    public class ImportedAlgorithm : StegoAlgorithmBase
+    public class StegoAlgorithmExample : StegoAlgorithmBase
     {
-        public override string Name => "Imported Algorithm";
+        public override string Name => "Imported Stego Algorithm";
 
         protected override byte[] Signature => new byte[] { 0 };
 

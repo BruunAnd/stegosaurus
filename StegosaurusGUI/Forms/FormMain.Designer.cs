@@ -509,7 +509,7 @@ namespace StegosaurusGUI.Forms
             this.buttonImportAlgorithm.Name = "buttonImportAlgorithm";
             this.buttonImportAlgorithm.Size = new System.Drawing.Size(182, 34);
             this.buttonImportAlgorithm.TabIndex = 31;
-            this.buttonImportAlgorithm.Text = "Import algorithm";
+            this.buttonImportAlgorithm.Text = "Import plugin";
             this.buttonImportAlgorithm.UseVisualStyleBackColor = true;
             this.buttonImportAlgorithm.Click += new System.EventHandler(this.buttonImportAlgorithm_Click);
             // 

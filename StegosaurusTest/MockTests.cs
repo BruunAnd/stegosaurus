@@ -37,7 +37,8 @@ namespace StegosaurusTest
             Bitmap testImage = new Bitmap(rand.Next(500, 1000), rand.Next(500, 1000));
 
             // Setup algorithm
-            _algorithm.CarrierMedia = new ImageCarrier(testImage);
+            _algorithm.CarrierMedia = new ImageCarrier {Image = testImage};
+            _algorithm.CarrierMedia.Decode();
             rand.NextBytes(_algorithm.CarrierMedia.ByteArray);
             _algorithm.CryptoProvider = _cryptoProvider;
 
@@ -50,7 +51,8 @@ namespace StegosaurusTest
             _algorithm.CarrierMedia.SaveToFile("output.png");
 
             // Load the output file we just saved
-            _algorithm.CarrierMedia = new ImageCarrier("output.png");
+            _algorithm.CarrierMedia = new ImageCarrier();
+            _algorithm.CarrierMedia.OpenFile("output.png");
 
             // Change key if using RSA
             if (_cryptoProvider is RSAProvider)

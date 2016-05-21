@@ -25,6 +25,7 @@ namespace StegosaurusGUI.Forms
     {
         private readonly Dictionary<string, StegoAlgorithmBase> algorithmDictionary = new Dictionary<string, StegoAlgorithmBase>();
         private readonly Dictionary<string, ICryptoProvider> cryptoProviderDictionary = new Dictionary<string, ICryptoProvider>();
+        private readonly List<Type> carrierMediaTypes = new List<Type>();
 
         private StegoMessage stegoMessage = new StegoMessage();
         private ICarrierMedia carrierMedia;
@@ -50,9 +51,12 @@ namespace StegosaurusGUI.Forms
 
             // Add crypto providers
             AddCryptoProvider(typeof(AESProvider));
-            //AddCryptoProvider(typeof(TripleDESProvider));
             AddCryptoProvider(typeof(RSAProvider));
 
+            // Add carrier media types
+            carrierMediaTypes.Add(typeof(ImageCarrier));
+            carrierMediaTypes.Add(typeof(AudioCarrier));
+          
             // Set default values
             comboBoxAlgorithmSelection.SelectedIndex = 0;
             comboBoxCryptoProviderSelection.SelectedIndex = 0;
@@ -63,17 +67,17 @@ namespace StegosaurusGUI.Forms
         /// Checks that the files dragged into the panelCarrierMedia control are valid.
         /// Assigns the effect of the Drag and Drop accordingly.
         /// </summary>
-        private void panelCarrierMedia_DragEnter(object sender, DragEventArgs e)
+        private void panelCarrierMedia_DragEnter(object _sender, DragEventArgs _e)
         {
-            e.Effect = e.Data.GetDataPresent(DataFormats.FileDrop) ? DragDropEffects.Copy : DragDropEffects.None;
+            _e.Effect = _e.Data.GetDataPresent(DataFormats.FileDrop) ? DragDropEffects.Copy : DragDropEffects.None;
         }
 
         /// <summary>
         /// Gets the paths of the dropped files and converts the first to CarrierType and calls HandleInput.
         /// </summary>
-        private void panelCarrierMedia_DragDrop(object sender, DragEventArgs e)
+        private void panelCarrierMedia_DragDrop(object _sender, DragEventArgs _e)
         {
-            string[] inputFiles = (string[]) e.Data.GetData(DataFormats.FileDrop);
+            string[] inputFiles = (string[]) _e.Data.GetData(DataFormats.FileDrop);
             if (inputFiles.Length == 1)
             {
                 try
@@ -107,7 +111,7 @@ namespace StegosaurusGUI.Forms
         /// <summary>
         /// Assigns the content of the textBoxTextMessage.Text property to the stegoMessage.TextMessage property and updates the  to be the progressBarCapacity control.
         /// </summary>
-        private void textBoxTextMessage_TextChanged(object sender, EventArgs e)
+        private void textBoxTextMessage_TextChanged(object _sender, EventArgs _e)
         {
             stegoMessage.TextMessage = textBoxTextMessage.Text;
 
@@ -117,16 +121,16 @@ namespace StegosaurusGUI.Forms
         /// <summary>
         /// Checks that the items dragged into the listViewMessageContentFiles control are valid and changes the effect, and color accordingly.
         /// </summary>
-        private void listViewMessageContentFiles_DragEnter(object sender, DragEventArgs e)
+        private void listViewMessageContentFiles_DragEnter(object _sender, DragEventArgs _e)
         {
-            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+            if (_e.Data.GetDataPresent(DataFormats.FileDrop))
             {
-                e.Effect = DragDropEffects.Copy;
+                _e.Effect = DragDropEffects.Copy;
                 listViewMessageContentFiles.BackColor = Color.LightGreen;
             }
             else
             {
-                e.Effect = DragDropEffects.None;
+                _e.Effect = DragDropEffects.None;
                 listViewMessageContentFiles.BackColor = Color.Red;
             }
         }
@@ -134,7 +138,7 @@ namespace StegosaurusGUI.Forms
         /// <summary>
         /// Reverts the color of the listViewMessageContentFiles control to white when the files are dragged out of the conrtrols boundaries. 
         /// </summary>
-        private void listViewMessageContentFiles_DragLeave(object sender, EventArgs e)
+        private void listViewMessageContentFiles_DragLeave(object _sender, EventArgs _e)
         {
             listViewMessageContentFiles.BackColor = Color.White;
         }
@@ -142,9 +146,9 @@ namespace StegosaurusGUI.Forms
         /// <summary>
         /// Gets the file paths of all dropped files, converts them to the ContentType and calls the HandleInput to handle them further.
         /// </summary>
-        private void listViewMessageContentFiles_DragDrop(object sender, DragEventArgs e)
+        private void listViewMessageContentFiles_DragDrop(object _sender, DragEventArgs _e)
         {
-            string[] inputFiles = (string[]) e.Data.GetData(DataFormats.FileDrop);
+            string[] inputFiles = (string[]) _e.Data.GetData(DataFormats.FileDrop);
 
             foreach (string filePath in inputFiles)
             {
@@ -157,7 +161,7 @@ namespace StegosaurusGUI.Forms
         /// <summary>
         /// Ensures that the contextMenuStripMain wont open if no items from listViewMessageContentFiles are selected.
         /// </summary>
-        private void contextMenuStripMain_Opening(object sender, CancelEventArgs e)
+        private void contextMenuStripMain_Opening(object _sender, CancelEventArgs _e)
         {
             bool enableIndividualButtons = listViewMessageContentFiles.SelectedItems.Count > 0;
             deleteToolStripMenuItem.Enabled = enableIndividualButtons;
@@ -170,7 +174,7 @@ namespace StegosaurusGUI.Forms
         /// and if multiple files are selected the user is prompted to select a folder to which all selected file will be saved
         /// with their default names.
         /// </summary>
-        private void saveToolStripMenuItem_Click(object sender, EventArgs e)
+        private void saveToolStripMenuItem_Click(object _sender, EventArgs _e)
         {
             int[] fileIndices = GetSelectedContentIndices();
             int selectedCount = fileIndices.Length;
@@ -232,7 +236,7 @@ namespace StegosaurusGUI.Forms
         /// <summary>
         /// Handles the deletion of items from the listViewMessageContentFiles control and stegoMessage.InputFiles collection.
         /// </summary>
-        private void deleteToolStripMenuItem_Click(object sender, EventArgs e)
+        private void deleteToolStripMenuItem_Click(object _sender, EventArgs _e)
         {
             int[] fileIndices = GetSelectedContentIndices();
 
@@ -271,7 +275,7 @@ namespace StegosaurusGUI.Forms
         /// <summary>
         /// Updates the cryptoProvider to reflect the chosen item in the comboBoxCryptoProviderSelection control.
         /// </summary>
-        private void comboBoxCryptoProviderSelection_SelectedIndexChanged(object sender, EventArgs e)
+        private void comboBoxCryptoProviderSelection_SelectedIndexChanged(object _sender, EventArgs _e)
         {
             cryptoProvider = cryptoProviderDictionary[comboBoxCryptoProviderSelection.Text];
             cryptoProvider.SetKey(textBoxEncryptionKey.Text);
@@ -306,7 +310,7 @@ namespace StegosaurusGUI.Forms
         /// Assigns the chosen algorithm to the algorithm variable and supplies the algorithm with the current carrierMedia.
         /// At last the progressBarCapacity is updated.
         /// </summary>
-        private void comboBoxAlgorithmSelection_SelectedIndexChanged(object sender, EventArgs e)
+        private void comboBoxAlgorithmSelection_SelectedIndexChanged(object _sender, EventArgs _e)
         {
             algorithm = algorithmDictionary[comboBoxAlgorithmSelection.Text];
             algorithm.CarrierMedia = carrierMedia;
@@ -321,7 +325,7 @@ namespace StegosaurusGUI.Forms
         /// Checks whether stegoMessage contains content to be embedded, and runs the algoritm.Extract or algorithm.Embed methods accordingly.
         /// If the Extract method was called the interface is updated according to the new content of stegoMessage.
         /// </summary>
-        private async void buttonActivateSteganography_Click(object sender, EventArgs e)
+        private async void buttonActivateSteganography_Click(object _sender, EventArgs _e)
         {
             if (CanEmbed && string.IsNullOrEmpty(textBoxEncryptionKey.Text))
             {
@@ -477,19 +481,43 @@ namespace StegosaurusGUI.Forms
                 labelSignStatus.ForeColor = Color.Black;
                 labelSignStatus.Image = null;
 
-                if (fileInfo.Extension == ".wav")
+                // Find suitable carrier media
+                foreach (Type carrierType in carrierMediaTypes)
                 {
-                    carrierMedia = new AudioCarrier(_input.FilePath);
-                    pictureBoxCarrier.Image = Icon.ExtractAssociatedIcon(_input.FilePath)?.ToBitmap();
-                    carrierExtension = fileInfo.Extension;
+                    // Skip types that are not ICarrierMedia.
+                    if (!carrierType.GetInterfaces().Contains(typeof(ICarrierMedia)))
+                    {
+                        continue;
+                    }
+
+                    // Create instance.
+                    carrierMedia = (ICarrierMedia) Activator.CreateInstance(carrierType);
+
+                    // Validate extension
+                    if (!carrierMedia.IsExtensionCompatible(fileInfo.Extension))
+                    {
+                        carrierMedia = null;
+                    }
+                    else
+                    {
+                        carrierMedia.OpenFile(fileInfo.FullName);
+                        pictureBoxCarrier.Image = carrierMedia.Thumbnail;
+                        carrierExtension = carrierMedia.OutputExtension;
+                        break;
+                    }
+
+                }
+
+                // Warn user if no suitable carrier was found.
+                if (carrierMedia == null)
+                {
+                    pictureBoxCarrier.Image = null;
+                    MessageBox.Show("No suitable carrier media was found for this file.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
                 else
                 {
-                    carrierMedia = new ImageCarrier(_input.FilePath);
-                    pictureBoxCarrier.Image = ((ImageCarrier) carrierMedia).InnerImage;
-                    carrierExtension = ".png";
+                    carrierName = fileInfo.Name.Remove(fileInfo.Name.LastIndexOf('.'));
                 }
-                carrierName = fileInfo.Name.Remove(fileInfo.Name.LastIndexOf('.'));
             }
 
             UpdateInterface();
@@ -527,7 +555,7 @@ namespace StegosaurusGUI.Forms
             buttonActivateSteganography.Text = CanEmbed ? "Embed content" : "Extract content";
         }
 
-        private void buttonGenerate_Click(object sender, EventArgs e)
+        private void buttonGenerate_Click(object _sender, EventArgs _e)
         {
             RSAKeyPair keyPair = RSAProvider.GenerateKeys(2048);
             ShowSaveDialog("Save public key to...", "public_key", "XML File (*.xml)|*.xml", Encoding.UTF8.GetBytes(keyPair.PublicKey));
@@ -547,7 +575,7 @@ namespace StegosaurusGUI.Forms
             File.WriteAllBytes(sfd.FileName, content);  
         }
 
-        private void buttonImportKey_Click(object sender, EventArgs e)
+        private void buttonImportKey_Click(object _sender, EventArgs _e)
         {
             OpenFileDialog ofd = new OpenFileDialog {Filter = @"XML files (*.xml)|*.xml|All files (*.*)|*.*"};
 
@@ -557,7 +585,7 @@ namespace StegosaurusGUI.Forms
             textBoxEncryptionKey.Text = File.ReadAllText(ofd.FileName);
         }
 
-        private void listViewMessageContentFiles_MouseHover(object sender, EventArgs e)
+        private void listViewMessageContentFiles_MouseHover(object _sender, EventArgs _e)
         {
             ShowToolTip(listViewMessageContentFiles, "Right click to delete and save files.");
         }
@@ -567,7 +595,7 @@ namespace StegosaurusGUI.Forms
             new ToolTip().SetToolTip(_control, _message);
         }
 
-        private void browseToolStripMenuItem_Click(object sender, EventArgs e)
+        private void browseToolStripMenuItem_Click(object _sender, EventArgs _e)
         {
             OpenFileDialog ofd = new OpenFileDialog
             {
@@ -581,7 +609,7 @@ namespace StegosaurusGUI.Forms
             HandleInput(new CarrierType(ofd.FileName));
         }
 
-        private void addItemToolStripMenuItem_Click(object sender, EventArgs e)
+        private void addItemToolStripMenuItem_Click(object _sender, EventArgs _e)
         {
             OpenFileDialog ofd = new OpenFileDialog();
             ofd.Multiselect = true;
@@ -595,12 +623,12 @@ namespace StegosaurusGUI.Forms
             }
         }
 
-        private void contextMenuStripPictureBox_Opening(object sender, CancelEventArgs e)
+        private void contextMenuStripPictureBox_Opening(object _sender, CancelEventArgs _e)
         {
             findUniqueSamplesToolStripMenuItem.Enabled = carrierMedia != null;
         }
 
-        private async void findUniqueSamplesToolStripMenuItem_Click(object sender, EventArgs e)
+        private async void findUniqueSamplesToolStripMenuItem_Click(object _sender, EventArgs _e)
         {
             SetWaitingState(true);
 
@@ -614,10 +642,9 @@ namespace StegosaurusGUI.Forms
             SetWaitingState(false);
         }
 
-        private void buttonImportAlgorithm_Click(object sender, EventArgs e)
+        private void buttonImportAlgorithm_Click(object _sender, EventArgs _e)
         {
-            OpenFileDialog ofd = new OpenFileDialog();
-            ofd.Filter = "DLL files (*.dll)|*.dll";
+            OpenFileDialog ofd = new OpenFileDialog {Filter = "Stegosaurus Plugin (*.dll)|*.dll"};
 
             if (ofd.ShowDialog() != DialogResult.OK)
             {
@@ -627,19 +654,32 @@ namespace StegosaurusGUI.Forms
             // Load assembly
             Assembly asm = Assembly.LoadFrom(ofd.FileName);
             Type[] types = asm.GetTypes();
+            int numCompatibleTypes = 0;
             foreach (Type type in types)
             {
                 if (type.BaseType == typeof(StegoAlgorithmBase))
                 {
                     AddAlgorithm(type);
+                    numCompatibleTypes++;
+                }
+                else if (type.GetInterfaces().Contains(typeof(ICarrierMedia)))
+                {
+                    carrierMediaTypes.Add(type);
+                    numCompatibleTypes++;
+                }
+                else if (type.GetInterfaces().Contains(typeof(ICryptoProvider)))
+                {
+                    AddCryptoProvider(type);
+                    numCompatibleTypes++;
                 }
             }
+
+            MessageBox.Show($"{numCompatibleTypes} compatible types were found in the plugin.", @"Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
-        private void buttonAddPublicKey_Click(object sender, EventArgs e)
+        private void buttonAddPublicKey_Click(object _sender, EventArgs _e)
         {
-            OpenFileDialog ofd = new OpenFileDialog();
-            ofd.Filter = "XML files (*.xml)|*.xml|All files (*.*)|*.*";
+            OpenFileDialog ofd = new OpenFileDialog {Filter = "XML files (*.xml)|*.xml|All files (*.*)|*.*"};
 
             if (ofd.ShowDialog() != DialogResult.OK)
             {
@@ -671,14 +711,14 @@ namespace StegosaurusGUI.Forms
             File.Copy(ofd.FileName, fileDestination);
         }
 
-        private void textBoxEncryptionKey_TextChanged(object sender, EventArgs e)
+        private void textBoxEncryptionKey_TextChanged(object _sender, EventArgs _e)
         {
             cryptoProvider?.SetKey(textBoxEncryptionKey.Text);
 
             UpdateInterface();
         }
 
-        private void importFromURLToolStripMenuItem_Click(object sender, EventArgs e)
+        private void importFromURLToolStripMenuItem_Click(object _sender, EventArgs _e)
         {
             string requestedUrl = Interaction.InputBox("Which URL to import image from?", "Import", "");
             if (string.IsNullOrWhiteSpace(requestedUrl))
