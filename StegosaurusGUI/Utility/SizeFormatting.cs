@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
-
-namespace Stegosaurus.Extensions
+﻿namespace StegosaurusGUI.Utility
 {
-    public static class FileSizeExtensions
+    public static class SizeFormatting
     {
         public static string StringFormatBytes(long byteCount)
         {

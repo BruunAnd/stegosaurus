@@ -67,6 +67,10 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Utility\CarrierType.cs" />
+    <Compile Include="Utility\ContentType.cs" />
+    <Compile Include="Utility\IInputType.cs" />
+    <Compile Include="Utility\SizeFormatting.cs" />
     <EmbeddedResource Include="Forms\FormEmbeddingProgress.resx">
       <DependentUpon>FormEmbeddingProgress.cs</DependentUpon>
     </EmbeddedResource>
