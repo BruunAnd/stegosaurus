@@ -98,7 +98,7 @@ namespace Stegosaurus.Algorithm
             // Get Vertex lists.
             Tuple<List<Vertex>, List<Vertex>> verticeTuple = GetVerticeLists(sampleList, messageChunks);
             List<Vertex> messageVertexList = verticeTuple.Item1;
-            List<Vertex> reserveVertexList = verticeTuple.Item2;
+            // List<Vertex> reserveVertexList = verticeTuple.Item2;
             int messageVertexCount = messageVertexList.Count;
 
             // Find and swap edges.
@@ -362,8 +362,8 @@ namespace Stegosaurus.Algorithm
                             }
                             if (firstXY)
                             {
-                                minValues[1] = (outerSampleValues[1] > distanceMax) ? (byte)((outerSampleValues[1] - distanceMax) >> distancePrecision) : (byte)0;
-                                minValues[2] = (outerSampleValues[2] > distanceMax) ? (byte)((outerSampleValues[2] - distanceMax) >> distancePrecision) : (byte)0;
+                                minValues[1] = (outerSampleValues[1] > distanceMax) ? (outerSampleValues[1] - distanceMax ) >> distancePrecision : 0;
+                                minValues[2] = (outerSampleValues[2] > distanceMax) ? (outerSampleValues[2] - distanceMax ) >> distancePrecision : 0;
                                 firstXY = false;
                             }
                         }
@@ -377,44 +377,7 @@ namespace Stegosaurus.Algorithm
                 }
             }
             Console.WriteLine("GetEdges: Succesfull.");
-
-            return;
         }
-
-        //// returns a dictionary of lists of Tuple vertex references, with keys containing the sample Values, ModValue and TargetValue.
-        //private Dictionary<Tuple<byte, byte, byte, byte, byte>, List<Tuple<int, byte>>> GetDictionary(List<Vertex> _vertices, CancellationToken _ct)
-        //{
-        //    Dictionary<Tuple<byte, byte, byte, byte, byte>, List<Tuple<int, byte>>> locationDictionary = new Dictionary<Tuple<byte, byte, byte, byte, byte>, List<Tuple<int, byte>>>();
-
-        //    Sample vertexSample;
-        //    List<Tuple<int, byte>> vertexReferenceList;
-        //    Tuple <int, byte> vertexRef;
-        //    Tuple<byte, byte, byte, byte, byte> location;
-        //    int numVertices = _vertices.Count;
-        //    for (int vertexIndex = 0; vertexIndex < numVertices; vertexIndex++)
-        //    {
-        //        _ct.ThrowIfCancellationRequested();
-        //        for (byte sampleIndex = 0; sampleIndex < samplesPerVertex; sampleIndex++)
-        //        {
-        //            vertexSample = _vertices[vertexIndex].Samples[sampleIndex];
-        //            vertexRef = Tuple.Create(vertexIndex, sampleIndex);
-        //            location = Tuple.Create((byte)(vertexSample.Values[0] >> distancePrecision), (byte)(vertexSample.Values[1] >> distancePrecision), (byte)(vertexSample.Values[2] >> distancePrecision), vertexSample.ModValue, vertexSample.TargetModValue);
-
-        //            if (locationDictionary.TryGetValue(location, out vertexReferenceList))
-        //            {
-        //                vertexReferenceList.Add(vertexRef);
-        //            }
-        //            else
-        //            {
-        //                vertexReferenceList = new List<Tuple<int, byte>>();
-        //                vertexReferenceList.Add(vertexRef);
-        //                locationDictionary.Add(location, vertexReferenceList);
-        //            }
-        //        }
-        //    }
-        //    return locationDictionary;
-        //}
-
 
         private List<Vertex> Swap(List<Vertex> _vertexList)
         {
@@ -557,12 +520,6 @@ namespace Stegosaurus.Algorithm
             return tempByteArray;
         }
         #endregion
-
-        //Clears the vertices for references to edges.
-        private void ClearVertexEdges(List<Vertex> _vertices)
-        {
-            _vertices.ForEach(v => v.Edges.Clear());
-        }
 
     }
 }

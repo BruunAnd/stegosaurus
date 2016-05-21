@@ -21,7 +21,7 @@ using Stegosaurus.Utility.InputTypes;
 
 namespace StegosaurusGUI.Forms
 {
-    public partial class FormMain : Form
+    public partial class FormMain
     {
         private readonly Dictionary<string, StegoAlgorithmBase> algorithmDictionary = new Dictionary<string, StegoAlgorithmBase>();
         private readonly Dictionary<string, ICryptoProvider> cryptoProviderDictionary = new Dictionary<string, ICryptoProvider>();
@@ -62,7 +62,6 @@ namespace StegosaurusGUI.Forms
             comboBoxCryptoProviderSelection.SelectedIndex = 0;
         }
         
-        #region Carrier Media Handling
         /// <summary>
         /// Checks that the files dragged into the panelCarrierMedia control are valid.
         /// Assigns the effect of the Drag and Drop accordingly.
@@ -100,14 +99,11 @@ namespace StegosaurusGUI.Forms
             }
         }
 
-        private void ShowError(string message, string title = "Error")
+        private void ShowError(string _message, string _title = "Error")
         {
-            MessageBox.Show(message, title, MessageBoxButtons.OK, MessageBoxIcon.Error);
+            MessageBox.Show(_message, _title, MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
 
-        #endregion
-
-        #region StegoMessage Content Handling
         /// <summary>
         /// Assigns the content of the textBoxTextMessage.Text property to the stegoMessage.TextMessage property and updates the  to be the progressBarCapacity control.
         /// </summary>
@@ -258,9 +254,7 @@ namespace StegosaurusGUI.Forms
             listViewMessageContentFiles.SelectedIndices.CopyTo(indices, 0);
             return indices;
         }
-        #endregion
 
-        #region Cryptography Handling
         /// <summary>
         /// Adds a crypto provider to the cryptoprovider dictionary and combolist
         /// </summary>
@@ -290,9 +284,7 @@ namespace StegosaurusGUI.Forms
             UseWaitCursor = _isWaiting;
             tabControlMain.Enabled = !_isWaiting; 
         }
-        #endregion
 
-        #region Steganography Handling
         /// <summary>
         /// Add an algorithm to the algorithm dictionary and combolist
         /// </summary>
@@ -329,7 +321,7 @@ namespace StegosaurusGUI.Forms
         {
             if (CanEmbed && string.IsNullOrEmpty(textBoxEncryptionKey.Text))
             {
-                if (MessageBox.Show(@"You are about to embed without using an encryption key. Do you want to continue?", "Warning", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Warning) != DialogResult.Yes)
+                if (MessageBox.Show(@"You are about to embed without using an encryption key. Do you want to continue?", @"Warning", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Warning) != DialogResult.Yes)
                 {
                     textBoxEncryptionKey.Focus();
                     return;
@@ -454,8 +446,7 @@ namespace StegosaurusGUI.Forms
 
             await progressForm.Run(stegoMessage, algorithm, carrierName, carrierExtension);
         }
-        #endregion
-        
+
         /// <summary>
         /// Gets an IInputType with a file path. Checks the type of the input and handles it accordingly.
         /// </summary>
@@ -464,20 +455,29 @@ namespace StegosaurusGUI.Forms
             InputFile inputFile = new InputFile(_input.FilePath);
             FileInfo fileInfo = new FileInfo(_input.FilePath);
 
+            // Handle input based on whether it is files or carrier media.
             if (_input is ContentType)
             {
+                // Adds a new file to the list of input files.
                 ListViewItem fileItem = new ListViewItem(inputFile.Name);
                 fileItem.SubItems.Add(SizeFormatter.StringFormatBytes(fileInfo.Length));
                 fileItem.ImageKey = fileInfo.Extension;
                 if (!imageListIcons.Images.ContainsKey(fileItem.ImageKey))
-                    imageListIcons.Images.Add(fileItem.ImageKey, Icon.ExtractAssociatedIcon(_input.FilePath));
+                {
+                    Icon extractedIcon = Icon.ExtractAssociatedIcon(_input.FilePath);
+                    if (extractedIcon != null)
+                    {
+                        imageListIcons.Images.Add(fileItem.ImageKey, extractedIcon);
+                    }
+                }
 
                 stegoMessage.InputFiles.Add(inputFile);
                 listViewMessageContentFiles.Items.Add(fileItem);
             }
             else if (_input is CarrierType)
             {
-                labelSignStatus.Text = "Ready";
+                // Set new carrier media.
+                labelSignStatus.Text = @"Ready";
                 labelSignStatus.ForeColor = Color.Black;
                 labelSignStatus.Image = null;
 
@@ -512,7 +512,7 @@ namespace StegosaurusGUI.Forms
                 if (carrierMedia == null)
                 {
                     pictureBoxCarrier.Image = null;
-                    MessageBox.Show("No suitable carrier media was found for this file.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show(@"No suitable carrier media was found for this file.", @"Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
                 else
                 {
@@ -532,7 +532,7 @@ namespace StegosaurusGUI.Forms
             if (carrierMedia == null)
             {
                 progressBarCapacity.Value = progressBarCapacity.Maximum;
-                labelCapacityWarning.Text = "N/A";
+                labelCapacityWarning.Text = @"N/A";
                 labelCapacityWarning.ForeColor = Color.Black;
                 return;
             }
@@ -562,17 +562,19 @@ namespace StegosaurusGUI.Forms
             ShowSaveDialog("Save private key to...", "private_key", "XML File (*.xml)|*.xml", Encoding.UTF8.GetBytes(keyPair.PrivateKey));
         }
 
-        private void ShowSaveDialog(string title, string suggestedName, string filter, byte[] content)
+        private void ShowSaveDialog(string _title, string _suggestedName, string _filter, byte[] _content)
         {
-            SaveFileDialog sfd = new SaveFileDialog();
-            sfd.FileName = suggestedName;
-            sfd.Title = title;
-            sfd.Filter = filter;
+            SaveFileDialog sfd = new SaveFileDialog
+            {
+                FileName = _suggestedName,
+                Title = _title,
+                Filter = _filter
+            };
 
             if (sfd.ShowDialog() != DialogResult.OK)
                 return;
 
-            File.WriteAllBytes(sfd.FileName, content);  
+            File.WriteAllBytes(sfd.FileName, _content);  
         }
 
         private void buttonImportKey_Click(object _sender, EventArgs _e)
@@ -611,8 +613,7 @@ namespace StegosaurusGUI.Forms
 
         private void addItemToolStripMenuItem_Click(object _sender, EventArgs _e)
         {
-            OpenFileDialog ofd = new OpenFileDialog();
-            ofd.Multiselect = true;
+            OpenFileDialog ofd = new OpenFileDialog {Multiselect = true};
 
             if (ofd.ShowDialog() != DialogResult.OK)
                 return;
@@ -637,14 +638,14 @@ namespace StegosaurusGUI.Forms
             {
                 return Sample.GetSampleListFrom(carrierMedia, 0).GroupBy(v => v).Count();
             });
-            MessageBox.Show($"There are {numUniqueSamples} unique samples.", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBox.Show($"There are {numUniqueSamples} unique samples.", @"Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
             SetWaitingState(false);
         }
 
         private void buttonImportAlgorithm_Click(object _sender, EventArgs _e)
         {
-            OpenFileDialog ofd = new OpenFileDialog {Filter = "Stegosaurus Plugin (*.dll)|*.dll"};
+            OpenFileDialog ofd = new OpenFileDialog {Filter = @"Stegosaurus Plugin (*.dll)|*.dll"};
 
             if (ofd.ShowDialog() != DialogResult.OK)
             {
@@ -679,7 +680,7 @@ namespace StegosaurusGUI.Forms
 
         private void buttonAddPublicKey_Click(object _sender, EventArgs _e)
         {
-            OpenFileDialog ofd = new OpenFileDialog {Filter = "XML files (*.xml)|*.xml|All files (*.*)|*.*"};
+            OpenFileDialog ofd = new OpenFileDialog {Filter = @"XML files (*.xml)|*.xml|All files (*.*)|*.*"};
 
             if (ofd.ShowDialog() != DialogResult.OK)
             {
@@ -703,7 +704,7 @@ namespace StegosaurusGUI.Forms
             string fileDestination = Path.Combine(Program.KnownKeysFolder, $"{alias}.xml");
             if (File.Exists(fileDestination))
             {
-                MessageBox.Show("The alias '{alias}' has already been added.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(@"The alias '{alias}' has already been added.", @"Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
 
             // Copy to destination
@@ -720,7 +721,7 @@ namespace StegosaurusGUI.Forms
 
         private void importFromURLToolStripMenuItem_Click(object _sender, EventArgs _e)
         {
-            string requestedUrl = Interaction.InputBox("Which URL to import image from?", "Import", "");
+            string requestedUrl = Interaction.InputBox("Which URL to import image from?", "Import");
             if (string.IsNullOrWhiteSpace(requestedUrl))
             {
                 return;
