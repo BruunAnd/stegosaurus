@@ -4,7 +4,7 @@ using System.IO;
 
 namespace Stegosaurus.Carrier
 {
-    class AudioCarrier : ICarrierMedia
+    public class AudioCarrier : ICarrierMedia
     {
         public byte[] ByteArray { get; set; }
 

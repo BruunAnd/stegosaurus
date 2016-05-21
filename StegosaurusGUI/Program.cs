@@ -1,11 +1,10 @@
 ﻿using System;
-using System.Drawing;
-using System.Windows.Forms;
-using Stegosaurus.Forms;
-using Stegosaurus.Cryptography;
 using System.IO;
+using System.Windows.Forms;
+using Stegosaurus.Cryptography;
+using StegosaurusGUI.Forms;
 
-namespace Stegosaurus
+namespace StegosaurusGUI
 {
     static class Program
     {

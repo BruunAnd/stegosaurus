@@ -1,24 +1,25 @@
-﻿using Stegosaurus.Algorithm;
-using Stegosaurus.Carrier;
-using Stegosaurus.Exceptions;
-using Stegosaurus.Utility;
-using Stegosaurus.Utility.InputTypes;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.IO;
-using System.Text;
-using System.Windows.Forms;
-using Stegosaurus.Cryptography;
-using System.Threading.Tasks;
-using Stegosaurus.Algorithm.CommonSample;
 using System.Linq;
 using System.Net;
 using System.Reflection;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
 using Microsoft.VisualBasic;
+using Stegosaurus;
+using Stegosaurus.Algorithm;
+using Stegosaurus.Algorithm.CommonSample;
+using Stegosaurus.Carrier;
+using Stegosaurus.Cryptography;
+using Stegosaurus.Exceptions;
+using Stegosaurus.Utility;
+using Stegosaurus.Utility.InputTypes;
 
-namespace Stegosaurus.Forms
+namespace StegosaurusGUI.Forms
 {
     public partial class FormMain : Form
     {

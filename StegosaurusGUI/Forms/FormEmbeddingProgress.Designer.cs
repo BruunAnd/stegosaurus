@@ -1,6 +1,8 @@
-﻿namespace Stegosaurus.Forms
+﻿using System.Windows.Forms;
+
+namespace StegosaurusGUI.Forms
 {
-    partial class FormEmbeddingProgress
+    partial class FormEmbeddingProgress : Form
     {
         /// <summary>
         /// Required designer variable.

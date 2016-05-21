@@ -1,8 +1,8 @@
-﻿using Stegosaurus.Algorithm;
+﻿using System.Windows.Forms;
 
-namespace Stegosaurus.Forms
+namespace StegosaurusGUI.Forms
 {
-    partial class FormMain
+    partial class FormMain : Form
     {
         /// <summary>
         /// Required designer variable.

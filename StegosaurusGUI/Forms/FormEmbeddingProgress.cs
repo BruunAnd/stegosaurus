@@ -1,13 +1,14 @@
-﻿using Stegosaurus.Algorithm;
-using System;
+﻿using System;
+using System.Diagnostics;
 using System.Media;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Stegosaurus;
+using Stegosaurus.Algorithm;
 using Stegosaurus.Carrier;
-using System.Diagnostics;
 
-namespace Stegosaurus.Forms
+namespace StegosaurusGUI.Forms
 {
     public partial class FormEmbeddingProgress : Form
     {

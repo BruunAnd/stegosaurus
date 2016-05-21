@@ -3,7 +3,7 @@ using System.IO;
 
 namespace Stegosaurus.Cryptography
 {
-    public class PublicKeyList
+    public static class PublicKeyList
     {
         private static readonly List<SavedPublicKey> InnerList = new List<SavedPublicKey>();
 
