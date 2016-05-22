@@ -35,7 +35,6 @@ namespace StegosaurusGUI.Forms
             this.labelStatus = new System.Windows.Forms.Label();
             this.buttonCancel = new System.Windows.Forms.Button();
             this.buttonSaveAs = new System.Windows.Forms.Button();
-            this.button1 = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // progressBarMain
@@ -82,25 +81,11 @@ namespace StegosaurusGUI.Forms
             this.buttonSaveAs.UseVisualStyleBackColor = true;
             this.buttonSaveAs.Click += new System.EventHandler(this.buttonSaveAs_Click);
             // 
-            // button1
-            // 
-            this.button1.Enabled = false;
-            this.button1.Image = ((System.Drawing.Image)(resources.GetObject("button1.Image")));
-            this.button1.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.button1.Location = new System.Drawing.Point(197, 63);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(140, 28);
-            this.button1.TabIndex = 4;
-            this.button1.Text = "Upload to Imgur";
-            this.button1.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            this.button1.UseVisualStyleBackColor = true;
-            // 
             // FormEmbeddingProgress
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(409, 103);
-            this.Controls.Add(this.button1);
             this.Controls.Add(this.buttonSaveAs);
             this.Controls.Add(this.buttonCancel);
             this.Controls.Add(this.labelStatus);
@@ -123,6 +108,5 @@ namespace StegosaurusGUI.Forms
         private System.Windows.Forms.Label labelStatus;
         private System.Windows.Forms.Button buttonCancel;
         private System.Windows.Forms.Button buttonSaveAs;
-        private System.Windows.Forms.Button button1;
     }
 }

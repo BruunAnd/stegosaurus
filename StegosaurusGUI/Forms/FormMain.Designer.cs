@@ -371,6 +371,7 @@ namespace StegosaurusGUI.Forms
             this.tabControlMain.SelectedIndex = 0;
             this.tabControlMain.Size = new System.Drawing.Size(796, 432);
             this.tabControlMain.TabIndex = 29;
+            this.tabControlMain.SelectedIndexChanged += new System.EventHandler(this.tabControlMain_SelectedIndexChanged);
             // 
             // tabPageMain
             // 

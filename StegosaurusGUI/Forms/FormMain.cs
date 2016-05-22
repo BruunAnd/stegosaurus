@@ -37,6 +37,8 @@ namespace StegosaurusGUI.Forms
         private string carrierName;
         private string carrierExtension;
 
+        private bool hasWarnedAdvanced;
+
         private bool CanEmbed => carrierMedia != null && (!string.IsNullOrEmpty(textBoxTextMessage.Text) || listViewMessageContentFiles.Items.Count > 0);
 
         public FormMain()
@@ -746,6 +748,24 @@ namespace StegosaurusGUI.Forms
             finally
             {
                 File.Delete(tempLocation);
+            }
+        }
+
+        private void tabControlMain_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (!hasWarnedAdvanced && tabControlMain.SelectedTab == tabPageAdvanced)
+            {
+                string warningString = "Advanced Options should not be edited unless you know what you are doing. "
+                    + "The default values are recommended for your own safety and the stability of the program.\n\nDo you want to continue?";
+
+                if (MessageBox.Show(warningString, "Warning", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Warning) == DialogResult.Yes)
+                {
+                    hasWarnedAdvanced = true;
+                }
+                else
+                {
+                    tabControlMain.SelectTab(tabPageMain);
+                }
             }
         }
 
