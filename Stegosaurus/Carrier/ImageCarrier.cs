@@ -9,26 +9,26 @@ namespace Stegosaurus.Carrier
 {
     public class ImageCarrier : ICarrierMedia
     {
-        private Bitmap image;
+        private Bitmap backingImageData;
 
         public byte[] ByteArray { get; set; }
         public string OutputExtension => ".png";
-        public Image Thumbnail => Image;
+        public Image Thumbnail => ImageData;
 
         public int BytesPerSample => 3;
 
         /// <summary>
         /// Returns the inner instance of Image.
         /// </summary>
-        public Image Image
+        public Bitmap ImageData
         {
-            get { return image; }
+            get { return backingImageData; }
             set
             {
                 // Use original image if it meets standards, otherwise convert it to 24 bpp
                 if (Equals(value.RawFormat, ImageFormat.Png) && value.PixelFormat == PixelFormat.Format24bppRgb)
                 {
-                    image = (Bitmap) value;
+                    backingImageData = value;
                 }
                 else
                 {
@@ -39,7 +39,7 @@ namespace Stegosaurus.Carrier
                         graphics.DrawImage(value, new Rectangle(0, 0, value.Width, value.Height));
                     }
 
-                    image = newImage;
+                    backingImageData = newImage;
                 }
             }
         }
@@ -49,7 +49,7 @@ namespace Stegosaurus.Carrier
         /// </summary>
         private BitmapData LockBitmap()
         {
-            return image.LockBits(new Rectangle(new Point(0, 0), image.Size), ImageLockMode.ReadWrite, image.PixelFormat);
+            return backingImageData.LockBits(new Rectangle(new Point(0, 0), backingImageData.Size), ImageLockMode.ReadWrite, backingImageData.PixelFormat);
         }
 
         /// <summary>
@@ -70,7 +70,7 @@ namespace Stegosaurus.Carrier
 
         public unsafe void Decode()
         {
-            if (Image == null)
+            if (ImageData == null)
             {
                 throw new StegoCarrierException("Image should be set before being decoded.");
             }
@@ -87,9 +87,9 @@ namespace Stegosaurus.Carrier
 
             // Iterate through pixels
             int dstPosition = 0;
-            for (int i = 0; i < image.Width; i++)
+            for (int i = 0; i < backingImageData.Width; i++)
             {
-                for (int j = 0; j < image.Height; j++)
+                for (int j = 0; j < backingImageData.Height; j++)
                 {
                     // We have to 'reverse' each pixel as they are in BGR format (we want RGB)
                     int basePosition = j * imageData.Stride + i * BytesPerSample;
@@ -100,7 +100,7 @@ namespace Stegosaurus.Carrier
             }
 
             // Unlock bits
-            image.UnlockBits(imageData);
+            backingImageData.UnlockBits(imageData);
         }
 
         public bool IsExtensionCompatible(string _extension)
@@ -111,13 +111,13 @@ namespace Stegosaurus.Carrier
 
         public void LoadFromFile(string _filePath)
         {
-            Image = LoadImageFromFile(_filePath);
+            ImageData = LoadImageFromFile(_filePath);
             Decode();
         }
 
         public unsafe void Encode()
         {
-            if (Image == null)
+            if (ImageData == null)
             {
                 throw new StegoCarrierException("Image should be set before being encoded.");
             }
@@ -132,9 +132,9 @@ namespace Stegosaurus.Carrier
 
             // Copy the pixel array from ByteArray to the innerImage
             int srcPosition = 0;
-            for (int x = 0; x < image.Width; x++)
+            for (int x = 0; x < backingImageData.Width; x++)
             {
-                for (int y = 0; y < image.Height; y++)
+                for (int y = 0; y < backingImageData.Height; y++)
                 {
                     // We now have to turn RGB into BGR
                     int basePosition = y * imageData.Stride + x * BytesPerSample;
@@ -145,13 +145,13 @@ namespace Stegosaurus.Carrier
             }
 
             // Unlock bits
-            image.UnlockBits(imageData);
+            backingImageData.UnlockBits(imageData);
         }
 
         public void SaveToFile(string _destination)
         {
             Encode();
-            image.Save(_destination, ImageFormat.Png);
+            backingImageData.Save(_destination, ImageFormat.Png);
         }
     }
 }

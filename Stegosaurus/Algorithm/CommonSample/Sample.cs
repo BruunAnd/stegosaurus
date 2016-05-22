@@ -32,30 +32,6 @@ namespace Stegosaurus.Algorithm.CommonSample
             ModValue = (byte) (Values.Sum(val => val) & _modFactor);
         }
 
-        public void Swap(Sample _otherSample)
-        {
-            for (int i = 0; i < Values.Length; i++)
-            {
-                byte temp = Values[i];
-                Values[i] = _otherSample.Values[i];
-                _otherSample.Values[i] = temp;
-            }
-        }
-
-        public int DistanceTo(Sample _otherSample)
-        {
-            int distance = 0;
-
-            for (int i = 0; i < _otherSample.Values.Length; i++)
-            {
-                distance += (int) Math.Pow(Values[i] - _otherSample.Values[i], 2);
-            }
-
-            LastDistance = distance;
-
-            return distance;
-        }
-
         public override int GetHashCode()
         {
             return Values.ComputeHash();

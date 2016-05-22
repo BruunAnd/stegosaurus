@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using Stegosaurus.Carrier;
+using Stegosaurus.Utility.Extensions;
 
 namespace Stegosaurus.Algorithm.GraphTheory
 {
@@ -12,7 +12,9 @@ namespace Stegosaurus.Algorithm.GraphTheory
 
         public byte ModValue;
         public byte TargetModValue;
-        
+
+        public int LastDistance;
+
         public Sample(byte[] _values)
         {
             Values = _values;
@@ -21,6 +23,35 @@ namespace Stegosaurus.Algorithm.GraphTheory
         public void UpdateModValue(byte _bitwiseModFactor)
         {
             ModValue = (byte) (Values.Sum(val => val) & _bitwiseModFactor);
+        }
+
+        public int DistanceTo(Sample _otherSample)
+        {
+            int distance = 0;
+
+            for (int i = 0; i < _otherSample.Values.Length; i++)
+            {
+                distance += (int) Math.Pow(Values[i] - _otherSample.Values[i], 2);
+            }
+
+            LastDistance = distance;
+
+            return distance;
+        }
+
+        public override int GetHashCode()
+        {
+            return Values.ComputeHash();
+        }
+
+        public bool Equals(Sample _other)
+        {
+            return Values.SequenceEqual(_other.Values);
+        }
+
+        public object Clone()
+        {
+            return new Sample((byte[]) Values.Clone()) { ModValue = ModValue, TargetModValue = TargetModValue };
         }
 
         /// <summary>

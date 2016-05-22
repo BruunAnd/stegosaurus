@@ -507,7 +507,6 @@ namespace StegosaurusGUI.Forms
                         carrierExtension = carrierMedia.OutputExtension;
                         break;
                     }
-
                 }
 
                 // Warn user if no suitable carrier was found.

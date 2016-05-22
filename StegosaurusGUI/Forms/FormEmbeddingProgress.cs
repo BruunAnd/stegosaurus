@@ -112,7 +112,7 @@ namespace StegosaurusGUI.Forms
             SaveFileDialog sfd = new SaveFileDialog
             {
                 FileName = $"stego-{name}",
-                Filter = $"Original extension (*{extension})|*{extension}|All files (*.*)|*.*"
+                Filter = $"Default extension (*{extension})|*{extension}|All files (*.*)|*.*"
             };
 
             if (sfd.ShowDialog() != DialogResult.OK)
