@@ -112,7 +112,6 @@ namespace Stegosaurus.Algorithm
         /// <summary>
         /// Encodes the Sample.Values bytes back into the CarrierMedia
         /// </summary>
-        /// <param name="_sampleList"></param>
         private void Encode(List<Sample> _sampleList)
         {
             int pos = 0;
@@ -167,14 +166,14 @@ namespace Stegosaurus.Algorithm
 
             // Iterate through the amount of items to generate.
             RandomNumberList randomNumbers = new RandomNumberList(Seed, _sampleList.Count);
-            for (int i = 0; i < totalNumVertices; i++)
+            for (int numVertex = 0; numVertex < totalNumVertices; numVertex++)
             {
                 Sample[] tmpSampleArray = new Sample[SamplesPerVertex];
 
                 // Generate SamplesPerVertex items.
-                for (int j = 0; j < SamplesPerVertex; j++)
+                for (int sampleIndex = 0; sampleIndex < SamplesPerVertex; sampleIndex++)
                 {
-                    tmpSampleArray[j] = _sampleList[randomNumbers.Next];
+                    tmpSampleArray[sampleIndex] = _sampleList[randomNumbers.Next];
                 }
 
                 // Calculate mod value of vertex.
@@ -182,7 +181,7 @@ namespace Stegosaurus.Algorithm
 
                 // If index is more or equal to amount of message, add to reserves.
                 // Otherwise add to message vertices.
-                if (i >= _messageChunks.Count)
+                if (numVertex >= _messageChunks.Count)
                 {
                     Vertex reserveVertex = new Vertex(tmpSampleArray) { Value = vertexModValue };
                     reserveVertices.Add(reserveVertex);
@@ -193,7 +192,7 @@ namespace Stegosaurus.Algorithm
                     messageVertices.Add(messageVertex);
 
                     // Calculate delta value.
-                    byte deltaValue = (byte)((modFactor + _messageChunks[i] - messageVertex.Value) & bitwiseModFactor);
+                    byte deltaValue = (byte)((modFactor + _messageChunks[numVertex] - messageVertex.Value) & bitwiseModFactor);
 
                     // Set target values.
                     foreach (Sample sample in messageVertex.Samples)
@@ -210,11 +209,6 @@ namespace Stegosaurus.Algorithm
         /// Finds edges for all vertices and applies these edges as possible. If the number of vertices exceeds the VerticesPerMatching limit it splits the list before handling each part seperately.
         /// Returns list of vertices which couldn't be swapped.
         /// </summary>
-        /// <param name="_vertices"></param>
-        /// <param name="_progress"></param>
-        /// <param name="_ct"></param>
-        /// <param name="_progressWeight"></param>
-        /// <returns></returns>
         private List<Vertex> FindEdgesAndSwap(List<Vertex> _vertices, IProgress<int> _progress, CancellationToken _ct, int _progressWeight)
         {
             int numRounds = (int)Math.Ceiling((decimal)_vertices.Count / VerticesPerMatching), roundProgressWeight = _progressWeight / numRounds;
@@ -263,9 +257,6 @@ namespace Stegosaurus.Algorithm
         /// <summary>
         /// Creates a 5 dimensional array and populates it with lists of vertice references.
         /// </summary>
-        /// <param name="_vertices"></param>
-        /// <param name="_dimensionSize"></param>
-        /// <returns></returns>
         private List<Tuple<int, byte>>[,,,,] GetArray(List<Vertex> _vertices, int _dimensionSize)
         {
             List<Tuple<int, byte>>[,,,,] array = new List<Tuple<int, byte>>[_dimensionSize, _dimensionSize, _dimensionSize, modFactor, modFactor];
@@ -300,10 +291,6 @@ namespace Stegosaurus.Algorithm
         /// <summary>
         /// Finds the edges for all the provided vertices.
         /// </summary>
-        /// <param name="_vertexList"></param>
-        /// <param name="_progress"></param>
-        /// <param name="_ct"></param>
-        /// <param name="_progressWeight"></param>
         private void GetEdges(List<Vertex> _vertexList, IProgress<int> _progress, CancellationToken _ct, int _progressWeight)
         {
             //Console.WriteLine($"Debug GetEdges:");
@@ -416,8 +403,6 @@ namespace Stegosaurus.Algorithm
         /// <summary>
         /// Applies sample value swaps for the provided vertices, starting with the vertice with least edges.
         /// </summary>
-        /// <param name="_vertexList"></param>
-        /// <returns></returns>
         private List<Vertex> Swap(List<Vertex> _vertexList)
         {
             List<Vertex> leftoverVertexList = new List<Vertex>();
@@ -500,8 +485,6 @@ namespace Stegosaurus.Algorithm
         /// <summary>
         /// Converts the StegoMessage to a list of byte values according to the MessageBitsPerVertex property.
         /// </summary>
-        /// <param name="_message"></param>
-        /// <returns></returns>
         private List<byte> GetMessageChunks(StegoMessage _message)
         {
             // Combine signature with message and convert to BitArray.
@@ -535,28 +518,36 @@ namespace Stegosaurus.Algorithm
         /// <summary>
         /// Reads the specified number of bytes from the carrier media.
         /// </summary>
-        /// <param name="_numberList"></param>
-        /// <param name="_count"></param>
-        /// <returns></returns>
         private byte[] ReadBytes(RandomNumberList _numberList, int _count)
         {
             BitArray tempBitArray = new BitArray(_count * 8);
-            int bps = CarrierMedia.BytesPerSample;
+            int bytesPerSample = CarrierMedia.BytesPerSample;
+
+            // Calculates the number of vertices that would be needed to represent the given number of bytes.
             int numVertices = (_count * 8) / messageBitsPerVertex;
 
+            // Iterates through the number of vertices.
             for (int vertexIndex = 0; vertexIndex < numVertices; vertexIndex++)
             {
                 int bitIndexOffset = vertexIndex * messageBitsPerVertex;
                 int tempValue = 0;
+
+                // Read all bytes necessary for a vertex.
                 for (int sampleIndex = 0; sampleIndex < samplesPerVertex; sampleIndex++)
                 {
-                    var byteIndexOffset = _numberList.Next * bps;
-                    for (int byteIndex = 0; byteIndex < bps; byteIndex++)
+                    // Calculates the location of the CarrierMedia.ByteArray to read.
+                    var byteIndexOffset = _numberList.Next * bytesPerSample;
+                    // Reads the bytes necessary for a sample from that location.
+                    for (int byteIndex = 0; byteIndex < bytesPerSample; byteIndex++)
                     {
                         tempValue += CarrierMedia.ByteArray[byteIndexOffset + byteIndex];
                     }
                 }
+
+                // Calculates the representative value.
                 tempValue = tempValue & bitwiseModFactor;
+
+                // Converts the representative value to bits.
                 for (int bitIndex = 0; bitIndex < messageBitsPerVertex; bitIndex++)
                 {
                     tempBitArray[bitIndexOffset + bitIndex] = ((tempValue & (1 << bitIndex)) != 0);
