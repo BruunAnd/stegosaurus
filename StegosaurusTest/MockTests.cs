@@ -37,7 +37,7 @@ namespace StegosaurusTest
             Bitmap testImage = new Bitmap(rand.Next(500, 1000), rand.Next(500, 1000));
 
             // Setup algorithm
-            _algorithm.CarrierMedia = new ImageCarrier {Image = testImage};
+            _algorithm.CarrierMedia = new ImageCarrier {ImageData = testImage};
             _algorithm.CarrierMedia.Decode();
             rand.NextBytes(_algorithm.CarrierMedia.ByteArray);
             _algorithm.CryptoProvider = _cryptoProvider;

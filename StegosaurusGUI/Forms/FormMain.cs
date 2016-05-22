@@ -12,7 +12,6 @@ using System.Windows.Forms;
 using Microsoft.VisualBasic;
 using Stegosaurus;
 using Stegosaurus.Algorithm;
-using Stegosaurus.Algorithm.CommonSample;
 using Stegosaurus.Carrier;
 using Stegosaurus.Cryptography;
 using Stegosaurus.Exceptions;
@@ -48,7 +47,6 @@ namespace StegosaurusGUI.Forms
 
             // Add algorithms
             AddAlgorithm(typeof(GraphTheoreticAlgorithm));
-            AddAlgorithm(typeof(GTARewrite));
             AddAlgorithm(typeof(LSBAlgorithm));
             AddAlgorithm(typeof(CommonSampleAlgorithm));
 
@@ -507,7 +505,6 @@ namespace StegosaurusGUI.Forms
                         carrierExtension = carrierMedia.OutputExtension;
                         break;
                     }
-
                 }
 
                 // Warn user if no suitable carrier was found.

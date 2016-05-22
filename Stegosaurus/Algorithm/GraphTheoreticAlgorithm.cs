@@ -247,21 +247,20 @@ namespace Stegosaurus.Algorithm
             return leftoverVertexList;
         }
 
-        private List<Tuple<int, byte>>[,,,,] GetArray(List<Vertex> _vertices, int _dimensionSize, CancellationToken _ct)
+        private List<Tuple<int, byte>>[,,,,] GetArray(List<Vertex> _vertices, int _dimensionSize)
         {
             List<Tuple<int, byte>>[,,,,] array = new List<Tuple<int, byte>>[_dimensionSize, _dimensionSize, _dimensionSize, modFactor, modFactor];
-            Tuple<int, byte> vertexRef;
-            List<Tuple<int, byte>> vertexRefs;
-            Sample sample;
             int numVertices = _vertices.Count;
 
+            // more comments
             for (int vertexIndex = 0; vertexIndex < numVertices; vertexIndex++)
             {
                 for (byte sampleIndex = 0; sampleIndex < samplesPerVertex; sampleIndex++)
                 {
-                    vertexRef = Tuple.Create(vertexIndex, sampleIndex);
-                    sample = _vertices[vertexIndex].Samples[sampleIndex];
-                    vertexRefs = array[sample.Values[0] >> distancePrecision, sample.Values[1] >> distancePrecision, sample.Values[2] >> distancePrecision, sample.ModValue, sample.TargetModValue];
+                    Sample sample = _vertices[vertexIndex].Samples[sampleIndex];
+                    Tuple<int, byte> vertexRef = Tuple.Create(vertexIndex, sampleIndex);
+                    List<Tuple<int, byte>> vertexRefs = array[sample.Values[0] >> distancePrecision, sample.Values[1] >> distancePrecision, sample.Values[2] >> distancePrecision, sample.ModValue, sample.TargetModValue];
+
                     if (vertexRefs != null)
                     {
                         vertexRefs.Add(vertexRef);
@@ -278,56 +277,44 @@ namespace Stegosaurus.Algorithm
 
         private void GetEdges(List<Vertex> _vertexList, IProgress<int> _progress, CancellationToken _ct, int _progressWeight)
         {
-            //Console.WriteLine("Debug GetEdges:");
             int numVertices = _vertexList.Count;
-            List<Tuple<int, byte>> vertexRefs;
-            Vertex vertex;
-            Sample sample;
             byte dimMax = (byte)(byte.MaxValue >> distancePrecision), maxDelta = (byte)(distanceMax >> distancePrecision);
             //Console.WriteLine($"Debug GetEdges: maxDelta {maxDelta} , dimMax {dimMax}");
-            List<Tuple<int, byte>>[,,,,] array = GetArray(_vertexList, dimMax + 1, _ct); //dimMax + 1 to account for 0 based indexes.
+            List<Tuple<int, byte>>[,,,,] array = GetArray(_vertexList, dimMax + 1);
             int bytesPerSample = CarrierMedia.BytesPerSample;
-            Edge newEdge;
-            byte[] outerSampleValues, innerSampleValues;
-            short distance;
-            int temp;
             int[] minValues = new int[bytesPerSample], maxValues = new int[bytesPerSample];
-            byte sampleTargetValue, sampleModValue;
             byte[] bestSwaps = new byte[2];
             progressCounter = 1;
             progressUpdateInterval = numVertices / _progressWeight;
 
-            bool firstXY, isHere;
-
-
             for (int numVertex = 0; numVertex < numVertices; numVertex++, progressCounter++)
             {
                 _ct.ThrowIfCancellationRequested();
-                vertex = _vertexList[numVertex];
+                Vertex vertex = _vertexList[numVertex];
 
                 for (byte sampleIndex = 0; sampleIndex < samplesPerVertex; sampleIndex++)
                 {
-                    sample = vertex.Samples[sampleIndex];
-                    outerSampleValues = sample.Values;
-                    sampleTargetValue = sample.TargetModValue;
-                    sampleModValue = sample.ModValue;
+                    Sample outerSample = vertex.Samples[sampleIndex];
+                    byte[] outerSampleValues = outerSample.Values;
+                    byte sampleTargetValue = outerSample.TargetModValue;
+                    byte sampleModValue = outerSample.ModValue;
                     bestSwaps[0] = sampleIndex;
 
                     for (int byteIndex = 0; byteIndex < bytesPerSample; byteIndex++)
                     {
-                        temp = (outerSampleValues[byteIndex] >> distancePrecision);
+                        int temp = outerSampleValues[byteIndex] >> distancePrecision;
                         minValues[byteIndex] = temp;
-                        maxValues[byteIndex] = ((temp + maxDelta) > dimMax) ? dimMax : (temp + maxDelta);
+                        maxValues[byteIndex] = (temp + maxDelta) > dimMax ? dimMax : (temp + maxDelta);
                     }
-                    firstXY = true;
-                    isHere = true;
+                    bool firstXY = true;
+                    bool isHere = true;
                     for (int x = minValues[0]; x <= maxValues[0]; x++)
                     {
                         for (int y = minValues[1]; y <= maxValues[1]; y++)
                         {
                             for (int z = minValues[2]; z <= maxValues[2]; z++)
                             {
-                                vertexRefs = array[x, y, z, sampleTargetValue, sampleModValue];
+                                List<Tuple<int, byte>> vertexRefs = array[x, y, z, sampleTargetValue, sampleModValue];
                                 if (vertexRefs != null)
                                 {
                                     foreach (Tuple<int, byte> vertexRef in vertexRefs)
@@ -336,17 +323,14 @@ namespace Stegosaurus.Algorithm
                                         {
                                             continue;
                                         }
-                                        innerSampleValues = _vertexList[vertexRef.Item1].Samples[vertexRef.Item2].Values;
+                                        Sample innerSample = _vertexList[vertexRef.Item1].Samples[vertexRef.Item2];
                                         bestSwaps[1] = vertexRef.Item2;
 
-                                        distance = 0;
-                                        for (int valueIndex = 0; valueIndex < bytesPerSample; valueIndex++)
-                                        {
-                                            temp = outerSampleValues[valueIndex] - innerSampleValues[valueIndex];
-                                            distance += (short)(temp * temp);
-                                        }
+                                        // Calculate the distance between the outer and inner sample.
+                                        // This value is used as the weight between two vertices.
+                                        short distance = outerSample.DistanceTo(innerSample);
 
-                                        newEdge = new Edge(numVertex, vertexRef.Item1, distance, bestSwaps);
+                                        Edge newEdge = new Edge(numVertex, vertexRef.Item1, distance, bestSwaps);
 
                                         foreach (int vertexId in newEdge.Vertices)
                                         {
@@ -371,7 +355,7 @@ namespace Stegosaurus.Algorithm
                 {
                     progressCounter = 1;
                     _progress?.Report(++progress);
-                    Console.WriteLine($"... {numVertex} of {numVertices} handled. {(decimal)numVertex / numVertices:p}");
+                    //Console.WriteLine($"... {numVertex} of {numVertices} handled. {(decimal)numVertex / numVertices:p}");
                 }
             }
             //Console.WriteLine("GetEdges: Successful.");
