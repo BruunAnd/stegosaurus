@@ -246,27 +246,31 @@ namespace Stegosaurus.Algorithm
 
             return leftoverVertexList;
         }
-
+        
+        // creates a 5 dimensional array and populates it with lists of vertice references.
         private List<Tuple<int, byte>>[,,,,] GetArray(List<Vertex> _vertices, int _dimensionSize)
         {
             List<Tuple<int, byte>>[,,,,] array = new List<Tuple<int, byte>>[_dimensionSize, _dimensionSize, _dimensionSize, modFactor, modFactor];
             int numVertices = _vertices.Count;
-
-            // more comments
+            
             for (int vertexIndex = 0; vertexIndex < numVertices; vertexIndex++)
             {
                 for (byte sampleIndex = 0; sampleIndex < samplesPerVertex; sampleIndex++)
                 {
                     Sample sample = _vertices[vertexIndex].Samples[sampleIndex];
+                    // create a tuple identifying the current vertex and sample.
                     Tuple<int, byte> vertexRef = Tuple.Create(vertexIndex, sampleIndex);
-                    List<Tuple<int, byte>> vertexRefs = array[sample.Values[0] >> distancePrecision, sample.Values[1] >> distancePrecision, sample.Values[2] >> distancePrecision, sample.ModValue, sample.TargetModValue];
 
+                    // get the list of vertex references at the current samples location.
+                    List<Tuple<int, byte>> vertexRefs = array[sample.Values[0] >> distancePrecision, sample.Values[1] >> distancePrecision, sample.Values[2] >> distancePrecision, sample.ModValue, sample.TargetModValue];
                     if (vertexRefs != null)
                     {
+                        // If the list exists, add the vertexRef to the list.
                         vertexRefs.Add(vertexRef);
                     }
                     else
                     {
+                        // If the list does not exist, instantiate a new list and add the vertexRef to the list.
                         array[sample.Values[0] >> distancePrecision, sample.Values[1] >> distancePrecision, sample.Values[2] >> distancePrecision, sample.ModValue, sample.TargetModValue] = new List<Tuple<int, byte>>();
                         array[sample.Values[0] >> distancePrecision, sample.Values[1] >> distancePrecision, sample.Values[2] >> distancePrecision, sample.ModValue, sample.TargetModValue].Add(vertexRef);
                     }
@@ -277,69 +281,92 @@ namespace Stegosaurus.Algorithm
 
         private void GetEdges(List<Vertex> _vertexList, IProgress<int> _progress, CancellationToken _ct, int _progressWeight)
         {
+            //Console.WriteLine($"Debug GetEdges:");
             int numVertices = _vertexList.Count;
+
+            // calculate the maximum values for the Sample.Values and neighborhood distance with DistancePrecision applied.
             byte dimMax = (byte)(byte.MaxValue >> distancePrecision), maxDelta = (byte)(distanceMax >> distancePrecision);
-            //Console.WriteLine($"Debug GetEdges: maxDelta {maxDelta} , dimMax {dimMax}");
+
             List<Tuple<int, byte>>[,,,,] array = GetArray(_vertexList, dimMax + 1);
             int bytesPerSample = CarrierMedia.BytesPerSample;
             int[] minValues = new int[bytesPerSample], maxValues = new int[bytesPerSample];
             byte[] bestSwaps = new byte[2];
+
             progressCounter = 1;
             progressUpdateInterval = numVertices / _progressWeight;
 
+            //Iterate through all vertices.
             for (int numVertex = 0; numVertex < numVertices; numVertex++, progressCounter++)
             {
                 _ct.ThrowIfCancellationRequested();
+
+                // Set the current vertex
                 Vertex vertex = _vertexList[numVertex];
 
+                // Iterate through each of its samples
                 for (byte sampleIndex = 0; sampleIndex < samplesPerVertex; sampleIndex++)
                 {
+                    // Set the current sample values
                     Sample outerSample = vertex.Samples[sampleIndex];
                     byte[] outerSampleValues = outerSample.Values;
                     byte sampleTargetValue = outerSample.TargetModValue;
                     byte sampleModValue = outerSample.ModValue;
                     bestSwaps[0] = sampleIndex;
 
+                    // Calculate the neighborhood limits
                     for (int byteIndex = 0; byteIndex < bytesPerSample; byteIndex++)
                     {
                         int temp = outerSampleValues[byteIndex] >> distancePrecision;
+                        // minValues only applicable for before the second iteration of the Y-dimension.
                         minValues[byteIndex] = temp;
                         maxValues[byteIndex] = (temp + maxDelta) > dimMax ? dimMax : (temp + maxDelta);
                     }
+
+                    // Ready bool check to alter the minValues for subsequent iterations.
                     bool firstXY = true;
+                    // Ready bool check used when searching the current samples location.
                     bool isHere = true;
+                    
+                    // Iterate through the neighborhood dimensions
                     for (int x = minValues[0]; x <= maxValues[0]; x++)
                     {
                         for (int y = minValues[1]; y <= maxValues[1]; y++)
                         {
                             for (int z = minValues[2]; z <= maxValues[2]; z++)
                             {
+                                // Get the list of vertice references that lies at the current location, with the correct sampleTargetValue and sampleModValue.
                                 List<Tuple<int, byte>> vertexRefs = array[x, y, z, sampleTargetValue, sampleModValue];
                                 if (vertexRefs != null)
                                 {
+                                    // if the list exists, create edbes between current vertex and all vertices referenced by the list.
                                     foreach (Tuple<int, byte> vertexRef in vertexRefs)
                                     {
+                                        // When checking the current samples location, dont create an edge with a vertex we have already found edges for.
                                         if (isHere && vertexRef.Item1 <= numVertex)
                                         {
                                             continue;
                                         }
+
+                                        // get the info from the vertexRef tuple
                                         Sample innerSample = _vertexList[vertexRef.Item1].Samples[vertexRef.Item2];
                                         bestSwaps[1] = vertexRef.Item2;
 
-                                        // Calculate the distance between the outer and inner sample.
+                                        // Calculate the exact distance between the outer and inner sample.
                                         // This value is used as the weight between two vertices.
                                         short distance = outerSample.DistanceTo(innerSample);
 
+                                        // Create the new edge and add it to each vertex it applies to.
                                         Edge newEdge = new Edge(numVertex, vertexRef.Item1, distance, bestSwaps);
-
                                         foreach (int vertexId in newEdge.Vertices)
                                         {
                                             _vertexList[vertexId].Edges.Add(newEdge);
                                         }
                                     }
                                 }
+                                // dissable the vertex id check
                                 isHere = false;
                             }
+                            // In the first iteration only, set the minValues for subsequent iterations
                             if (firstXY)
                             {
                                 minValues[1] = outerSampleValues[1] > distanceMax ? (outerSampleValues[1] - distanceMax) >> distancePrecision : 0;
