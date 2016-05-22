@@ -109,6 +109,10 @@ namespace Stegosaurus.Algorithm
             _progress?.Report(100);
         }
 
+        /// <summary>
+        /// Encodes the Sample.Values bytes back into the CarrierMedia
+        /// </summary>
+        /// <param name="_sampleList"></param>
         private void Encode(List<Sample> _sampleList)
         {
             int pos = 0;
@@ -202,6 +206,15 @@ namespace Stegosaurus.Algorithm
             return new Tuple<List<Vertex>, List<Vertex>>(messageVertices, reserveVertices);
         }
 
+        /// <summary>
+        /// Finds edges for all vertices and applies these edges as possible. If the number of vertices exceeds the VerticesPerMatching limit it splits the list before handling each part seperately.
+        /// Returns list of vertices which couldn't be swapped.
+        /// </summary>
+        /// <param name="_vertices"></param>
+        /// <param name="_progress"></param>
+        /// <param name="_ct"></param>
+        /// <param name="_progressWeight"></param>
+        /// <returns></returns>
         private List<Vertex> FindEdgesAndSwap(List<Vertex> _vertices, IProgress<int> _progress, CancellationToken _ct, int _progressWeight)
         {
             int numRounds = (int)Math.Ceiling((decimal)_vertices.Count / VerticesPerMatching), roundProgressWeight = _progressWeight / numRounds;
@@ -247,7 +260,12 @@ namespace Stegosaurus.Algorithm
             return leftoverVertexList;
         }
         
-        // creates a 5 dimensional array and populates it with lists of vertice references.
+        /// <summary>
+        /// Creates a 5 dimensional array and populates it with lists of vertice references.
+        /// </summary>
+        /// <param name="_vertices"></param>
+        /// <param name="_dimensionSize"></param>
+        /// <returns></returns>
         private List<Tuple<int, byte>>[,,,,] GetArray(List<Vertex> _vertices, int _dimensionSize)
         {
             List<Tuple<int, byte>>[,,,,] array = new List<Tuple<int, byte>>[_dimensionSize, _dimensionSize, _dimensionSize, modFactor, modFactor];
@@ -258,10 +276,10 @@ namespace Stegosaurus.Algorithm
                 for (byte sampleIndex = 0; sampleIndex < samplesPerVertex; sampleIndex++)
                 {
                     Sample sample = _vertices[vertexIndex].Samples[sampleIndex];
-                    // create a tuple identifying the current vertex and sample.
+                    // Create a tuple identifying the current vertex and sample.
                     Tuple<int, byte> vertexRef = Tuple.Create(vertexIndex, sampleIndex);
 
-                    // get the list of vertex references at the current samples location.
+                    // Get the list of vertex references at the current samples location.
                     List<Tuple<int, byte>> vertexRefs = array[sample.Values[0] >> distancePrecision, sample.Values[1] >> distancePrecision, sample.Values[2] >> distancePrecision, sample.ModValue, sample.TargetModValue];
                     if (vertexRefs != null)
                     {
@@ -279,12 +297,19 @@ namespace Stegosaurus.Algorithm
             return array;
         }
 
+        /// <summary>
+        /// Finds the edges for all the provided vertices.
+        /// </summary>
+        /// <param name="_vertexList"></param>
+        /// <param name="_progress"></param>
+        /// <param name="_ct"></param>
+        /// <param name="_progressWeight"></param>
         private void GetEdges(List<Vertex> _vertexList, IProgress<int> _progress, CancellationToken _ct, int _progressWeight)
         {
             //Console.WriteLine($"Debug GetEdges:");
             int numVertices = _vertexList.Count;
 
-            // calculate the maximum values for the Sample.Values and neighborhood distance with DistancePrecision applied.
+            // Calculate the maximum values for the Sample.Values and neighborhood distance with DistancePrecision applied.
             byte dimMax = (byte)(byte.MaxValue >> distancePrecision), maxDelta = (byte)(distanceMax >> distancePrecision);
 
             List<Tuple<int, byte>>[,,,,] array = GetArray(_vertexList, dimMax + 1);
@@ -295,25 +320,25 @@ namespace Stegosaurus.Algorithm
             progressCounter = 1;
             progressUpdateInterval = numVertices / _progressWeight;
 
-            //Iterate through all vertices.
+            // Iterate through all vertices.
             for (int numVertex = 0; numVertex < numVertices; numVertex++, progressCounter++)
             {
                 _ct.ThrowIfCancellationRequested();
 
-                // Set the current vertex
+                // Set the current vertex.
                 Vertex vertex = _vertexList[numVertex];
 
-                // Iterate through each of its samples
+                // Iterate through each of its samples.
                 for (byte sampleIndex = 0; sampleIndex < samplesPerVertex; sampleIndex++)
                 {
-                    // Set the current sample values
+                    // Set the current sample values.
                     Sample outerSample = vertex.Samples[sampleIndex];
                     byte[] outerSampleValues = outerSample.Values;
                     byte sampleTargetValue = outerSample.TargetModValue;
                     byte sampleModValue = outerSample.ModValue;
                     bestSwaps[0] = sampleIndex;
 
-                    // Calculate the neighborhood limits
+                    // Calculate the neighborhood limits.
                     for (int byteIndex = 0; byteIndex < bytesPerSample; byteIndex++)
                     {
                         int temp = outerSampleValues[byteIndex] >> distancePrecision;
@@ -327,7 +352,7 @@ namespace Stegosaurus.Algorithm
                     // Ready bool check used when searching the current samples location.
                     bool isHere = true;
                     
-                    // Iterate through the neighborhood dimensions
+                    // Iterate through the neighborhood dimensions.
                     for (int x = minValues[0]; x <= maxValues[0]; x++)
                     {
                         for (int y = minValues[1]; y <= maxValues[1]; y++)
@@ -338,7 +363,7 @@ namespace Stegosaurus.Algorithm
                                 List<Tuple<int, byte>> vertexRefs = array[x, y, z, sampleTargetValue, sampleModValue];
                                 if (vertexRefs != null)
                                 {
-                                    // if the list exists, create edbes between current vertex and all vertices referenced by the list.
+                                    // If the list exists, create edbes between current vertex and all vertices referenced by the list.
                                     foreach (Tuple<int, byte> vertexRef in vertexRefs)
                                     {
                                         // When checking the current samples location, dont create an edge with a vertex we have already found edges for.
@@ -347,7 +372,7 @@ namespace Stegosaurus.Algorithm
                                             continue;
                                         }
 
-                                        // get the info from the vertexRef tuple
+                                        // Get the info from the vertexRef tuple
                                         Sample innerSample = _vertexList[vertexRef.Item1].Samples[vertexRef.Item2];
                                         bestSwaps[1] = vertexRef.Item2;
 
@@ -363,10 +388,10 @@ namespace Stegosaurus.Algorithm
                                         }
                                     }
                                 }
-                                // dissable the vertex id check
+                                // Dissable the vertex id check.
                                 isHere = false;
                             }
-                            // In the first iteration only, set the minValues for subsequent iterations
+                            // In the first iteration only, set the minValues for subsequent iterations.
                             if (firstXY)
                             {
                                 minValues[1] = outerSampleValues[1] > distanceMax ? (outerSampleValues[1] - distanceMax) >> distancePrecision : 0;
@@ -388,6 +413,11 @@ namespace Stegosaurus.Algorithm
             //Console.WriteLine("GetEdges: Successful.");
         }
 
+        /// <summary>
+        /// Applies sample value swaps for the provided vertices, starting with the vertice with least edges.
+        /// </summary>
+        /// <param name="_vertexList"></param>
+        /// <returns></returns>
         private List<Vertex> Swap(List<Vertex> _vertexList)
         {
             List<Vertex> leftoverVertexList = new List<Vertex>();
@@ -467,6 +497,11 @@ namespace Stegosaurus.Algorithm
             return new StegoMessage(ReadBytes(randomNumbers, length), CryptoProvider);
         }
 
+        /// <summary>
+        /// Converts the StegoMessage to a list of byte values according to the MessageBitsPerVertex property.
+        /// </summary>
+        /// <param name="_message"></param>
+        /// <returns></returns>
         private List<byte> GetMessageChunks(StegoMessage _message)
         {
             // Combine signature with message and convert to BitArray.
@@ -496,7 +531,13 @@ namespace Stegosaurus.Algorithm
 
             return messageChunklist;
         }
-
+        
+        /// <summary>
+        /// Reads the specified number of bytes from the carrier media.
+        /// </summary>
+        /// <param name="_numberList"></param>
+        /// <param name="_count"></param>
+        /// <returns></returns>
         private byte[] ReadBytes(RandomNumberList _numberList, int _count)
         {
             BitArray tempBitArray = new BitArray(_count * 8);
