@@ -470,7 +470,7 @@ namespace StegosaurusGUI.Forms
             this.tabPageAdvanced.Padding = new System.Windows.Forms.Padding(3);
             this.tabPageAdvanced.Size = new System.Drawing.Size(788, 399);
             this.tabPageAdvanced.TabIndex = 1;
-            this.tabPageAdvanced.Text = "Advanced options";
+            this.tabPageAdvanced.Text = "Advanced Options";
             this.tabPageAdvanced.UseVisualStyleBackColor = true;
             // 
             // buttonAddPublicKey

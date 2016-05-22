@@ -104,7 +104,9 @@ namespace Stegosaurus
 
                         // Check if hashed data matches
                         if (!rsa.VerifyData(encodedData, signedData))
+                        {
                             continue;
+                        }
 
                         // Set sign state and who signed it
                         SignState = StegoMessageSignState.SignedByKnown;
@@ -216,15 +218,9 @@ namespace Stegosaurus
             // Combine all the data using a MemoryStream.
             using (MemoryStream tempStream = new MemoryStream())
             {
-                // Do not write at the beginning of the stream.
-                // Allocate some space for the int that contains size.
-                // Also allocate space for a byte which contains our flags.
+                // Do not write at the beginning of the stream. Allocate space for int and byte.
                 tempStream.Seek(sizeof(int) + sizeof(byte), SeekOrigin.Begin);
-
-                // Write encoded data
                 tempStream.Write(encodedData, true);
-
-                // Write hash of encoded data
                 tempStream.Write(encodedData.ComputeSHAHash(), true);
 
                 // Sign if private key is specified

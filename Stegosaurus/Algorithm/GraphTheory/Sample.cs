@@ -28,14 +28,15 @@ namespace Stegosaurus.Algorithm.GraphTheory
         /// </summary>
         public static List<Sample> GetSampleListFrom(ICarrierMedia _carrierMedia, byte _bitwiseModFactor)
         {
+            int bytesPerSample = _carrierMedia.BytesPerSample;
             List<Sample> sampleList = new List<Sample>(_carrierMedia.ByteArray.Length / _carrierMedia.BytesPerSample);
 
             int currentSample = 0;
             while (currentSample < _carrierMedia.ByteArray.Length)
             {
-                byte[] sampleValues = new byte[_carrierMedia.BytesPerSample];
+                byte[] sampleValues = new byte[bytesPerSample];
 
-                for (int i = 0; i < _carrierMedia.BytesPerSample; i++)
+                for (int i = 0; i < bytesPerSample; i++)
                 {
                     sampleValues[i] = _carrierMedia.ByteArray[currentSample++];
                 }

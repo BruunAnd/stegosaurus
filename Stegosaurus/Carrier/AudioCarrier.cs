@@ -24,7 +24,7 @@ namespace Stegosaurus.Carrier
             return compatibleExtensions.Contains(_extension);
         }
 
-        public void OpenFile(string _filePath)
+        public void LoadFromFile(string _filePath)
         {
             // Check if format is supported
             if (_filePath.EndsWith(".wav"))

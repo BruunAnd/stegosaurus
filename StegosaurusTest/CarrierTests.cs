@@ -27,7 +27,7 @@ namespace StegosaurusTest
                 carrierMedia.SaveToFile("out.png");
 
                 ImageCarrier reloadedCarrier = new ImageCarrier();
-                reloadedCarrier.OpenFile("out.png");
+                reloadedCarrier.LoadFromFile("out.png");
                 Assert.IsTrue(tempArray.SequenceEqual(reloadedCarrier.ByteArray));
             }
         }

@@ -109,7 +109,7 @@ namespace Stegosaurus.Carrier
             return compatibleExtensions.Contains(_extension);
         }
 
-        public void OpenFile(string _filePath)
+        public void LoadFromFile(string _filePath)
         {
             Image = LoadImageFromFile(_filePath);
             Decode();
