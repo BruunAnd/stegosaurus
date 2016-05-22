@@ -35,7 +35,7 @@ namespace Stegosaurus.Carrier
         /// <summary>
         /// Open file from specified path.
         /// </summary>
-        void OpenFile(string _filePath);
+        void LoadFromFile(string _filePath);
 
         /// <summary>
         /// Encodes ByteArray back into the carrier media.

@@ -12,7 +12,7 @@ using StegosaurusGUI.Utility;
 
 namespace StegosaurusGUI.Forms
 {
-    public partial class FormEmbeddingProgress : Form
+    public partial class FormEmbeddingProgress
     {
         
         private readonly CancellationTokenSource cts = new CancellationTokenSource();
@@ -33,6 +33,7 @@ namespace StegosaurusGUI.Forms
             {
                 if (p <= progressBarMain.Maximum)
                 {
+                    Console.WriteLine(p);
                     progressBarMain.Value = p;
                     Text = p + "%";
                 }

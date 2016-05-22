@@ -52,7 +52,7 @@ namespace StegosaurusTest
 
             // Load the output file we just saved
             _algorithm.CarrierMedia = new ImageCarrier();
-            _algorithm.CarrierMedia.OpenFile("output.png");
+            _algorithm.CarrierMedia.LoadFromFile("output.png");
 
             // Change key if using RSA
             if (_cryptoProvider is RSAProvider)

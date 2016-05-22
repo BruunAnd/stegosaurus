@@ -36,7 +36,7 @@ namespace Stegosaurus.Algorithm
             }
         }
 
-        private int distanceMax = 4;
+        private int distanceMax = 8;
         [Category("Algorithm"), Description("The maximum distance between single samplevalues for an edge to be valid. Higher numbers means less visual imperceptibility but more statistical imperceptibility. Higher numbers might also decrease performance, depending on DistancePrecision. (Default = 32, Min-Max = 2-128.)")]
         public int DistanceMax
         {
@@ -60,14 +60,6 @@ namespace Stegosaurus.Algorithm
             set { verticesPerMatching = (value >= 10000) ? value : 10000; }
         }
 
-        //private int reserveMatching = 1;
-        //[Category("Algorithm"), Description("The number of times to try matching leftover vertices with reserve samples. (Default = 2, Min-Max = 0-8.)")]
-        //public int ReserveMatching
-        //{
-        //    get { return reserveMatching; }
-        //    set { reserveMatching = (value <= 8) ? ((value >= 0) ? value : 0) : 8; }
-        //}
-
         private int progress, progressCounter, progressUpdateInterval;
         private byte modFactor;
         private byte bitwiseModFactor;
@@ -82,6 +74,8 @@ namespace Stegosaurus.Algorithm
         {
             modFactor = (byte)(1 << messageBitsPerVertex);
             bitwiseModFactor = (byte)(modFactor - 1);
+            progress = 0;
+            progressCounter = 0;
 
             // Verify that the carrier is supported by the algorithm.
             if (CarrierMedia.BytesPerSample != 3)
@@ -377,7 +371,7 @@ namespace Stegosaurus.Algorithm
                 {
                     progressCounter = 1;
                     _progress?.Report(++progress);
-                    //Console.WriteLine($"... {numVertex} of {numVertices} handled. {(decimal)numVertex / numVertices:p}");
+                    Console.WriteLine($"... {numVertex} of {numVertices} handled. {(decimal)numVertex / numVertices:p}");
                 }
             }
             //Console.WriteLine("GetEdges: Successful.");

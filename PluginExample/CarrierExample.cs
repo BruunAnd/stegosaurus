@@ -16,7 +16,7 @@ namespace PluginExample
             return false;
         }
 
-        public void OpenFile(string _filePath)
+        public void LoadFromFile(string _filePath)
         {
             throw new NotImplementedException();
         }

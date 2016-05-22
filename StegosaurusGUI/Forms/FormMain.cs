@@ -502,7 +502,7 @@ namespace StegosaurusGUI.Forms
                     }
                     else
                     {
-                        carrierMedia.OpenFile(fileInfo.FullName);
+                        carrierMedia.LoadFromFile(fileInfo.FullName);
                         pictureBoxCarrier.Image = carrierMedia.Thumbnail;
                         carrierExtension = carrierMedia.OutputExtension;
                         break;
