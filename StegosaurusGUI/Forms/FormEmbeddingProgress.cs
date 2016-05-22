@@ -33,7 +33,6 @@ namespace StegosaurusGUI.Forms
             {
                 if (p <= progressBarMain.Maximum)
                 {
-                    Console.WriteLine(p);
                     progressBarMain.Value = p;
                     Text = p + "%";
                 }

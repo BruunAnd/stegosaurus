@@ -4,7 +4,7 @@ using System.Linq;
 using Stegosaurus.Carrier;
 using Stegosaurus.Utility.Extensions;
 
-namespace Stegosaurus.Algorithm.GraphTheory
+namespace Stegosaurus.Algorithm
 {
     public class Sample
     {
@@ -13,7 +13,7 @@ namespace Stegosaurus.Algorithm.GraphTheory
         public byte ModValue;
         public byte TargetModValue;
 
-        public int LastDistance;
+        public short LastDistance;
 
         public Sample(byte[] _values)
         {
@@ -25,18 +25,18 @@ namespace Stegosaurus.Algorithm.GraphTheory
             ModValue = (byte) (Values.Sum(val => val) & _bitwiseModFactor);
         }
 
-        public int DistanceTo(Sample _otherSample)
+        public short DistanceTo(Sample _otherSample)
         {
-            int distance = 0;
+            long distance = 0;
 
             for (int i = 0; i < _otherSample.Values.Length; i++)
             {
                 distance += (int) Math.Pow(Values[i] - _otherSample.Values[i], 2);
             }
 
-            LastDistance = distance;
+            LastDistance = distance > short.MaxValue ? short.MaxValue : (short) distance;
 
-            return distance;
+            return LastDistance;
         }
 
         public override int GetHashCode()

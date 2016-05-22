@@ -282,13 +282,13 @@ namespace Stegosaurus.Algorithm
             int numVertices = _vertexList.Count;
             List<Tuple<int, byte>> vertexRefs;
             Vertex vertex;
-            Sample sample;
+            Sample outerSample, innerSample;
             byte dimMax = (byte)(byte.MaxValue >> distancePrecision), maxDelta = (byte)(distanceMax >> distancePrecision);
             //Console.WriteLine($"Debug GetEdges: maxDelta {maxDelta} , dimMax {dimMax}");
             List<Tuple<int, byte>>[,,,,] array = GetArray(_vertexList, dimMax + 1, _ct); //dimMax + 1 to account for 0 based indexes.
             int bytesPerSample = CarrierMedia.BytesPerSample;
             Edge newEdge;
-            byte[] outerSampleValues, innerSampleValues;
+            byte[] outerSampleValues;
             short distance;
             int temp;
             int[] minValues = new int[bytesPerSample], maxValues = new int[bytesPerSample];
@@ -307,17 +307,17 @@ namespace Stegosaurus.Algorithm
 
                 for (byte sampleIndex = 0; sampleIndex < samplesPerVertex; sampleIndex++)
                 {
-                    sample = vertex.Samples[sampleIndex];
-                    outerSampleValues = sample.Values;
-                    sampleTargetValue = sample.TargetModValue;
-                    sampleModValue = sample.ModValue;
+                    outerSample = vertex.Samples[sampleIndex];
+                    outerSampleValues = outerSample.Values;
+                    sampleTargetValue = outerSample.TargetModValue;
+                    sampleModValue = outerSample.ModValue;
                     bestSwaps[0] = sampleIndex;
 
                     for (int byteIndex = 0; byteIndex < bytesPerSample; byteIndex++)
                     {
-                        temp = (outerSampleValues[byteIndex] >> distancePrecision);
+                        temp = outerSampleValues[byteIndex] >> distancePrecision;
                         minValues[byteIndex] = temp;
-                        maxValues[byteIndex] = ((temp + maxDelta) > dimMax) ? dimMax : (temp + maxDelta);
+                        maxValues[byteIndex] = (temp + maxDelta) > dimMax ? dimMax : (temp + maxDelta);
                     }
                     firstXY = true;
                     isHere = true;
@@ -336,15 +336,12 @@ namespace Stegosaurus.Algorithm
                                         {
                                             continue;
                                         }
-                                        innerSampleValues = _vertexList[vertexRef.Item1].Samples[vertexRef.Item2].Values;
+                                        innerSample = _vertexList[vertexRef.Item1].Samples[vertexRef.Item2];
                                         bestSwaps[1] = vertexRef.Item2;
 
-                                        distance = 0;
-                                        for (int valueIndex = 0; valueIndex < bytesPerSample; valueIndex++)
-                                        {
-                                            temp = outerSampleValues[valueIndex] - innerSampleValues[valueIndex];
-                                            distance += (short)(temp * temp);
-                                        }
+                                        // Calculate the distance between the outer and inner sample.
+                                        // This value is used as the weight between two vertices.
+                                        distance = outerSample.DistanceTo(innerSample);
 
                                         newEdge = new Edge(numVertex, vertexRef.Item1, distance, bestSwaps);
 
@@ -371,7 +368,7 @@ namespace Stegosaurus.Algorithm
                 {
                     progressCounter = 1;
                     _progress?.Report(++progress);
-                    Console.WriteLine($"... {numVertex} of {numVertices} handled. {(decimal)numVertex / numVertices:p}");
+                    //Console.WriteLine($"... {numVertex} of {numVertices} handled. {(decimal)numVertex / numVertices:p}");
                 }
             }
             //Console.WriteLine("GetEdges: Successful.");

@@ -5,7 +5,6 @@ using Stegosaurus.Utility;
 using System.Collections;
 using System.ComponentModel;
 using Stegosaurus.Exceptions;
-using Stegosaurus.Algorithm.CommonSample;
 using System.Threading;
 
 namespace Stegosaurus.Algorithm
@@ -16,7 +15,7 @@ namespace Stegosaurus.Algorithm
 
         protected override byte[] Signature => new byte[] { 0x0C, 0xB3, 0x11, 0x84 };
 
-        private byte modFactor = 0x1;
+        private static readonly byte BitwiseModFactor = 0x1;
 
         /// <summary>
         /// Get or set the maximum distance.
@@ -32,10 +31,11 @@ namespace Stegosaurus.Algorithm
 
         public override void Embed(StegoMessage _message, IProgress<int> _progress, CancellationToken _ct)
         {
+            Random rand = new Random();
             var messageBits = new BitArray(Signature.Concat(_message.ToByteArray(CryptoProvider)).ToArray());
 
             // Get all samples.
-            List<Sample> samples = Sample.GetSampleListFrom(CarrierMedia, modFactor);
+            List<Sample> samples = Sample.GetSampleListFrom(CarrierMedia, BitwiseModFactor);
 
             // Find color frequencies.
             // The Samples are clones so their values are not changed by mistake.
@@ -76,18 +76,19 @@ namespace Stegosaurus.Algorithm
                 }
                 else
                 {
-                    currentSample.ForceChanges(modFactor);
+                    currentSample.Values[rand.Next(CarrierMedia.BytesPerSample)] ^= BitwiseModFactor;
                     numForced++;
                 }
 
-                // Update mod value
-                currentSample.UpdateModValue(modFactor);
+                // Update mod value.
+                currentSample.UpdateModValue(BitwiseModFactor);
 
                 // Report progress.
-                if (i % 500 != 0)
-                    continue;
-                float percentage = (( i + 1) / (float) messageBits.Length) * 100;
-                _progress?.Report((int) percentage);
+                if (i % 100 == 0)
+                {
+                    float percentage = ( ( i + 1 ) / (float) messageBits.Length ) * 100;
+                    _progress?.Report((int) percentage);
+                }
             }
 
             // Report that we are finished.
@@ -105,7 +106,7 @@ namespace Stegosaurus.Algorithm
         public override StegoMessage Extract()
         {
             // Get all samples.
-            List<Sample> samples = Sample.GetSampleListFrom(CarrierMedia, modFactor);
+            List<Sample> samples = Sample.GetSampleListFrom(CarrierMedia, BitwiseModFactor);
 
             // Generate random numbers.
             RandomNumberList randomNumbers = new RandomNumberList(Seed, samples.Count);

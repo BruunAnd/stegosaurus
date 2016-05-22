@@ -18,9 +18,9 @@ namespace StegosaurusTest
             {
                 Random rand = new Random();
                 ImageCarrier carrierMedia = new ImageCarrier();
-                carrierMedia.Image = new Bitmap(rand.Next(5, 2000), rand.Next(5, 2000));
-                byte[] tempArray = new byte[carrierMedia.Image.Width * carrierMedia.Image.Height * carrierMedia.BytesPerSample];
-                Console.WriteLine("Trying a {0}x{1} image..", carrierMedia.Image.Width, carrierMedia.Image.Height);
+                carrierMedia.ImageData = new Bitmap(rand.Next(5, 2000), rand.Next(5, 2000));
+                byte[] tempArray = new byte[carrierMedia.ImageData.Width * carrierMedia.ImageData.Height * carrierMedia.BytesPerSample];
+                Console.WriteLine("Trying a {0}x{1} image..", carrierMedia.ImageData.Width, carrierMedia.ImageData.Height);
                 rand.NextBytes(tempArray);
 
                 carrierMedia.ByteArray = tempArray;
