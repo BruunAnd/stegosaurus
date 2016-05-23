@@ -212,6 +212,7 @@ namespace Stegosaurus.Algorithm
         private List<Vertex> FindEdgesAndSwap(List<Vertex> _vertices, IProgress<int> _progress, CancellationToken _ct, int _progressWeight)
         {
             int numRounds = (int)Math.Ceiling((decimal)_vertices.Count / VerticesPerMatching), roundProgressWeight = _progressWeight / numRounds;
+            roundProgressWeight = roundProgressWeight == 0 ? 1 : roundProgressWeight;
             int verticesPerRound = _vertices.Count / numRounds + 1, maxCarryoverPerRound = VerticesPerMatching / 4;
             int verticeOffset = 0, startNumVertices = _vertices.Count;
             List<Vertex> leftoverVertexList = new List<Vertex>();

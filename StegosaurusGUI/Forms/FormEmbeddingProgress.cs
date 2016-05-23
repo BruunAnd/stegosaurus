@@ -62,6 +62,12 @@ namespace StegosaurusGUI.Forms
                     errorOccurred = true;
                     return false;
                 }
+                finally
+                {
+                    // Should not be necessary, just an added stability measure.
+                    GC.Collect();
+                    GC.WaitForPendingFinalizers();
+                }
             });
             sw.Stop();
 

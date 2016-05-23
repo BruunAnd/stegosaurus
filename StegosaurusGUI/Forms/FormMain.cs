@@ -148,7 +148,7 @@ namespace StegosaurusGUI.Forms
         {
             string[] inputFiles = (string[]) _e.Data.GetData(DataFormats.FileDrop);
 
-            foreach (string filePath in inputFiles)
+            foreach (string filePath in inputFiles.Where(File.Exists))
             {
                 HandleInput(new ContentType(filePath));
             }
@@ -263,9 +263,12 @@ namespace StegosaurusGUI.Forms
         private void AddCryptoProvider(Type _cryptoProviderType)
         {
             ICryptoProvider newCryptoProvider = (ICryptoProvider) Activator.CreateInstance(_cryptoProviderType);
-            cryptoProviderDictionary.Add(newCryptoProvider.Name, newCryptoProvider);
+            if (!cryptoProviderDictionary.ContainsKey(newCryptoProvider.Name))
+            {
+                cryptoProviderDictionary.Add(newCryptoProvider.Name, newCryptoProvider);
 
-            comboBoxCryptoProviderSelection.Items.Add(newCryptoProvider.Name);
+                comboBoxCryptoProviderSelection.Items.Add(newCryptoProvider.Name);
+            }
         }
 
         /// <summary>
@@ -463,7 +466,7 @@ namespace StegosaurusGUI.Forms
                 // Adds a new file to the list of input files.
                 ListViewItem fileItem = new ListViewItem(inputFile.Name);
                 fileItem.SubItems.Add(SizeFormatter.StringFormatBytes(fileInfo.Length));
-                fileItem.ImageKey = fileInfo.Extension;
+                fileItem.ImageKey = fileInfo.Extension.ToLower();
                 if (!imageListIcons.Images.ContainsKey(fileItem.ImageKey))
                 {
                     Icon extractedIcon = Icon.ExtractAssociatedIcon(_input.FilePath);
@@ -496,7 +499,7 @@ namespace StegosaurusGUI.Forms
                     carrierMedia = (ICarrierMedia) Activator.CreateInstance(carrierType);
 
                     // Validate extension
-                    if (!carrierMedia.IsExtensionCompatible(fileInfo.Extension))
+                    if (!carrierMedia.IsExtensionCompatible(fileInfo.Extension.ToLower()))
                     {
                         carrierMedia = null;
                     }
@@ -654,7 +657,16 @@ namespace StegosaurusGUI.Forms
             }
 
             // Load assembly
-            Assembly asm = Assembly.LoadFrom(ofd.FileName);
+            Assembly asm;
+            try
+            {
+                asm = Assembly.LoadFrom(ofd.FileName);
+            }
+            catch (BadImageFormatException)
+            {
+                MessageBoxUtility.ShowError("The selected file is not a valid plugin.");
+                return;
+            }
             Type[] types = asm.GetTypes();
             int numCompatibleTypes = 0;
             foreach (Type type in types)
@@ -666,7 +678,10 @@ namespace StegosaurusGUI.Forms
                 }
                 else if (type.GetInterfaces().Contains(typeof(ICarrierMedia)))
                 {
-                    carrierMediaTypes.Add(type);
+                    if (carrierMediaTypes.Contains(type))
+                    {
+                        carrierMediaTypes.Add(type);
+                    }
                     numCompatibleTypes++;
                 }
                 else if (type.GetInterfaces().Contains(typeof(ICryptoProvider)))
