@@ -280,8 +280,7 @@ namespace Stegosaurus.Algorithm
                     else
                     {
                         // If the list does not exist, instantiate a new list and add the vertexRef to the list.
-                        array[sample.Values[0] >> distancePrecision, sample.Values[1] >> distancePrecision, sample.Values[2] >> distancePrecision, sample.ModValue, sample.TargetModValue] = new List<Tuple<int, byte>>();
-                        array[sample.Values[0] >> distancePrecision, sample.Values[1] >> distancePrecision, sample.Values[2] >> distancePrecision, sample.ModValue, sample.TargetModValue].Add(vertexRef);
+                        array[sample.Values[0] >> distancePrecision, sample.Values[1] >> distancePrecision, sample.Values[2] >> distancePrecision, sample.ModValue, sample.TargetModValue] = new List<Tuple<int, byte>>() {vertexRef};
                     }
                 }
             }
@@ -350,7 +349,7 @@ namespace Stegosaurus.Algorithm
                                 List<Tuple<int, byte>> vertexRefs = array[x, y, z, sampleTargetValue, sampleModValue];
                                 if (vertexRefs != null)
                                 {
-                                    // If the list exists, create edbes between current vertex and all vertices referenced by the list.
+                                    // If the list exists, create edges between current vertex and all vertices referenced by the list.
                                     foreach (Tuple<int, byte> vertexRef in vertexRefs)
                                     {
                                         // When checking the current samples location, dont create an edge with a vertex we have already found edges for.
@@ -359,7 +358,7 @@ namespace Stegosaurus.Algorithm
                                             continue;
                                         }
 
-                                        // Get the info from the vertexRef tuple
+                                        // Get the info from the vertexRef tuple.
                                         Sample innerSample = _vertexList[vertexRef.Item1].Samples[vertexRef.Item2];
                                         bestSwaps[1] = vertexRef.Item2;
 
@@ -375,9 +374,11 @@ namespace Stegosaurus.Algorithm
                                         }
                                     }
                                 }
-                                // Dissable the vertex id check.
+
+                                // Disable the vertex id check.
                                 isHere = false;
                             }
+
                             // In the first iteration only, set the minValues for subsequent iterations.
                             if (firstXY)
                             {
