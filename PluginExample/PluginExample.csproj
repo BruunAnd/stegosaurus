@@ -50,7 +50,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Stegosaurus\Stegosaurus.csproj">
-      <Project>{100E3A69-7D0B-4A29-8724-F8CA28019313}</Project>
+      <Project>{100e3a69-7d0b-4a29-8724-f8ca28019313}</Project>
       <Name>Stegosaurus</Name>
     </ProjectReference>
   </ItemGroup>

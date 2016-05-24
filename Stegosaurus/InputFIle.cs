@@ -30,7 +30,9 @@ namespace Stegosaurus
         {
             FileInfo fileInfo = new FileInfo(_filePath);
             if (!fileInfo.Exists)
+            {
                 throw new InvalidCarrierFileException("File does not exist.", _filePath);
+            }
 
             Name = fileInfo.Name;
             Content = File.ReadAllBytes(_filePath);
