@@ -1,6 +1,11 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Drawing.Imaging;
+using System.IO;
 using System.Media;
+using System.Net;
+using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -14,13 +19,14 @@ namespace StegosaurusGUI.Forms
 {
     public partial class FormEmbeddingProgress
     {
-        
+
         private readonly CancellationTokenSource cts = new CancellationTokenSource();
 
         private bool embeddingComplete, fileSaved, errorOccurred;
 
         private string name, extension;
         private ICarrierMedia carrierMedia;
+
 
         public FormEmbeddingProgress()
         {
@@ -78,6 +84,10 @@ namespace StegosaurusGUI.Forms
                 embeddingComplete = true;
                 buttonCancel.Enabled = false;
                 buttonSaveAs.Enabled = true;
+                if (carrierMedia is ImageCarrier)
+                {
+                    buttonUpload.Enabled = true;
+                }
             }
             else
             {
@@ -92,14 +102,72 @@ namespace StegosaurusGUI.Forms
                 return;
             }
 
-            string question = "Are you sure you want to " + ( embeddingComplete ? "close without saving?" : "cancel the embedding process?" );
-            if (!fileSaved && MessageBox.Show(question, "Question", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question) !=DialogResult.Yes)
+            string question = "Are you sure you want to " + (embeddingComplete ? "close without saving?" : "cancel the embedding process?");
+            if (!fileSaved && MessageBox.Show(question, "Question", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question) != DialogResult.Yes)
             {
                 e.Cancel = true;
                 return;
             }
 
             cts.Cancel();
+        }
+
+        private async void buttonUpload_Click(object sender, EventArgs e)
+        {
+            buttonUpload.Enabled = false;
+
+            // TODO: Add exception handling
+            // Create new post request.
+            HttpWebRequest request = (HttpWebRequest)WebRequest.Create("https://api.imgur.com/3/image");
+            request.Headers.Add("Authorization", "Client-ID 5fff7f7ba29c837");
+            request.Method = "POST";
+
+            // Convert Image to Base64 string.
+            string postData;
+            using (MemoryStream tempStream = new MemoryStream())
+            {
+                carrierMedia.Encode();
+                ImageCarrier imageCarrier = carrierMedia as ImageCarrier;
+                imageCarrier?.ImageData.Save(tempStream, ImageFormat.Png);
+                postData = Convert.ToBase64String(tempStream.ToArray());
+            }
+            byte[] encodedData = new ASCIIEncoding().GetBytes(postData);
+
+            request.ContentType = "application/x-www-form-urlencoded";
+            request.ContentLength = encodedData.Length;
+
+            // Write data to request stream.
+            Stream writer = request.GetRequestStream();
+            writer.Write(encodedData, 0, encodedData.Length);
+
+            // Get response from request.
+            HttpWebResponse response = (HttpWebResponse)await request.GetResponseAsync();
+            string responseString;
+            using (var reader = new StreamReader(response.GetResponseStream()))
+            {
+                responseString = reader.ReadToEnd();
+            }
+
+            // Extract link from result.
+            Match regexMatch = new Regex("\"link\":\"(.*?)\"").Match(responseString);
+            if (regexMatch.Success)
+            {
+                string uploadedUrl = regexMatch.Groups[1].Value.Replace("\\", "");
+                if (uploadedUrl.EndsWith(".png"))
+                {
+                    Process.Start(regexMatch.Groups[1].Value.Replace("\\", ""));
+                }
+                else
+                {
+                    MessageBoxUtility.ShowError("During the upload process, the image was compressed.\n\nPlease use a smaller image.");
+                }
+            }
+            else
+            {
+                MessageBoxUtility.ShowError("Could not upload data.");
+            }
+
+            buttonUpload.Enabled = true;
         }
 
         private void FormEmbeddingProgress_Load(object sender, EventArgs e)
