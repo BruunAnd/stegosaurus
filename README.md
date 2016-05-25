@@ -3,3 +3,8 @@ Stegosaurus is an advanced steganography tool, but with a primary goal of being 
 
 #About the algorithm
 This algorithm handles the edge finding by using a neighborhood search, a solution that enables the program to be able to handle large messages efficiently. The algorithm is shown to be able to hide messages well, only needing to apply direct adjustment to approximately 0.1% of the vertices.
+
+#Download
+Download the latest release here: TODO.
+
+Alternatively, you can compile the project yourself.
