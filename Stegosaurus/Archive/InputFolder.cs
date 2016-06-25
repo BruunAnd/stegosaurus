@@ -30,10 +30,10 @@ namespace Stegosaurus.Archive
 
         private void WriteTypeToStream<T>(T _t, Stream _stream)
         {
-            List<T> matchingItems = Items.OfType<T>().ToList();
+            List<ArchiveItem> matchingItems = Items.OfType<T>().ToList();
             _stream.Write(matchingItems.Count);
             Console.WriteLine("write {0}/{1}", matchingItems.Count, Items.Count);
-            matchingItems.ForEach(i => (i as ArchiveItem).WriteToStream(_stream));
+            matchingItems.ForEach(i => i.WriteToStream(_stream));
         }
 
         public static InputFolder FromStream(Stream stream)
