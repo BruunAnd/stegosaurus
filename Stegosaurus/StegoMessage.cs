@@ -8,6 +8,7 @@ using System.Linq;
 using Stegosaurus.Exceptions;
 using Stegosaurus.Utility;
 using System.Security.Cryptography;
+using Stegosaurus.Archive;
 
 namespace Stegosaurus
 {
@@ -37,7 +38,8 @@ namespace Stegosaurus
         /// <summary>
         /// This is where each file will be stored in the StegoMessage.
         /// </summary>
-        public List<InputFile> InputFiles { get; } = new List<InputFile>();
+        // public List<InputFile> InputFiles { get; } = new List<InputFile>();
+        public InputFolder RootFolder { get; private set; }
 
         /// <summary>
         /// Private Signing Key used to verify the authenticity of the sender.
@@ -61,12 +63,13 @@ namespace Stegosaurus
         /// </summary>
         public StegoMessage()
         {
+            RootFolder = new InputFolder("root");
         }
 
         /// <summary>
         /// This constructer is used if only a text message is applied.
         /// </summary>
-        public StegoMessage (string _textMessage)
+        public StegoMessage (string _textMessage) : base()
         {
             TextMessage = _textMessage;
         }
@@ -74,7 +77,7 @@ namespace Stegosaurus
         /// <summary>
         /// This constructer takes a byte array containing the data to add to the StegoMessage.
         /// </summary>
-        public StegoMessage(byte[] _fromArray, ICryptoProvider _cryptoProvider = null)
+        public StegoMessage(byte[] _fromArray, ICryptoProvider _cryptoProvider = null) : base()
         {
             using (MemoryStream inputStream = new MemoryStream(_fromArray))
             {
@@ -148,12 +151,7 @@ namespace Stegosaurus
         {
             using (MemoryStream tempStream = new MemoryStream(_byteArray))
             {
-                // Read input files.
-                int numberOfFiles = tempStream.ReadInt();
-                for (int i = 0; i < numberOfFiles; i++)
-                {
-                    InputFiles.Add(tempStream.ReadInputFile());
-                }
+                RootFolder = InputFolder.FromStream(tempStream);
 
                 // Read text message.
                 TextMessage = tempStream.ReadString();
@@ -167,12 +165,8 @@ namespace Stegosaurus
         {
             using (MemoryStream tempStream = new MemoryStream())
             {
-                // Write input files.
-                tempStream.Write(InputFiles.Count);
-                foreach (InputFile inputFile in InputFiles)
-                {
-                    tempStream.Write(inputFile);
-                }
+                // Write root folder.
+                RootFolder.WriteToStream(tempStream);
 
                 // Write text message.
                 tempStream.Write(TextMessage);

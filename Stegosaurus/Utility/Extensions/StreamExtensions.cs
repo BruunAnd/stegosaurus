@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Stegosaurus.Archive;
+using System;
 using System.IO;
 using System.Text;
 
@@ -50,14 +51,6 @@ namespace Stegosaurus.Utility.Extensions
                 return null;
             else
                 return Encoding.UTF8.GetString(_stream.ReadBytes(stringLength));
-        }
-
-        /// <summary>
-        /// Read and return InputFile from stream.
-        /// </summary>
-        public static InputFile ReadInputFile(this Stream _stream)
-        {
-            return new InputFile(_stream.ReadString(), _stream.ReadBytes(_stream.ReadInt()));
         }
 
         /// <summary>
@@ -114,8 +107,7 @@ namespace Stegosaurus.Utility.Extensions
             _stream.Write(_value.Name);
 
             // Write content with length.
-            _stream.Write(_value.Content.Length);
-            _stream.Write(_value.Content);
+            _stream.Write(_value.Content, true);
         }
 
         /// <summary>

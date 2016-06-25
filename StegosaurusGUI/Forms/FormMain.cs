@@ -20,6 +20,7 @@ using StegosaurusGUI.Utility;
 using CarrierType = Stegosaurus.Utility.InputTypes.CarrierType;
 using ContentType = Stegosaurus.Utility.InputTypes.ContentType;
 using IInputType = Stegosaurus.Utility.InputTypes.IInputType;
+using Stegosaurus.Archive;
 
 namespace StegosaurusGUI.Forms
 {
@@ -30,6 +31,8 @@ namespace StegosaurusGUI.Forms
         private readonly List<Type> carrierMediaTypes = new List<Type>();
 
         private StegoMessage stegoMessage = new StegoMessage();
+        private InputFolder currentFolder;
+
         private ICarrierMedia carrierMedia;
         private StegoAlgorithmBase algorithm;
         private ICryptoProvider cryptoProvider;
@@ -46,6 +49,7 @@ namespace StegosaurusGUI.Forms
             InitializeComponent();
 
             cryptoProvider = new AESProvider();
+            currentFolder = stegoMessage.RootFolder;
 
             // Add algorithms
             AddAlgorithm(typeof(GraphTheoreticAlgorithm));
@@ -167,7 +171,7 @@ namespace StegosaurusGUI.Forms
         }
 
         /// <summary>
-        /// Allows saving of files from the stegoMessage.InputFiles, as selected in the listViewMessageContentFiles control,
+        /// Allows saving of files from the currentFolder.Items, as selected in the listViewMessageContentFiles control,
         /// to a custom location. If single file is selected user is prompted with dialog to select destination and filename, 
         /// and if multiple files are selected the user is prompted to select a folder to which all selected file will be saved
         /// with their default names.
@@ -182,7 +186,7 @@ namespace StegosaurusGUI.Forms
             }
             else if (selectedCount == 1)
             {
-                SaveFileDialog sfd = new SaveFileDialog {FileName = stegoMessage.InputFiles[fileIndices[0]].Name};
+                SaveFileDialog sfd = new SaveFileDialog {FileName = currentFolder.Items[fileIndices[0]].Name};
 
                 if (sfd.ShowDialog() != DialogResult.OK)
                 {
@@ -195,7 +199,7 @@ namespace StegosaurusGUI.Forms
                 }
                 else
                 {
-                    stegoMessage.InputFiles[fileIndices[0]].SaveTo(sfd.FileName);
+                    currentFolder.Items[fileIndices[0]].SaveTo(sfd.FileName);
                 }
             }
             else
@@ -213,7 +217,7 @@ namespace StegosaurusGUI.Forms
                 {
                     foreach (int index in fileIndices)
                     {
-                        string fileName = stegoMessage.InputFiles[fileIndices[index]].Name;
+                        string fileName = currentFolder.Items[fileIndices[index]].Name;
                         string saveDestination = Path.Combine(folderBrowserDialog.SelectedPath, fileName);
 
                         // Ask to overwrite if file exists
@@ -225,14 +229,14 @@ namespace StegosaurusGUI.Forms
                             }
                         }
 
-                        stegoMessage.InputFiles[fileIndices[index]].SaveTo(saveDestination);
+                        currentFolder.Items[fileIndices[index]].SaveTo(saveDestination);
                     }
                 }
             }
         }
 
         /// <summary>
-        /// Handles the deletion of items from the listViewMessageContentFiles control and stegoMessage.InputFiles collection.
+        /// Handles the deletion of items from the listViewMessageContentFiles control and currentFolder.Items collection.
         /// </summary>
         private void deleteToolStripMenuItem_Click(object _sender, EventArgs _e)
         {
@@ -240,7 +244,7 @@ namespace StegosaurusGUI.Forms
 
             for (int index = fileIndices.Length - 1; index >= 0; index--)
             {
-                stegoMessage.InputFiles.RemoveAt(fileIndices[index]);
+                currentFolder.Items.RemoveAt(fileIndices[index]);
                 listViewMessageContentFiles.Items.RemoveAt(fileIndices[index]);
             }
 
@@ -421,7 +425,7 @@ namespace StegosaurusGUI.Forms
             }
 
             // Add files
-            foreach (InputFile file in stegoMessage.InputFiles)
+            foreach (InputFile file in currentFolder.Items)
             {
                 ListViewItem fileItem = new ListViewItem(file.Name);
                 fileItem.SubItems.Add(SizeFormatter.StringFormatBytes(file.Content.LongLength));
@@ -476,7 +480,7 @@ namespace StegosaurusGUI.Forms
                     }
                 }
 
-                stegoMessage.InputFiles.Add(inputFile);
+                currentFolder.Items.Add(inputFile);
                 listViewMessageContentFiles.Items.Add(fileItem);
             }
             else if (_input is CarrierType)
