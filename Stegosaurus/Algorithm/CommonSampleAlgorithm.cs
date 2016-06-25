@@ -29,6 +29,36 @@ namespace Stegosaurus.Algorithm
         [Category("Algorithm"), Description("The maximum amount of samples to use. Higher values will take more time to compute.")]
         public int MaxSampleCount { get; set; } = 1000;
 
+        private OptionPresets preset = OptionPresets.Default;
+        [Category("Algorithm"), Description("The preset settings, which affects the overall speed and quality of the embedding process.")]
+        public OptionPresets Preset
+        {
+            get
+            {
+                return preset;
+            }
+            set
+            {
+                switch (value)
+                {
+                    case OptionPresets.Default:
+                        MaxDistance = 250;
+                        MaxSampleCount = 1000;
+                        break;
+                    case OptionPresets.Imperceptibility:
+                        MaxDistance = 200;
+                        MaxSampleCount = 2000;
+                        break;
+                    case OptionPresets.Performance:
+                        MaxDistance = 350;
+                        MaxSampleCount = 450;
+                        break;
+                }
+
+                preset = value;
+            }
+        }
+
         public override void Embed(StegoMessage _message, IProgress<int> _progress, CancellationToken _ct)
         {
             Random rand = new Random();
