@@ -116,58 +116,74 @@ namespace StegosaurusGUI.Forms
         {
             buttonUpload.Enabled = false;
 
-            // TODO: Add exception handling
-            // Create new post request.
-            HttpWebRequest request = (HttpWebRequest)WebRequest.Create("https://api.imgur.com/3/image");
-            request.Headers.Add("Authorization", "Client-ID 5fff7f7ba29c837");
-            request.Method = "POST";
-
-            // Convert Image to Base64 string.
-            string postData;
-            using (MemoryStream tempStream = new MemoryStream())
+            try
             {
-                carrierMedia.Encode();
-                ImageCarrier imageCarrier = carrierMedia as ImageCarrier;
-                imageCarrier?.ImageData.Save(tempStream, ImageFormat.Png);
-                postData = Convert.ToBase64String(tempStream.ToArray());
-            }
-            byte[] encodedData = new ASCIIEncoding().GetBytes(postData);
+                // Create new post request.
+                HttpWebRequest request = (HttpWebRequest) WebRequest.Create("https://api.imgur.com/3/image");
+                request.Headers.Add("Authorization", "Client-ID 5fff7f7ba29c837");
+                request.Method = "POST";
 
-            request.ContentType = "application/x-www-form-urlencoded";
-            request.ContentLength = encodedData.Length;
-
-            // Write data to request stream.
-            Stream writer = request.GetRequestStream();
-            writer.Write(encodedData, 0, encodedData.Length);
-
-            // Get response from request.
-            HttpWebResponse response = (HttpWebResponse)await request.GetResponseAsync();
-            string responseString;
-            using (var reader = new StreamReader(response.GetResponseStream()))
-            {
-                responseString = reader.ReadToEnd();
-            }
-
-            // Extract link from result.
-            Match regexMatch = new Regex("\"link\":\"(.*?)\"").Match(responseString);
-            if (regexMatch.Success)
-            {
-                string uploadedUrl = regexMatch.Groups[1].Value.Replace("\\", "");
-                if (uploadedUrl.EndsWith(".png"))
+                // Convert Image to Base64 string.
+                string postData;
+                using (MemoryStream tempStream = new MemoryStream())
                 {
-                    Process.Start(regexMatch.Groups[1].Value.Replace("\\", ""));
+                    carrierMedia.Encode();
+                    ImageCarrier imageCarrier = carrierMedia as ImageCarrier;
+                    imageCarrier?.ImageData.Save(tempStream, ImageFormat.Png);
+                    postData = Convert.ToBase64String(tempStream.ToArray());
+                }
+                byte[] encodedData = new ASCIIEncoding().GetBytes(postData);
+
+                request.ContentType = "application/x-www-form-urlencoded";
+                request.ContentLength = encodedData.Length;
+
+                // Write data to request stream.
+                Stream writer = request.GetRequestStream();
+                writer.Write(encodedData, 0, encodedData.Length);
+
+                // Get response from request.
+                HttpWebResponse response = (HttpWebResponse) await request.GetResponseAsync();
+                string responseString;
+                using (var reader = new StreamReader(response.GetResponseStream()))
+                {
+                    responseString = reader.ReadToEnd();
+                }
+
+                // Extract link from result.
+                Match regexMatch = new Regex("\"link\":\"(.*?)\"").Match(responseString);
+                if (regexMatch.Success)
+                {
+                    string uploadedUrl = regexMatch.Groups[1].Value.Replace("\\", "");
+                    if (uploadedUrl.EndsWith(".png"))
+                    {
+                        var extractedLink = regexMatch.Groups[1].Value.Replace("\\", "");
+                        if (MessageBox.Show("Image has been uploaded. Do you want to copy the link to your clipboard?", "Question", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question) == DialogResult.Yes)
+                        {
+                            Clipboard.SetText(extractedLink);
+                        }
+                    }
+                    else
+                    {
+                        MessageBoxUtility.ShowError("During the upload process, the image was compressed.\n\nPlease use a smaller image.");
+                    }
                 }
                 else
                 {
-                    MessageBoxUtility.ShowError("During the upload process, the image was compressed.\n\nPlease use a smaller image.");
+                    MessageBoxUtility.ShowError("Could not upload data.");
                 }
             }
-            else
+            catch (WebException)
             {
-                MessageBoxUtility.ShowError("Could not upload data.");
+                MessageBoxUtility.ShowError("A web exception occurred. Ensure that you are connected to the internet.");
             }
-
-            buttonUpload.Enabled = true;
+            catch (Exception ex)
+            {
+                MessageBoxUtility.ShowError($"An unhandled exception occurred:\n{ex.Message}");
+            }
+            finally
+            {
+                buttonUpload.Enabled = true;
+            }
         }
 
         private void FormEmbeddingProgress_Load(object sender, EventArgs e)
