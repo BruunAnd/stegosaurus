@@ -244,7 +244,7 @@ namespace StegosaurusGUI.Forms
 
             for (int index = fileIndices.Length - 1; index >= 0; index--)
             {
-                currentFolder.Items.RemoveAt(fileIndices[index]);
+                currentFolder.Items.Remove((ArchiveItem) listViewMessageContentFiles.Items[fileIndices[index]].Tag);
                 listViewMessageContentFiles.Items.RemoveAt(fileIndices[index]);
             }
 
@@ -409,6 +409,8 @@ namespace StegosaurusGUI.Forms
             }
 
             stegoMessage = extractedMessage;
+            textBoxTextMessage.Text = stegoMessage.TextMessage;
+            SetCurrentFolder(stegoMessage.RootFolder);
 
             // Check if message is signed
             if (stegoMessage.SignState == StegoMessage.StegoMessageSignState.SignedByKnown)
@@ -424,22 +426,7 @@ namespace StegosaurusGUI.Forms
                 labelSignStatus.Text = stegoMessage.SignState == StegoMessage.StegoMessageSignState.Unsigned ? "This message is unsigned." : "This message has been signed with an unknown key.";
             }
 
-            // Add files
-            foreach (InputFile file in currentFolder.Items)
-            {
-                ListViewItem fileItem = new ListViewItem(file.Name);
-                fileItem.SubItems.Add(SizeFormatter.StringFormatBytes(file.Content.LongLength));
-                fileItem.ImageKey = file.Name.Substring(file.Name.LastIndexOf('.'));
-                if (!imageListIcons.Images.ContainsKey(fileItem.ImageKey))
-                {
-                    imageListIcons.Images.Add(fileItem.ImageKey, IconExtractor.ExtractIcon(fileItem.ImageKey));
-                }
-
-                listViewMessageContentFiles.Items.Add(fileItem);
-                UpdateInterface();
-            }
-
-            textBoxTextMessage.Text = stegoMessage.TextMessage;
+            UpdateInterface();
         }
 
         /// <summary>
@@ -786,6 +773,59 @@ namespace StegosaurusGUI.Forms
                     tabControlMain.SelectTab(tabPageMain);
                 }
             }
+        }
+
+        private void addFolderToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            string folderName = Interaction.InputBox("What name should the folder have?", "Name");
+            if (string.IsNullOrWhiteSpace(folderName))
+            {
+                return;
+            }
+
+            // Add new folder.
+            InputFolder newFolder = new InputFolder(folderName) {Parent = currentFolder};
+            newFolder.Items.Add(newFolder);
+
+            // Add to list and update.
+            AddArchiveItem(newFolder);
+            UpdateInterface();
+        }
+
+        private void SetCurrentFolder(InputFolder _folder)
+        {
+            currentFolder = _folder;
+            listViewMessageContentFiles.Items.Clear();
+            if (currentFolder.Parent != null)
+            {
+                // todo add "..." item
+            }
+
+            // Add items.
+            _folder.Items.ForEach(AddArchiveItem);
+        }
+
+        private void AddArchiveItem(ArchiveItem _archiveItem)
+        {
+            ListViewItem viewItem = new ListViewItem(_archiveItem.Name) { Tag = _archiveItem };
+            if (_archiveItem is InputFile)
+            {
+                viewItem.ImageKey = _archiveItem.Name.Substring(_archiveItem.Name.LastIndexOf('.'));
+                viewItem.SubItems.Add(SizeFormatter.StringFormatBytes(((InputFile) _archiveItem).Content.Length));
+
+                // Add file icon if it does not exist.
+                if (!imageListIcons.Images.ContainsKey(viewItem.ImageKey))
+                {
+                    imageListIcons.Images.Add(viewItem.ImageKey, IconExtractor.ExtractIcon(viewItem.ImageKey));
+                }
+            }
+            else
+            {
+                viewItem.ImageIndex = 0;
+                viewItem.SubItems.Add("-");
+            }
+
+            listViewMessageContentFiles.Items.Add(viewItem);
         }
 
     }

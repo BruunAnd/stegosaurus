@@ -156,7 +156,7 @@ namespace StegosaurusGUI.Forms
                     string uploadedUrl = regexMatch.Groups[1].Value.Replace("\\", "");
                     if (uploadedUrl.EndsWith(".png"))
                     {
-                        var extractedLink = regexMatch.Groups[1].Value.Replace("\\", "");
+                        string extractedLink = regexMatch.Groups[1].Value.Replace("\\", "");
                         if (MessageBox.Show("Image has been uploaded. Do you want to copy the link to your clipboard?", "Question", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question) == DialogResult.Yes)
                         {
                             Clipboard.SetText(extractedLink);

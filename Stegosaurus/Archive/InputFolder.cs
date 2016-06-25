@@ -3,17 +3,25 @@ using System.IO;
 using Stegosaurus.Utility.Extensions;
 using System.Linq;
 using System;
+using System.CodeDom;
+using System.Runtime.CompilerServices;
 
 namespace Stegosaurus.Archive
 {
     public class InputFolder : ArchiveItem
     {
-        public InputFolder Parent { get; private set; }
+        public InputFolder Parent { get; set; }
         public List<ArchiveItem> Items = new List<ArchiveItem>();
 
         public InputFolder(string _name)
         {
             Name = _name;
+        }
+
+        public void AddDirectory(string _name)
+        {
+            InputFolder newFolder = new InputFolder(_name) {Parent = this};
+            Items.Add(newFolder);
         }
 
         public override void WriteToStream(Stream _stream)
@@ -22,18 +30,14 @@ namespace Stegosaurus.Archive
             _stream.Write(Name);
 
             // Write folders.
-            WriteTypeToStream(typeof(InputFolder), _stream);
+            var folders = Items.FindAll(i => i is InputFolder).ToList();
+            _stream.Write(folders.Count);
+            folders.ForEach(f => f.WriteToStream(_stream));
 
             // Write files.
-            WriteTypeToStream(typeof(InputFile), _stream);
-        }
-
-        private void WriteTypeToStream<T>(T _t, Stream _stream)
-        {
-            List<ArchiveItem> matchingItems = Items.OfType<T>().ToList();
-            _stream.Write(matchingItems.Count);
-            Console.WriteLine("write {0}/{1}", matchingItems.Count, Items.Count);
-            matchingItems.ForEach(i => i.WriteToStream(_stream));
+            var files = Items.FindAll(i => i is InputFile).ToList();
+            _stream.Write(files.Count);
+            files.ForEach(f => f.WriteToStream(_stream));
         }
 
         public static InputFolder FromStream(Stream stream)
@@ -46,7 +50,9 @@ namespace Stegosaurus.Archive
             // Read folders.
             for (int i = 0; i < amountInputFolders; i++)
             {
-                folder.Items.Add(FromStream(stream));
+                InputFolder readFolder = FromStream(stream);
+                readFolder.Parent = folder;
+                folder.Items.Add(readFolder);
             }
 
             // Read amount of files.
