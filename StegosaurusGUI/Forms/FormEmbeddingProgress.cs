@@ -84,6 +84,7 @@ namespace StegosaurusGUI.Forms
                 embeddingComplete = true;
                 buttonCancel.Enabled = false;
                 buttonSaveAs.Enabled = true;
+                buttonUpload.Enabled = true;
                 if (carrierMedia is ImageCarrier)
                 {
                     buttonUpload.Enabled = true;
@@ -115,6 +116,7 @@ namespace StegosaurusGUI.Forms
         private async void buttonUpload_Click(object sender, EventArgs e)
         {
             buttonUpload.Enabled = false;
+            UseWaitCursor = true;
 
             try
             {
@@ -183,6 +185,7 @@ namespace StegosaurusGUI.Forms
             finally
             {
                 buttonUpload.Enabled = true;
+                UseWaitCursor = false;
             }
         }
 

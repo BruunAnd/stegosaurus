@@ -84,6 +84,7 @@ namespace StegosaurusGUI.Forms
             // 
             // buttonUpload
             // 
+            this.buttonUpload.Enabled = false;
             this.buttonUpload.Image = ((System.Drawing.Image)(resources.GetObject("buttonUpload.Image")));
             this.buttonUpload.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.buttonUpload.Location = new System.Drawing.Point(197, 64);

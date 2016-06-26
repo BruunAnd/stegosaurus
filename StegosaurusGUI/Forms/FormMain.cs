@@ -44,12 +44,15 @@ namespace StegosaurusGUI.Forms
 
         private bool CanEmbed => carrierMedia != null && (!string.IsNullOrEmpty(textBoxTextMessage.Text) || listViewMessageContentFiles.Items.Count > 0);
 
+        private const string ProgramTitle = "Stegosaurus";
+
         public FormMain()
         {
             InitializeComponent();
-
+            
             cryptoProvider = new AESProvider();
             currentFolder = stegoMessage.RootFolder;
+            SetCurrentFolder(stegoMessage.RootFolder);
 
             // Add algorithms
             AddAlgorithm(typeof(GraphTheoreticAlgorithm));
@@ -152,7 +155,7 @@ namespace StegosaurusGUI.Forms
         {
             string[] inputFiles = (string[]) _e.Data.GetData(DataFormats.FileDrop);
 
-            foreach (string filePath in inputFiles.Where(File.Exists))
+            foreach (string filePath in inputFiles)
             {
                 HandleInput(new ContentType(filePath));
             }
@@ -178,7 +181,29 @@ namespace StegosaurusGUI.Forms
         /// </summary>
         private void saveToolStripMenuItem_Click(object _sender, EventArgs _e)
         {
-            int[] fileIndices = GetSelectedContentIndices();
+            int selectedCountt = listViewMessageContentFiles.SelectedItems.Count;
+            bool folderSelected = listViewMessageContentFiles.SelectedItems.Cast<ListViewItem>().Any(i => i.Tag is InputFolder);
+
+            if (folderSelected || selectedCountt > 1)
+            {
+                FolderBrowserDialog fd = new FolderBrowserDialog();
+                if (fd.ShowDialog() != DialogResult.OK)
+                {
+                    return;
+                }
+
+                foreach (ListViewItem item in listViewMessageContentFiles.SelectedItems)
+                {
+                    ArchiveItem archiveItem = item.Tag as ArchiveItem;
+                    archiveItem.SaveTo(Path.Combine(fd.SelectedPath, archiveItem.Name));
+                }
+            }
+            else
+            {
+                InputFile selected = listViewMessageContentFiles.SelectedItems[0].Tag as InputFile;
+                ShowSaveDialog("Save to...", selected.Name, "All files (*.*)|*.*", selected.Content);
+            }
+            /*int[] fileIndices = GetSelectedContentIndices();
             int selectedCount = fileIndices.Length;
             if (selectedCount == 0)
             {
@@ -232,7 +257,7 @@ namespace StegosaurusGUI.Forms
                         currentFolder.Items[fileIndices[index]].SaveTo(saveDestination);
                     }
                 }
-            }
+            }*/
         }
 
         /// <summary>
@@ -240,13 +265,18 @@ namespace StegosaurusGUI.Forms
         /// </summary>
         private void deleteToolStripMenuItem_Click(object _sender, EventArgs _e)
         {
-            int[] fileIndices = GetSelectedContentIndices();
+            foreach (ListViewItem item in listViewMessageContentFiles.SelectedItems)
+            {
+                currentFolder.Items.Remove((ArchiveItem) item.Tag);
+                listViewMessageContentFiles.Items.Remove(item);
+            }
+            /*int[] fileIndices = GetSelectedContentIndices();
 
             for (int index = fileIndices.Length - 1; index >= 0; index--)
             {
                 currentFolder.Items.Remove((ArchiveItem) listViewMessageContentFiles.Items[fileIndices[index]].Tag);
                 listViewMessageContentFiles.Items.RemoveAt(fileIndices[index]);
-            }
+            }*/
 
             UpdateInterface();
         }
@@ -448,74 +478,92 @@ namespace StegosaurusGUI.Forms
         /// </summary>
         private void HandleInput(IInputType _input)
         {
-            InputFile inputFile = new InputFile(_input.FilePath);
-            FileInfo fileInfo = new FileInfo(_input.FilePath);
-
-            // Handle input based on whether it is files or carrier media.
-            if (_input is ContentType)
+            if (File.Exists(_input.FilePath))
             {
-                // Adds a new file to the list of input files.
-                ListViewItem fileItem = new ListViewItem(inputFile.Name);
-                fileItem.SubItems.Add(SizeFormatter.StringFormatBytes(fileInfo.Length));
-                fileItem.ImageKey = fileInfo.Extension.ToLower();
-                if (!imageListIcons.Images.ContainsKey(fileItem.ImageKey))
+                if (_input is CarrierType)
                 {
-                    Icon extractedIcon = Icon.ExtractAssociatedIcon(_input.FilePath);
-                    if (extractedIcon != null)
-                    {
-                        imageListIcons.Images.Add(fileItem.ImageKey, extractedIcon);
-                    }
+                    SetCarrier(new FileInfo(_input.FilePath));
                 }
-
-                currentFolder.Items.Add(inputFile);
-                listViewMessageContentFiles.Items.Add(fileItem);
+                else if (_input is ContentType)
+                {
+                    InputFile inputFile = new InputFile(_input.FilePath);
+                    currentFolder.Items.Add(inputFile);
+                    AddArchiveItem(inputFile);
+                }
             }
-            else if (_input is CarrierType)
+            else if (Directory.Exists(_input.FilePath) && _input is ContentType)
             {
-                // Set new carrier media.
-                labelSignStatus.Text = @"Ready";
-                labelSignStatus.ForeColor = Color.Black;
-                labelSignStatus.Image = null;
-
-                // Find suitable carrier media
-                foreach (Type carrierType in carrierMediaTypes)
-                {
-                    // Skip types that are not ICarrierMedia.
-                    if (!carrierType.GetInterfaces().Contains(typeof(ICarrierMedia)))
-                    {
-                        continue;
-                    }
-
-                    // Create instance.
-                    carrierMedia = (ICarrierMedia) Activator.CreateInstance(carrierType);
-
-                    // Validate extension
-                    if (!carrierMedia.IsExtensionCompatible(fileInfo.Extension.ToLower()))
-                    {
-                        carrierMedia = null;
-                    }
-                    else
-                    {
-                        carrierMedia.LoadFromFile(fileInfo.FullName);
-                        pictureBoxCarrier.Image = carrierMedia.Thumbnail;
-                        carrierExtension = carrierMedia.OutputExtension;
-                        break;
-                    }
-                }
-
-                // Warn user if no suitable carrier was found.
-                if (carrierMedia == null)
-                {
-                    pictureBoxCarrier.Image = null;
-                    MessageBox.Show(@"No suitable carrier media was found for this file.", @"Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
-                else
-                {
-                    carrierName = fileInfo.Name.Remove(fileInfo.Name.LastIndexOf('.'));
-                }
+                InputFolder inputFolder = new InputFolder(new DirectoryInfo(_input.FilePath).Name) { Parent = currentFolder };
+                currentFolder.Items.Insert(0, inputFolder);
+                FillDirectory(inputFolder, _input.FilePath);
+                AddArchiveItem(inputFolder);
             }
 
             UpdateInterface();
+        }
+
+        private void FillDirectory(InputFolder _inputFolder, string _dirPath)
+        {
+            DirectoryInfo dirInfo = new DirectoryInfo(_dirPath);
+
+            // Add directories.
+            foreach (DirectoryInfo subDirInfo in dirInfo.GetDirectories())
+            {
+                InputFolder newFolder = new InputFolder(subDirInfo.Name) { Parent = _inputFolder };
+                FillDirectory(newFolder, subDirInfo.FullName);
+                _inputFolder.Items.Insert(0, newFolder);
+            }
+
+            // Add files.
+            foreach (FileInfo fileInfo in dirInfo.GetFiles())
+            {
+                _inputFolder.Items.Add(new InputFile(fileInfo.FullName));
+            }
+        }
+
+        private void SetCarrier(FileInfo _fileInfo)
+        {
+            // Set new carrier media.
+            labelSignStatus.Text = @"Ready";
+            labelSignStatus.ForeColor = Color.Black;
+            labelSignStatus.Image = null;
+
+            // Find suitable carrier media
+            foreach (Type carrierType in carrierMediaTypes)
+            {
+                // Skip types that are not ICarrierMedia.
+                if (!carrierType.GetInterfaces().Contains(typeof(ICarrierMedia)))
+                {
+                    continue;
+                }
+
+                // Create instance.
+                carrierMedia = (ICarrierMedia) Activator.CreateInstance(carrierType);
+
+                // Validate extension
+                if (!carrierMedia.IsExtensionCompatible(_fileInfo.Extension.ToLower()))
+                {
+                    carrierMedia = null;
+                }
+                else
+                {
+                    carrierMedia.LoadFromFile(_fileInfo.FullName);
+                    pictureBoxCarrier.Image = carrierMedia.Thumbnail;
+                    carrierExtension = carrierMedia.OutputExtension;
+                    break;
+                }
+            }
+
+            // Warn user if no suitable carrier was found.
+            if (carrierMedia == null)
+            {
+                pictureBoxCarrier.Image = null;
+                MessageBox.Show(@"No suitable carrier media was found for this file.", @"Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            else
+            {
+                carrierName = _fileInfo.Name.Remove(_fileInfo.Name.LastIndexOf('.'));
+            }
         }
         
         /// <summary>
@@ -785,7 +833,7 @@ namespace StegosaurusGUI.Forms
 
             // Add new folder.
             InputFolder newFolder = new InputFolder(folderName) {Parent = currentFolder};
-            newFolder.Items.Add(newFolder);
+            currentFolder.Items.Insert(0, newFolder);
 
             // Add to list and update.
             AddArchiveItem(newFolder);
@@ -796,21 +844,37 @@ namespace StegosaurusGUI.Forms
         {
             currentFolder = _folder;
             listViewMessageContentFiles.Items.Clear();
-            if (currentFolder.Parent != null)
-            {
-                // todo add "..." item
-            }
+
+            // Set title
+            string str = string.Empty;
+            GetPathString(currentFolder, ref str);
+            Text = $"{ProgramTitle} - {str}";
 
             // Add items.
             _folder.Items.ForEach(AddArchiveItem);
         }
 
+        private void GetPathString(InputFolder folder, ref string progress)
+        {
+            if (folder == null)
+            {
+                return;
+            }
+            else
+            {
+                progress = $"/{folder.Name}{progress}";
+                GetPathString(folder.Parent, ref progress);
+            }
+        }
+
         private void AddArchiveItem(ArchiveItem _archiveItem)
         {
             ListViewItem viewItem = new ListViewItem(_archiveItem.Name) { Tag = _archiveItem };
+            viewItem.Tag = _archiveItem;
             if (_archiveItem is InputFile)
             {
-                viewItem.ImageKey = _archiveItem.Name.Substring(_archiveItem.Name.LastIndexOf('.'));
+                if (_archiveItem.Name.Contains('.'))
+                    viewItem.ImageKey = _archiveItem.Name.Substring(_archiveItem.Name.LastIndexOf('.'));
                 viewItem.SubItems.Add(SizeFormatter.StringFormatBytes(((InputFile) _archiveItem).Content.Length));
 
                 // Add file icon if it does not exist.
@@ -825,8 +889,40 @@ namespace StegosaurusGUI.Forms
                 viewItem.SubItems.Add("-");
             }
 
-            listViewMessageContentFiles.Items.Add(viewItem);
+            if (_archiveItem is InputFolder)
+                listViewMessageContentFiles.Items.Insert(0, viewItem);
+            else
+                listViewMessageContentFiles.Items.Add(viewItem);
         }
 
+        private void listViewMessageContentFiles_DoubleClick(object sender, EventArgs e)
+        {
+            if (listViewMessageContentFiles.SelectedItems.Count != 1)
+            {
+                return;
+            }
+
+            // Get archive item
+            InputFolder folder = listViewMessageContentFiles.SelectedItems[0].Tag as InputFolder;
+            if (folder != null)
+            {
+                SetCurrentFolder(folder);
+            }
+        }
+
+        private void listViewMessageContentFiles_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Back)
+            {
+                if (currentFolder.Parent != null)
+                {
+                    SetCurrentFolder(currentFolder.Parent);
+                }
+            }
+            else if (e.KeyCode == Keys.Return)
+            {
+                listViewMessageContentFiles_DoubleClick(null, null);
+            }
+        }
     }
 }
