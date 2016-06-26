@@ -195,7 +195,7 @@ namespace StegosaurusGUI.Forms
                 foreach (ListViewItem item in listViewMessageContentFiles.SelectedItems)
                 {
                     ArchiveItem archiveItem = item.Tag as ArchiveItem;
-                    archiveItem.SaveTo(Path.Combine(fd.SelectedPath, archiveItem.Name));
+                    archiveItem?.SaveTo(Path.Combine(fd.SelectedPath, archiveItem.Name));
                 }
             }
             else
