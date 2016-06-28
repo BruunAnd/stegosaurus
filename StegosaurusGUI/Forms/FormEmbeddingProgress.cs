@@ -68,6 +68,12 @@ namespace StegosaurusGUI.Forms
                     errorOccurred = true;
                     return false;
                 }
+                catch (StegoCryptoException ex)
+                {
+                    MessageBoxUtility.ShowError(ex.Message, "Crypto error");
+                    errorOccurred = true;
+                    return false;
+                }
                 finally
                 {
                     // Should not be necessary, just an added stability measure.
