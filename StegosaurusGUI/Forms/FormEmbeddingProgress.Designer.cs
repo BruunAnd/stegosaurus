@@ -84,17 +84,21 @@ namespace StegosaurusGUI.Forms
             // 
             // buttonUpload
             // 
+            this.buttonUpload.Enabled = false;
+            this.buttonUpload.Image = ((System.Drawing.Image)(resources.GetObject("buttonUpload.Image")));
+            this.buttonUpload.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.buttonUpload.Location = new System.Drawing.Point(197, 64);
             this.buttonUpload.Name = "buttonUpload";
-            this.buttonUpload.Size = new System.Drawing.Size(86, 28);
+            this.buttonUpload.Size = new System.Drawing.Size(139, 28);
             this.buttonUpload.TabIndex = 4;
-            this.buttonUpload.Text = "Upload";
+            this.buttonUpload.Text = "Upload to Imgur";
+            this.buttonUpload.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             this.buttonUpload.UseVisualStyleBackColor = true;
             this.buttonUpload.Click += new System.EventHandler(this.buttonUpload_Click);
             // 
             // FormEmbeddingProgress
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(409, 103);
             this.Controls.Add(this.buttonUpload);

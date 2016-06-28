@@ -60,12 +60,39 @@ namespace Stegosaurus.Algorithm
             set { verticesPerMatching = (value >= 10000) ? value : 10000; }
         }
 
-        private int reserveMatching = 1;
-        [Category("Algorithm"), Description("The number of times to try matching leftover vertices with reserve samples. (Default = 2, Min-Max = 0-8.)")]
-        public int ReserveMatching
+        private OptionPresets currentPreset = OptionPresets.Default;
+        [Category("Algorithm"), Description("The preset settings, which affects the overall speed and quality of the embedding process.")]
+        public OptionPresets Preset
         {
-            get { return reserveMatching; }
-            set { reserveMatching = (value <= 8) ? ((value >= 0) ? value : 0) : 8; }
+            get
+            {
+                return currentPreset;
+            }
+            set
+            {
+                switch (value)
+                {
+                    case OptionPresets.Default:
+                        verticesPerMatching = 50000;
+                        distancePrecision = 2;
+                        distanceMax = 8;
+                        messageBitsPerVertex = 2;
+                        samplesPerVertex = 2;
+                        break;
+                    case OptionPresets.Imperceptibility:
+                        verticesPerMatching = 100000;
+                        //distancePrecision = 1;
+                        //distanceMax = 4;
+                        break;
+                    case OptionPresets.Performance:
+                        verticesPerMatching = 10000;
+                        //distancePrecision = 4;
+                        //distanceMax = 8;
+                        break;
+                }
+
+                currentPreset = value;
+            }
         }
 
         private int progress, progressCounter, progressUpdateInterval;

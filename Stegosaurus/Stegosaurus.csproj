@@ -50,6 +50,8 @@
     <Compile Include="Algorithm\LSBAlgorithm.cs" />
     <Compile Include="Algorithm\Sample.cs" />
     <Compile Include="Algorithm\StegoAlgorithmBase.cs" />
+    <Compile Include="Archive\ArchiveItem.cs" />
+    <Compile Include="Archive\InputFolder.cs" />
     <Compile Include="Carrier\AudioCarrier.cs" />
     <Compile Include="Carrier\AudioFormats\AudioFile.cs" />
     <Compile Include="Carrier\AudioFormats\WaveFile.cs" />
@@ -70,7 +72,7 @@
     <Compile Include="Exceptions\StegoCryptoException.cs" />
     <Compile Include="Exceptions\StegoMessageException.cs" />
     <Compile Include="Exceptions\StegosaurusException.cs" />
-    <Compile Include="InputFIle.cs" />
+    <Compile Include="Archive\InputFile.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="StegoMessage.cs" />
     <Compile Include="Utility\Compression.cs" />

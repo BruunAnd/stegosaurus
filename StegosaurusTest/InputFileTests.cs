@@ -1,5 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Stegosaurus;
+using Stegosaurus.Archive;
 using Stegosaurus.Exceptions;
 using System;
 

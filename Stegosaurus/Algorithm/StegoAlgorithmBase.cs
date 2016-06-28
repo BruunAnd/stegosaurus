@@ -6,6 +6,13 @@ using System.Threading;
 
 namespace Stegosaurus.Algorithm
 {
+    public enum OptionPresets
+    {
+        Default,
+        Performance,
+        Imperceptibility
+    }
+
     public abstract class StegoAlgorithmBase
     {
         /// <summary>
