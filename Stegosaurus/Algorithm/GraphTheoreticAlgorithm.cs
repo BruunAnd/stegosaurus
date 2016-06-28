@@ -60,6 +60,14 @@ namespace Stegosaurus.Algorithm
             set { verticesPerMatching = (value >= 10000) ? value : 10000; }
         }
 
+        private int reserveMatching = 1;
+        [Category("Algorithm"), Description("The number of times to try matching leftover vertices with reserve samples. (Default = 2, Min-Max = 0-8.)")]
+        public int ReserveMatching
+        {
+            get { return reserveMatching; }
+            set { reserveMatching = (value <= 8) ? ((value >= 0) ? value : 0) : 8; }
+        }
+
         private OptionPresets currentPreset = OptionPresets.Default;
         [Category("Algorithm"), Description("The preset settings, which affects the overall speed and quality of the embedding process.")]
         public OptionPresets Preset
