@@ -7,6 +7,7 @@ using System.Drawing;
 using Stegosaurus.Cryptography;
 using System.Linq;
 using System.Threading;
+using Stegosaurus.Archive;
 
 namespace StegosaurusTest
 {
@@ -44,7 +45,7 @@ namespace StegosaurusTest
 
             // Instantiate StegoMessage
             StegoMessage inMessage = new StegoMessage {TextMessage = testMessageString};
-            inMessage.InputFiles.Add(new InputFile(testFileName, testFileBuffer));
+            inMessage.RootFolder.Items.Add(new InputFile(testFileName, testFileBuffer));
             _algorithm.Embed(inMessage, null, CancellationToken.None);
 
             // Save to an output file
@@ -65,7 +66,7 @@ namespace StegosaurusTest
 
             Assert.AreEqual(testMessageString, outMessage.TextMessage);
 
-            InputFile outputFile = outMessage.InputFiles[0];
+            InputFile outputFile = outMessage.RootFolder.Items[0] as InputFile;
             Assert.AreEqual(outputFile.Name, testFileName);
             Assert.IsTrue(outputFile.Content.SequenceEqual(testFileBuffer));
         }

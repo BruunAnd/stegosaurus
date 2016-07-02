@@ -1,14 +1,13 @@
 ﻿using Stegosaurus.Exceptions;
 using System.IO;
+using System;
+using Stegosaurus.Utility.Extensions;
 
-namespace Stegosaurus
+namespace Stegosaurus.Archive
 {
-    public class InputFile
+    public class InputFile : ArchiveItem
     {
-        /// <summary>
-        /// The name of the file.
-        /// </summary>
-        public string Name { get; }
+
         /// <summary>
         /// A byte array containing the files contents.
         /// </summary>
@@ -41,9 +40,14 @@ namespace Stegosaurus
         /// <summary>
         /// This method is used to save the file in the file system of the operating system.
         /// </summary>
-        public void SaveTo(string _destination)
+        public override void SaveTo(string _destination)
         {
             File.WriteAllBytes(_destination, Content);
+        }
+
+        public override void WriteToStream(Stream _stream)
+        {
+            _stream.Write(this);
         }
     }
 }

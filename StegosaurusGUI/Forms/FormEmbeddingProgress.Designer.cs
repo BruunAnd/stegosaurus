@@ -35,6 +35,7 @@ namespace StegosaurusGUI.Forms
             this.labelStatus = new System.Windows.Forms.Label();
             this.buttonCancel = new System.Windows.Forms.Button();
             this.buttonSaveAs = new System.Windows.Forms.Button();
+            this.buttonUpload = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // progressBarMain
@@ -81,11 +82,26 @@ namespace StegosaurusGUI.Forms
             this.buttonSaveAs.UseVisualStyleBackColor = true;
             this.buttonSaveAs.Click += new System.EventHandler(this.buttonSaveAs_Click);
             // 
+            // buttonUpload
+            // 
+            this.buttonUpload.Enabled = false;
+            this.buttonUpload.Image = ((System.Drawing.Image)(resources.GetObject("buttonUpload.Image")));
+            this.buttonUpload.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.buttonUpload.Location = new System.Drawing.Point(197, 64);
+            this.buttonUpload.Name = "buttonUpload";
+            this.buttonUpload.Size = new System.Drawing.Size(139, 28);
+            this.buttonUpload.TabIndex = 4;
+            this.buttonUpload.Text = "Upload to Imgur";
+            this.buttonUpload.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.buttonUpload.UseVisualStyleBackColor = true;
+            this.buttonUpload.Click += new System.EventHandler(this.buttonUpload_Click);
+            // 
             // FormEmbeddingProgress
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(409, 103);
+            this.Controls.Add(this.buttonUpload);
             this.Controls.Add(this.buttonSaveAs);
             this.Controls.Add(this.buttonCancel);
             this.Controls.Add(this.labelStatus);
@@ -109,5 +125,6 @@ namespace StegosaurusGUI.Forms
         private System.Windows.Forms.Label labelStatus;
         private System.Windows.Forms.Button buttonCancel;
         private System.Windows.Forms.Button buttonSaveAs;
+        private Button buttonUpload;
     }
 }
