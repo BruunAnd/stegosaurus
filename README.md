@@ -1,3 +1,5 @@
+[![Build status](https://ci.appveyor.com/api/projects/status/6wvdqoo2pdpesm4w/branch/master?svg=true)](https://ci.appveyor.com/project/andersjkbsn/stegosaurus/branch/master)
+
 #What is Stegosaurus?
 Stegosaurus is an advanced steganography tool, but with a primary goal of being easy to use. It uses a graph-theoretical approach with neighborhood search in order to avoid both statistical and human detection.
 
